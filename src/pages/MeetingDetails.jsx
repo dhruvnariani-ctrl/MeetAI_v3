@@ -1,15 +1,24 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  useLocation,
   useNavigate,
+  useParams,
   useSearchParams,
 } from 'react-router-dom'
 
-import PageShell from '../components/PageShell'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Paper from '@mui/material/Paper'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
+
+import PageShell from '../components/PageShell'
 import MeetingHeader from '../components/meetingDetails/MeetingHeader'
+import MeetingTabs, {
+  VALID_TABS,
+} from '../components/meetingDetails/MeetingTabs'
 import OverviewTab from '../components/meetingDetails/OverviewTab'
-import ParticipantsPreview from '../components/meetingDetails/ParticipantsPreview'
 import RecordingTab from '../components/meetingDetails/RecordingTab'
 import TranscriptTab from '../components/meetingDetails/TranscriptTab'
 import ActionItemsTab from '../components/meetingDetails/ActionItemsTab'
@@ -19,140 +28,53 @@ import {
   getAttendance,
   getDurationMinutes,
   formatTimeRange,
-  formatDate,
-  getMeetingIdFromPath,
 } from '../components/meetingDetails/utils'
 
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
-import Stack from '@mui/material/Stack'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
-import Typography from '@mui/material/Typography'
-
-import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined'
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined'
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
-import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
-
+import { formatDate } from '../utils/time'
 import usePageTitle from '../hooks/usePageTitle'
+import { getMeetingById } from '../data/meetings'
+import { getMeetingSettings } from '../data/meetingSettings'
 
-import { getTodaysMeetings } from '../data/Dashboard'
-
-const VALID_TABS = [
-  'overview',
-  'recording',
-  'transcript',
-  'actions',
-]
+const NAVY = '#123A59'
+const BLUE = '#0967B2'
+const BORDER = '#DFE7EC'
+const MUTED = '#71818D'
+const BACKGROUND = '#F7F9FB'
 
 function getTabFromSearchParams(searchParams) {
   const requestedTab = searchParams.get('tab')
-
-  if (VALID_TABS.includes(requestedTab)) {
-    return requestedTab
-  }
-
-  return 'overview'
+  return VALID_TABS.includes(requestedTab)
+    ? requestedTab
+    : 'overview'
 }
 
 export default function MeetingDetails() {
   usePageTitle('Meeting Details')
 
   const navigate = useNavigate()
-  const location = useLocation()
+  const { meetingId } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [searchParams, setSearchParams] =
-    useSearchParams()
-
-  const [now, setNow] = useState(
-    () => new Date(),
-  )
-
+  const [now, setNow] = useState(() => new Date())
   const [activeTab, setActiveTab] = useState(
     () => getTabFromSearchParams(searchParams),
   )
 
-  const meeting = location.state?.meeting
+  const meeting = getMeetingById(meetingId)
 
-  const meetingId =
-    location.state?.meetingId ||
-    getMeetingIdFromPath(location.pathname)
-
-  const resolvedMeeting = useMemo(() => {
-    if (meeting) {
-      return meeting
-    }
-
-    if (!meetingId) {
-      return null
-    }
-
-    const meetings = getTodaysMeetings()
-
-    return meetings.find(
-      (item) =>
-        String(item.id) === String(meetingId),
-    )
-  }, [meeting, meetingId])
-
-  /*
-   * Keep the active tab synchronized with the
-   * ?tab= query parameter.
-   *
-   * This is what allows links such as:
-   *
-   * /meetings/123?tab=recording
-   * /meetings/123?tab=transcript
-   * /meetings/123?tab=actions
-   */
   useEffect(() => {
-    const requestedTab =
-      getTabFromSearchParams(searchParams)
-
-    setActiveTab(requestedTab)
+    setActiveTab(getTabFromSearchParams(searchParams))
   }, [searchParams])
 
-  /*
-   * Keep the current time updated so meeting status
-   * can change while the page is open.
-   */
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       setNow(new Date())
     }, 30000)
 
-    return () => clearInterval(timer)
+    return () => window.clearInterval(timer)
   }, [])
 
-  /*
-   * Change the active tab and keep the URL in sync.
-   */
-  const handleTabChange = (_, value) => {
-    if (!VALID_TABS.includes(value)) {
-      return
-    }
-
-    setActiveTab(value)
-
-    setSearchParams(
-      (currentParams) => {
-        const nextParams =
-          new URLSearchParams(currentParams)
-
-        nextParams.set('tab', value)
-
-        return nextParams
-      },
-      {
-        replace: true,
-      },
-    )
-  }
-
-  if (!resolvedMeeting) {
+  if (!meeting) {
     return (
       <PageShell
         title="Meeting not found"
@@ -161,32 +83,20 @@ export default function MeetingDetails() {
         <Paper
           elevation={0}
           sx={{
-            border: '1px solid #dce3eb',
-            borderRadius: 3,
             p: 3,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 3,
+            bgcolor: '#fff',
           }}
         >
-          <Typography
-            sx={{
-              fontSize: '.9rem',
-              color: 'text.secondary',
-              mb: 2,
-            }}
-          >
-            The meeting may have been removed or is
-            no longer available.
+          <Typography sx={{ color: MUTED, fontSize: '.85rem', mb: 2 }}>
+            The meeting may have been removed or is no longer available.
           </Typography>
 
           <Button
-            variant="outlined"
-            startIcon={
-              <ArrowBackOutlinedIcon />
-            }
+            startIcon={<ArrowBackRoundedIcon />}
             onClick={() => navigate(-1)}
-            sx={{
-              textTransform: 'none',
-              borderRadius: 2,
-            }}
+            sx={{ textTransform: 'none', color: BLUE }}
           >
             Go back
           </Button>
@@ -195,219 +105,137 @@ export default function MeetingDetails() {
     )
   }
 
-  const meetingState = getMeetingState(
-    resolvedMeeting,
-    now,
-  )
+  const meetingState = getMeetingState(meeting, now)
 
-  const participants =
-    resolvedMeeting.participants || []
+  // A saved false value must override the meeting's original invited setting.
+  const savedSettings = getMeetingSettings()
+  const savedMeetingSettings = savedSettings?.[meeting.id]
 
-  const attendance = getAttendance(
-    resolvedMeeting,
-    participants,
-  )
+  const meetAIInvited =
+    savedMeetingSettings?.autoJoin !== undefined
+      ? savedMeetingSettings.autoJoin === true
+      : meeting?.meetAI?.invited === true
 
-  const durationMinutes =
-    getDurationMinutes(resolvedMeeting)
+  const participants = meeting.participants || []
+  const attendance = getAttendance(meeting, participants)
+  const durationMinutes = getDurationMinutes(meeting)
+  const timeText = formatTimeRange(meeting.start, meeting.end)
+  const dateText = formatDate(meeting.start)
 
-  const timeText = formatTimeRange(
-    resolvedMeeting.start,
-    resolvedMeeting.end,
-  )
+  const handleTabChange = (_event, value) => {
+    if (!VALID_TABS.includes(value)) return
 
-  const dateText = formatDate(
-    resolvedMeeting.start,
-  )
+    setActiveTab(value)
+
+    setSearchParams(
+      (currentParams) => {
+        const nextParams = new URLSearchParams(currentParams)
+        nextParams.set('tab', value)
+        return nextParams
+      },
+      { replace: true },
+    )
+  }
+
+  const goToTab = (value) => handleTabChange(null, value)
 
   return (
-    <PageShell
-      title=""
-      subtitle=""
-    >
-      <Stack spacing={{ xs: 1.75, md: 2.25 }}>
-
-        {/* ---------------------------------------------------------- */}
-        {/* BACK                                                       */}
-        {/* ---------------------------------------------------------- */}
-
-        <Button
-          startIcon={
-            <ArrowBackOutlinedIcon />
-          }
-          onClick={() => navigate(-1)}
-          sx={{
-            alignSelf: 'flex-start',
-            textTransform: 'none',
-            fontSize: '.78rem',
-            color: '#52657d',
-            px: 0,
-            '&:hover': {
-              bgcolor: 'transparent',
-              color: 'primary.main',
-            },
-          }}
-        >
-          Back to meetings
-        </Button>
-
-        {/* ---------------------------------------------------------- */}
-        {/* HEADER                                                      */}
-        {/* ---------------------------------------------------------- */}
-
-        <Box data-tour="meeting-header">
-          <MeetingHeader
-            meeting={resolvedMeeting}
-            meetingState={meetingState}
-            dateText={dateText}
-            timeText={timeText}
-            durationMinutes={durationMinutes}
-          />
-        </Box>
-
-        {/* ---------------------------------------------------------- */}
-        {/* PARTICIPANTS - OUTSIDE TABS                                */}
-        {/* ---------------------------------------------------------- */}
-
-        <Box data-tour="meeting-participants">
-          <ParticipantsPreview
-            attendance={attendance}
-            meeting={resolvedMeeting}
-          />
-        </Box>
-
-        {/* ---------------------------------------------------------- */}
-        {/* TABS                                                        */}
-        {/* ---------------------------------------------------------- */}
-
-        <Paper
-          elevation={0}
-          sx={{
-            border: '1px solid #dce3eb',
-            borderRadius: 2.5,
-            bgcolor: '#fff',
-            overflow: 'hidden',
-          }}
-        >
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons={false}
-            sx={{
-              minHeight: 54,
-              px: {
-                xs: 0.5,
-                sm: 1,
-              },
-
-              '& .MuiTab-root': {
-                minHeight: 54,
-                minWidth: {
-                  xs: 105,
-                  sm: 125,
-                },
+    <PageShell title="" subtitle="">
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 1600,
+          mx: 'auto',
+          color: NAVY,
+        }}
+      >
+        <Stack spacing={2}>
+          {/* Page navigation */}
+          <Box>
+            <Button
+              startIcon={<ArrowBackRoundedIcon />}
+              onClick={() => navigate(-1)}
+              sx={{
                 textTransform: 'none',
-                fontSize: '.78rem',
-                fontWeight: 600,
-                color: '#66778d',
-              },
+                fontSize: '.8rem',
+                fontWeight: 650,
+                color: NAVY,
+                px: 0,
+                '&:hover': {
+                  bgcolor: 'transparent',
+                  color: BLUE,
+                },
+              }}
+            >
+              Back to meetings
+            </Button>
+          </Box>
 
-              '& .Mui-selected': {
-                color: 'primary.main',
-              },
-
-              '& .MuiTabs-indicator': {
-                height: 3,
-                borderRadius:
-                  '3px 3px 0 0',
-              },
-            }}
-          >
-            <Tab
-              value="overview"
-              icon={
-                <CalendarMonthOutlinedIcon
-                  sx={{ fontSize: 18 }}
-                />
-              }
-              iconPosition="start"
-              label="Overview"
-            />
-
-            <Tab
-              value="recording"
-              icon={
-                <PlayArrowOutlinedIcon
-                  sx={{ fontSize: 18 }}
-                />
-              }
-              iconPosition="start"
-              label="Recording"
-            />
-
-            <Tab
-              value="transcript"
-              icon={
-                <DescriptionOutlinedIcon
-                  sx={{ fontSize: 18 }}
-                />
-              }
-              iconPosition="start"
-              label="Transcript"
-            />
-
-            <Tab
-              value="actions"
-              icon={
-                <TaskAltOutlinedIcon
-                  sx={{ fontSize: 18 }}
-                />
-              }
-              iconPosition="start"
-              label="Action items"
-            />
-          </Tabs>
-        </Paper>
-
-        {/* ---------------------------------------------------------- */}
-        {/* TAB CONTENT                                                 */}
-        {/* ---------------------------------------------------------- */}
-
-        {activeTab === 'overview' && (
-          <Box data-tour="meeting-content">
-            <OverviewTab
-              meeting={resolvedMeeting}
+          {/* Main meeting header */}
+          <Box data-tour="meeting-header">
+            <MeetingHeader
+              meeting={meeting}
               meetingState={meetingState}
-              attendance={attendance}
-              durationMinutes={
-                durationMinutes
-              }
+              dateText={dateText}
+              timeText={timeText}
+              durationMinutes={durationMinutes}
+              onViewRecording={() => goToTab('recording')}
             />
           </Box>
-        )}
 
-        {activeTab === 'recording' && (
-          <RecordingTab
-            meeting={resolvedMeeting}
-            meetingState={meetingState}
-          />
-        )}
+          {/* Tabs synced with the URL */}
+          <Box
+            sx={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 2,
+              bgcolor: BACKGROUND,
+            }}
+          >
+            <MeetingTabs
+              value={activeTab}
+              onChange={handleTabChange}
+            />
+          </Box>
 
-        {activeTab === 'transcript' && (
-          <TranscriptTab
-            meeting={resolvedMeeting}
-            meetingState={meetingState}
-          />
-        )}
+          {/* Active tab content */}
+          <Box
+            sx={{ minWidth: 0, pb: 2 }}
+          >
+            {activeTab === 'overview' && (
+              <OverviewTab
+                meeting={meeting}
+                meetingState={meetingState}
+                attendance={attendance}
+                durationMinutes={durationMinutes}
+                meetAIInvited={meetAIInvited}
+                onNavigate={goToTab}
+              />
+            )}
 
-        {activeTab === 'actions' && (
-          <ActionItemsTab
-            meeting={resolvedMeeting}
-            meetingState={meetingState}
-          />
-        )}
-      </Stack>
+            {activeTab === 'recording' && (
+              <RecordingTab
+                meeting={meeting}
+                meetingState={meetingState}
+              />
+            )}
+
+            {activeTab === 'transcript' && (
+              <TranscriptTab
+                meeting={meeting}
+                meetingState={meetingState}
+              />
+            )}
+
+            {activeTab === 'actions' && (
+              <ActionItemsTab
+                meeting={meeting}
+                meetingState={meetingState}
+              />
+            )}
+          </Box>
+        </Stack>
+      </Box>
     </PageShell>
   )
 }

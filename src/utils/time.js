@@ -11,3 +11,12 @@ export function formatCountdown(ms) {
   const m = mins % 60
   return m ? `${h} h ${m} min` : `${h} h`
 }
+
+export function formatDate(value) {
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value))
+}

@@ -1,42 +1,91 @@
+
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import PageShell, {
-  EmptyPanel,
-} from '../components/PageShell'
+import PageShell, { EmptyPanel } from '../components/PageShell'
+import RecordedFilters from '../components/recorded/RecordedFilters'
+import AvailabilityBadge from '../components/recorded/AvailabilityBadge'
 
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
-import InputAdornment from '@mui/material/InputAdornment'
-import Typography from '@mui/material/Typography'
-
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined'
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
-import NotesOutlinedIcon from '@mui/icons-material/NotesOutlined'
-
+import { getAllMeetings } from '../data/meetings'
+import {
+  getRecordedMeetings,
+  RECORDED_SORT_OPTIONS,
+} from '../data/recorded'
+import { DATE_FILTERS } from '../utils/dateFilters'
 import usePageTitle from '../hooks/usePageTitle'
 
-import { getTodaysMeetings } from '../data/Dashboard'
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Paper,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material'
 
-const DATE_FILTERS = [
-  'All',
-  'Today',
-  'This week',
-  'This month',
-]
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import NotesOutlinedIcon from '@mui/icons-material/NotesOutlined'
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
+import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined'
 
-const SORT_OPTIONS = [
-  'Newest',
-  'Oldest',
-  'Meeting title',
-]
+const COLORS = {
+  navy: '#123A59',
+  blue: '#0967B2',
+  green: '#16815B',
+  text: '#304858',
+  muted: '#71818D',
+  border: '#DFE7EC',
+  paleBlue: '#EFF6FB',
+  paleGreen: '#F0F7F1',
+  background: '#F7F9FB',
+}
+
+const formatMeetingDate = (value) => {
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) return ''
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+const formatMeetingTime = (value) => {
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) return ''
+
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date)
+}
+
+const getMeetingDuration = (meeting) => {
+  if (meeting.recording?.duration) {
+    return meeting.recording.duration
+  }
+
+  const start = new Date(meeting.start).getTime()
+  const end = new Date(meeting.end).getTime()
+
+  if (!Number.isFinite(start) || !Number.isFinite(end)) {
+    return ''
+  }
+
+  const minutes = Math.max(0, Math.round((end - start) / 60000))
+
+  return `${minutes} min`
+}
 
 export default function RecordedMeetings() {
   usePageTitle('Recorded Meetings')
@@ -44,139 +93,31 @@ export default function RecordedMeetings() {
   const navigate = useNavigate()
 
   const [search, setSearch] = useState('')
-  const [dateFilter, setDateFilter] =
-    useState('All')
+  const [dateFilter, setDateFilter] = useState('All')
+  const [sortBy, setSortBy] = useState('Newest')
+  const [selectedMeetingId, setSelectedMeetingId] = useState(null)
+  const [activeTab, setActiveTab] = useState('overview')
 
-  const [sortBy, setSortBy] =
-    useState('Newest')
+  const meetings = useMemo(() => getAllMeetings(), [])
 
-  const [dateAnchorEl, setDateAnchorEl] =
-    useState(null)
-
-  const [sortAnchorEl, setSortAnchorEl] =
-    useState(null)
-
-  /*
-   * Use the existing dashboard data.
-   */
-  const meetings = useMemo(
-    () => getTodaysMeetings(),
-    [],
+  const recordedMeetings = useMemo(
+    () => getRecordedMeetings(meetings, search, dateFilter, sortBy),
+    [meetings, search, dateFilter, sortBy],
   )
 
-  /*
-   * Only meetings with an available recording
-   * are shown on this page.
-   */
-  const recordedMeetings = useMemo(() => {
-    let result = meetings.filter(
-      (meeting) =>
-        meeting.recording?.available === true,
-    )
+  const selectedMeeting =
+    recordedMeetings.find(
+      (meeting) => meeting.id === selectedMeetingId,
+    ) || recordedMeetings[0]
 
-    const searchValue = search
-      .trim()
-      .toLowerCase()
+  const openMeetingTab = (tab) => {
+    if (!selectedMeeting) return
 
-    if (searchValue) {
-      result = result.filter((meeting) => {
-        const title =
-          meeting.title?.toLowerCase() || ''
-
-        const platform =
-          meeting.platform?.toLowerCase() || ''
-
-        const participants =
-          meeting.participants
-            ?.map(
-              (person) =>
-                `${person.name || ''} ${
-                  person.email || ''
-                }`,
-            )
-            .join(' ')
-            .toLowerCase() || ''
-
-        return (
-          title.includes(searchValue) ||
-          platform.includes(searchValue) ||
-          participants.includes(searchValue)
-        )
-      })
-    }
-
-    result = result.filter((meeting) =>
-      matchesDateFilter(
-        meeting.start,
-        dateFilter,
-      ),
-    )
-
-    if (sortBy === 'Newest') {
-      result.sort(
-        (a, b) =>
-          new Date(b.start) -
-          new Date(a.start),
-      )
-    }
-
-    if (sortBy === 'Oldest') {
-      result.sort(
-        (a, b) =>
-          new Date(a.start) -
-          new Date(b.start),
-      )
-    }
-
-    if (sortBy === 'Meeting title') {
-      result.sort((a, b) =>
-        a.title.localeCompare(b.title),
-      )
-    }
-
-    return result
-  }, [
-    meetings,
-    search,
-    dateFilter,
-    sortBy,
-  ])
-
-  const handleDateOpen = (event) => {
-    setDateAnchorEl(event.currentTarget)
-  }
-
-  const handleDateClose = () => {
-    setDateAnchorEl(null)
-  }
-
-  const handleDateChange = (value) => {
-    setDateFilter(value)
-    handleDateClose()
-  }
-
-  const handleSortOpen = (event) => {
-    setSortAnchorEl(event.currentTarget)
-  }
-
-  const handleSortClose = () => {
-    setSortAnchorEl(null)
-  }
-
-  const handleSortChange = (value) => {
-    setSortBy(value)
-    handleSortClose()
-  }
-
-  const handleWatchRecording = (meeting) => {
     navigate(
-      `/meetings/${meeting.id}?tab=recording`,
-    )
-  }
-
-  const handleViewTranscript = (meeting) => {
-    navigate(
-      `/meetings/${meeting.id}?tab=transcript`,
+      tab
+        ? `/meetings/${selectedMeeting.id}?tab=${tab}`
+        : `/meetings/${selectedMeeting.id}`,
+      { state: { meeting: selectedMeeting } },
     )
   }
 
@@ -185,653 +126,573 @@ export default function RecordedMeetings() {
       title="Recorded Meetings"
       subtitle="Find recordings, transcripts and meeting notes from your meetings."
     >
-      <Stack spacing={2.5}>
-
-        {/* ====================================================== */}
-        {/* SEARCH + FILTERS                                      */}
-        {/* ====================================================== */}
-
-        <Paper
-          elevation={0}
-          sx={{
-            border: '1px solid #dce3eb',
-            borderRadius: 2.5,
-            bgcolor: '#fff',
-            p: {
-              xs: 1.5,
-              sm: 2,
-            },
-          }}
-        >
-          <Stack
-            data-tour="recorded-filters"
-            direction={{
-              xs: 'column',
-              sm: 'row',
-            }}
-            spacing={1.25}
-          >
-
-            {/* Search */}
-            <TextField
-              data-tour="recorded-search"
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-              placeholder="Search meetings or people"
-              size="small"
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchOutlinedIcon
-                      sx={{
-                        fontSize: 20,
-                        color: '#7b8ba1',
-                      }}
-                    />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  fontSize: '0.82rem',
-                },
-              }}
-            />
-
-            {/* Date filter */}
-            <Button
-              size="small"
-              variant="outlined"
-              endIcon={
-                <KeyboardArrowDownIcon />
-              }
-              onClick={handleDateOpen}
-              sx={{
-                minWidth: {
-                  xs: '100%',
-                  sm: 130,
-                },
-                justifyContent: 'space-between',
-                textTransform: 'none',
-                fontSize: '0.8rem',
-                fontWeight: 500,
-                color: 'text.primary',
-                borderColor: '#d6dee8',
-                whiteSpace: 'nowrap',
-                '&:hover': {
-                  borderColor: '#aebaca',
-                  bgcolor: '#f8fafc',
-                },
-              }}
-            >
-              {dateFilter}
-            </Button>
-
-            <Menu
-              anchorEl={dateAnchorEl}
-              open={Boolean(dateAnchorEl)}
-              onClose={handleDateClose}
-            >
-              {DATE_FILTERS.map((item) => (
-                <MenuItem
-                  key={item}
-                  selected={
-                    dateFilter === item
-                  }
-                  onClick={() =>
-                    handleDateChange(item)
-                  }
-                  sx={{
-                    minWidth: 160,
-                    minHeight: 42,
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  {item}
-                </MenuItem>
-              ))}
-            </Menu>
-
-            {/* Sort */}
-            <Button
-              data-tour="recorded-sort"
-              size="small"
-              variant="outlined"
-              endIcon={
-                <KeyboardArrowDownIcon />
-              }
-              onClick={handleSortOpen}
-              sx={{
-                minWidth: {
-                  xs: '100%',
-                  sm: 130,
-                },
-                justifyContent: 'space-between',
-                textTransform: 'none',
-                fontSize: '0.8rem',
-                fontWeight: 500,
-                color: 'text.primary',
-                borderColor: '#d6dee8',
-                whiteSpace: 'nowrap',
-                '&:hover': {
-                  borderColor: '#aebaca',
-                  bgcolor: '#f8fafc',
-                },
-              }}
-            >
-              Sort: {sortBy}
-            </Button>
-
-            <Menu
-              anchorEl={sortAnchorEl}
-              open={Boolean(sortAnchorEl)}
-              onClose={handleSortClose}
-            >
-              {SORT_OPTIONS.map((item) => (
-                <MenuItem
-                  key={item}
-                  selected={sortBy === item}
-                  onClick={() =>
-                    handleSortChange(item)
-                  }
-                  sx={{
-                    minWidth: 175,
-                    minHeight: 42,
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  {item}
-                </MenuItem>
-              ))}
-            </Menu>
-          </Stack>
-        </Paper>
-
-        {/* ====================================================== */}
-        {/* COUNT                                                  */}
-        {/* ====================================================== */}
+      <Stack spacing={1.5} sx={{ minWidth: 0 }}>
+        <RecordedFilters
+          search={search}
+          onSearchChange={setSearch}
+          dateFilters={DATE_FILTERS}
+          dateFilter={dateFilter}
+          onDateFilterChange={setDateFilter}
+          sortOptions={RECORDED_SORT_OPTIONS}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+        />
 
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'minmax(0, 1fr)',
+              lg: 'minmax(0, 1.2fr) minmax(320px, 0.8fr)',
+            },
+            gap: 1.5,
+            alignItems: 'start',
+            minWidth: 0,
           }}
         >
-          <Typography
+          {/* Meeting archive */}
+          <Paper
+            elevation={0}
             sx={{
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: '#24364d',
+              minWidth: 0,
+              overflow: 'hidden',
+              border: `1px solid ${COLORS.border}`,
+              borderRadius: '14px',
+              bgcolor: '#fff',
             }}
           >
-            {recordedMeetings.length}{' '}
-            {recordedMeetings.length === 1
-              ? 'recorded meeting'
-              : 'recorded meetings'}
-          </Typography>
-        </Box>
+            <Box
+              sx={{
+                px: 1.75,
+                py: 1.4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
+              }}
+            >
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    fontSize: '0.88rem',
+                    fontWeight: 750,
+                    color: COLORS.navy,
+                  }}
+                >
+                  Meeting archive
+                </Typography>
 
-        {/* ====================================================== */}
-        {/* MEETING LIST                                           */}
-        {/* ====================================================== */}
+                <Typography
+                  sx={{
+                    mt: 0.25,
+                    fontSize: '0.7rem',
+                    color: COLORS.muted,
+                  }}
+                >
+                  Select a meeting to view its content.
+                </Typography>
+              </Box>
 
-        <Box data-tour="recorded-meeting-list">
-          {recordedMeetings.length === 0 ? (
-            <EmptyPanel title="No recorded meetings">
-              {search ||
-              dateFilter !== 'All'
-                ? 'No recorded meetings match your search or filters.'
-                : 'Meetings that MeetAI joins and records will show up here.'}
-            </EmptyPanel>
-          ) : (
-            <Stack spacing={1.5}>
-              {recordedMeetings.map(
-                (meeting) => (
-                  <RecordedMeetingCard
-                    key={meeting.id}
-                    meeting={meeting}
-                    onWatchRecording={() =>
-                      handleWatchRecording(
-                        meeting,
-                      )
-                    }
-                    onViewTranscript={() =>
-                      handleViewTranscript(
-                        meeting,
-                      )
-                    }
-                  />
-                ),
-              )}
-            </Stack>
+              <Chip
+                size="small"
+                label={`${recordedMeetings.length} ${
+                  recordedMeetings.length === 1 ? 'meeting' : 'meetings'
+                }`}
+                sx={{
+                  height: 27,
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                  bgcolor: COLORS.paleBlue,
+                  color: COLORS.navy,
+                  fontSize: '0.67rem',
+                  fontWeight: 700,
+                }}
+              />
+            </Box>
+
+            <Divider sx={{ borderColor: COLORS.border }} />
+
+            {recordedMeetings.length === 0 ? (
+              <Box sx={{ p: 2 }}>
+                <EmptyPanel title="No recorded meetings">
+                  {search || dateFilter !== 'All'
+                    ? 'No recorded meetings match your search or filters.'
+                    : 'Meetings that MeetAI records will appear here.'}
+                </EmptyPanel>
+              </Box>
+            ) : (
+              <Stack
+                data-tour="recorded-meeting-list"
+                spacing={0}
+                divider={<Divider sx={{ borderColor: '#EDF1F5' }} />}
+              >
+                {recordedMeetings.map((meeting) => {
+                  const selected = meeting.id === selectedMeeting?.id
+                  const participantCount = meeting.participants?.length || 0
+                  const available = Boolean(meeting.recording?.available)
+
+                  return (
+                    <Box
+                      key={meeting.id}
+                      component="button"
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => {
+                        setSelectedMeetingId(meeting.id)
+                        setActiveTab('overview')
+                      }}
+                      sx={{
+                        display: 'block',
+                        width: '100%',
+                        minWidth: 0,
+                        boxSizing: 'border-box',
+                        border: 0,
+                        borderLeft: selected
+                          ? `3px solid ${COLORS.blue}`
+                          : '3px solid transparent',
+                        bgcolor: selected ? '#F0F7FD' : '#fff',
+                        px: 1.5,
+                        py: 1.25,
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        font: 'inherit',
+                        transition: 'background-color 140ms ease',
+                        '&:hover': { bgcolor: '#F5F9FC' },
+                        '&:focus-visible': {
+                          outline: `2px solid ${COLORS.blue}`,
+                          outlineOffset: '-2px',
+                        },
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1.1}
+                        sx={{ minWidth: 0 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            flexShrink: 0,
+                            display: 'grid',
+                            placeItems: 'center',
+                            border: '1px solid #DCEAF6',
+                            borderRadius: '10px',
+                            bgcolor: COLORS.paleBlue,
+                            color: COLORS.blue,
+                          }}
+                        >
+                          <VideoLibraryOutlinedIcon sx={{ fontSize: 19 }} />
+                        </Box>
+
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            noWrap
+                            sx={{
+                              fontSize: '0.78rem',
+                              lineHeight: 1.4,
+                              fontWeight: 750,
+                              color: COLORS.navy,
+                            }}
+                          >
+                            {meeting.title}
+                          </Typography>
+
+                          <Typography
+                            noWrap
+                            sx={{
+                              mt: 0.35,
+                              fontSize: '0.66rem',
+                              color: COLORS.muted,
+                            }}
+                          >
+                            {meeting.platform}
+                            {' · '}
+                            {formatMeetingDate(meeting.start)}
+                            {' · '}
+                            {formatMeetingTime(meeting.start)}
+                            {' – '}
+                            {formatMeetingTime(meeting.end)}
+                          </Typography>
+
+                          <Stack
+                            direction="row"
+                            spacing={1.25}
+                            sx={{
+                              mt: 0.6,
+                              flexWrap: 'wrap',
+                              rowGap: 0.35,
+                            }}
+                          >
+                            <Typography
+                              sx={{ fontSize: '0.65rem', color: COLORS.text }}
+                            >
+                              <GroupsOutlinedIcon
+                                sx={{
+                                  mr: 0.35,
+                                  fontSize: 13,
+                                  verticalAlign: 'middle',
+                                }}
+                              />
+                              {participantCount} participants
+                            </Typography>
+
+                            <Typography
+                              sx={{ fontSize: '0.65rem', color: COLORS.muted }}
+                            >
+                              <AccessTimeOutlinedIcon
+                                sx={{
+                                  mr: 0.35,
+                                  fontSize: 13,
+                                  verticalAlign: 'middle',
+                                }}
+                              />
+                              {getMeetingDuration(meeting)}
+                            </Typography>
+                          </Stack>
+                        </Box>
+
+                        <Stack
+                          alignItems="flex-end"
+                          justifyContent="space-between"
+                          spacing={0.75}
+                          sx={{
+                            alignSelf: 'stretch',
+                            flexShrink: 0,
+                            minWidth: 0,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              maxWidth: '100%',
+                              px: 0.9,
+                              py: 0.45,
+                              borderRadius: '20px',
+                              bgcolor: available ? COLORS.paleGreen : '#F2F4F6',
+                              color: available ? COLORS.green : COLORS.muted,
+                              fontSize: '0.6rem',
+                              lineHeight: 1.2,
+                              fontWeight: 700,
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {available ? 'Recording ready' : 'No recording'}
+                          </Box>
+
+                          <ChevronRightRoundedIcon
+                            sx={{
+                              fontSize: 17,
+                              color: selected ? COLORS.blue : '#9AAAB7',
+                            }}
+                          />
+                        </Stack>
+                      </Stack>
+                    </Box>
+                  )
+                })}
+              </Stack>
+            )}
+          </Paper>
+
+          {/* Selected meeting preview */}
+          {selectedMeeting && (
+            <Paper
+              elevation={0}
+              sx={{
+                minWidth: 0,
+                overflow: 'hidden',
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: '14px',
+                bgcolor: '#fff',
+                position: { lg: 'sticky' },
+                top: { lg: 12 },
+              }}
+            >
+              <Box sx={{ p: 1.6 }}>
+                <Stack
+                  direction="row"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  spacing={1}
+                  sx={{ minWidth: 0 }}
+                >
+                  <Box sx={{ flex: '1 1 150px', minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontSize: '0.92rem',
+                        lineHeight: 1.35,
+                        fontWeight: 750,
+                        color: COLORS.navy,
+                        overflowWrap: 'anywhere',
+                      }}
+                    >
+                      {selectedMeeting.title}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        mt: 0.35,
+                        fontSize: '0.69rem',
+                        color: COLORS.muted,
+                      }}
+                    >
+                      {selectedMeeting.platform}
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flex: '0 0 auto',
+                      width: 'fit-content',
+                      maxWidth: '100%',
+                      px: 1,
+                      py: 0.55,
+                      borderRadius: '20px',
+                      bgcolor: selectedMeeting.recording?.available
+                        ? COLORS.paleGreen
+                        : '#F2F4F6',
+                      color: selectedMeeting.recording?.available
+                        ? COLORS.green
+                        : COLORS.muted,
+                      fontSize: '0.62rem',
+                      lineHeight: 1.2,
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {selectedMeeting.recording?.available
+                      ? 'Recording available'
+                      : 'Recording unavailable'}
+                  </Box>
+                </Stack>
+
+                <Stack spacing={0.9} sx={{ mt: 1.5 }}>
+                  <Stack direction="row" spacing={0.9} alignItems="center">
+                    <CalendarTodayOutlinedIcon
+                      sx={{ fontSize: 16, color: COLORS.blue }}
+                    />
+                    <Typography sx={{ fontSize: '0.69rem', color: COLORS.text }}>
+                      {formatMeetingDate(selectedMeeting.start)}
+                      {' · '}
+                      {formatMeetingTime(selectedMeeting.start)}
+                      {' – '}
+                      {formatMeetingTime(selectedMeeting.end)}
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction="row" spacing={0.9} alignItems="center">
+                    <GroupsOutlinedIcon
+                      sx={{ fontSize: 16, color: COLORS.blue }}
+                    />
+                    <Typography sx={{ fontSize: '0.69rem', color: COLORS.text }}>
+                      {selectedMeeting.participants?.length || 0} participants
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction="row" spacing={0.9} alignItems="center">
+                    <AccessTimeOutlinedIcon
+                      sx={{ fontSize: 16, color: COLORS.blue }}
+                    />
+                    <Typography sx={{ fontSize: '0.69rem', color: COLORS.text }}>
+                      {getMeetingDuration(selectedMeeting)}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Box>
+
+              <Divider sx={{ borderColor: COLORS.border }} />
+
+              <Tabs
+                value={activeTab}
+                onChange={(_, value) => setActiveTab(value)}
+                variant="fullWidth"
+                sx={{
+                  minHeight: 38,
+                  px: 0.75,
+                  '& .MuiTab-root': {
+                    flex: '1 1 0',
+                    minWidth: 0,
+                    minHeight: 38,
+                    px: 0.35,
+                    py: 0.75,
+                    textTransform: 'none',
+                    fontSize: '0.65rem',
+                    fontWeight: 650,
+                    color: COLORS.muted,
+                    whiteSpace: 'nowrap',
+                  },
+                  '& .Mui-selected': {
+                    color: `${COLORS.blue} !important`,
+                  },
+                  '& .MuiTabs-indicator': {
+                    bgcolor: COLORS.blue,
+                    height: 2,
+                  },
+                }}
+              >
+                <Tab value="overview" label="Overview" />
+                <Tab
+                  value="recording"
+                  label="Recording"
+                  disabled={!selectedMeeting.recording?.available}
+                />
+                <Tab
+                  value="transcript"
+                  label="Transcript"
+                  disabled={!selectedMeeting.transcript?.available}
+                />
+                <Tab
+                  value="notes"
+                  label="Notes"
+                  disabled={!selectedMeeting.meetingNotes?.available}
+                />
+              </Tabs>
+
+              <Box sx={{ p: 1.6, minHeight: 145 }}>
+                {activeTab === 'overview' && (
+                  <Stack spacing={1.2}>
+                    <Typography
+                      sx={{
+                        fontSize: '0.79rem',
+                        fontWeight: 750,
+                        color: COLORS.navy,
+                      }}
+                    >
+                      Meeting content
+                    </Typography>
+
+                    <Stack spacing={0.7} sx={{ width: '100%' }}>
+                      <AvailabilityBadge
+                        icon={<PlayArrowRoundedIcon />}
+                        label="Recording"
+                        available={selectedMeeting.recording?.available}
+                      />
+                      <AvailabilityBadge
+                        icon={<DescriptionOutlinedIcon />}
+                        label="Transcript"
+                        available={selectedMeeting.transcript?.available}
+                      />
+                      <AvailabilityBadge
+                        icon={<NotesOutlinedIcon />}
+                        label="Meeting notes"
+                        available={selectedMeeting.meetingNotes?.available}
+                      />
+                    </Stack>
+
+                    <Typography
+                      sx={{
+                        fontSize: '0.67rem',
+                        lineHeight: 1.55,
+                        color: COLORS.muted,
+                      }}
+                    >
+                      Select an available item to open it in the meeting workspace.
+                    </Typography>
+                  </Stack>
+                )}
+
+                {activeTab === 'recording' && (
+                  <Stack spacing={1}>
+                    <Typography sx={{ fontSize: '0.77rem', fontWeight: 700, color: COLORS.navy }}>
+                      Recording ready to view
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.68rem', lineHeight: 1.55, color: COLORS.muted }}>
+                      Open the meeting workspace to watch this recording.
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<PlayArrowRoundedIcon />}
+                      onClick={() => openMeetingTab('recording')}
+                      sx={{
+                        alignSelf: 'flex-start',
+                        textTransform: 'none',
+                        fontSize: '0.7rem',
+                        bgcolor: COLORS.blue,
+                        boxShadow: 'none',
+                      }}
+                    >
+                      Watch recording
+                    </Button>
+                  </Stack>
+                )}
+
+                {activeTab === 'transcript' && (
+                  <Stack spacing={1}>
+                    <Typography sx={{ fontSize: '0.77rem', fontWeight: 700, color: COLORS.navy }}>
+                      Transcript available
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.68rem', lineHeight: 1.55, color: COLORS.muted }}>
+                      Open the meeting workspace to read the transcript.
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<DescriptionOutlinedIcon />}
+                      onClick={() => openMeetingTab('transcript')}
+                      sx={{ alignSelf: 'flex-start', textTransform: 'none', fontSize: '0.7rem' }}
+                    >
+                      View transcript
+                    </Button>
+                  </Stack>
+                )}
+
+                {activeTab === 'notes' && (
+                  <Stack spacing={1}>
+                    <Typography sx={{ fontSize: '0.77rem', fontWeight: 700, color: COLORS.navy }}>
+                      Meeting notes available
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.68rem', lineHeight: 1.55, color: COLORS.muted }}>
+                      Open the meeting workspace to review its notes.
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<NotesOutlinedIcon />}
+                      onClick={() => openMeetingTab('notes')}
+                      sx={{ alignSelf: 'flex-start', textTransform: 'none', fontSize: '0.7rem' }}
+                    >
+                      View meeting notes
+                    </Button>
+                  </Stack>
+                )}
+              </Box>
+
+              <Divider sx={{ borderColor: COLORS.border }} />
+
+              <Box sx={{ p: 1.4 }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  endIcon={<ChevronRightRoundedIcon />}
+                  onClick={() => openMeetingTab('')}
+                  sx={{
+                    minHeight: 36,
+                    borderColor: '#C9DDED',
+                    borderRadius: '9px',
+                    color: COLORS.blue,
+                    textTransform: 'none',
+                    fontSize: '0.71rem',
+                    fontWeight: 700,
+                    '&:hover': {
+                      borderColor: COLORS.blue,
+                      bgcolor: COLORS.paleBlue,
+                    },
+                  }}
+                >
+                  View full meeting details
+                </Button>
+              </Box>
+            </Paper>
           )}
         </Box>
       </Stack>
     </PageShell>
   )
-}
-
-/* ====================================================== */
-/* RECORDED MEETING CARD                                  */
-/* ====================================================== */
-
-function RecordedMeetingCard({
-  meeting,
-  onWatchRecording,
-  onViewTranscript,
-}) {
-  const start = new Date(meeting.start)
-  const end = new Date(meeting.end)
-
-  const dateText =
-    new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(start)
-
-  const timeText = `${formatTime(
-    start,
-  )} – ${formatTime(end)}`
-
-  const participantCount =
-    meeting.participants?.length || 0
-
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        border: '1px solid #dce3eb',
-        borderRadius: 2.5,
-        bgcolor: '#fff',
-        px: {
-          xs: 1.75,
-          sm: 2.5,
-        },
-        py: {
-          xs: 1.75,
-          sm: 2,
-        },
-        transition:
-          'border-color 160ms ease, box-shadow 160ms ease',
-
-        '&:hover': {
-          borderColor: '#bdc9d8',
-          boxShadow:
-            '0 4px 14px rgba(15,23,42,0.06)',
-        },
-      }}
-    >
-      <Stack spacing={1.75}>
-
-        {/* Meeting heading */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: {
-              xs: 'flex-start',
-              sm: 'center',
-            },
-            justifyContent: 'space-between',
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 1.25,
-              minWidth: 0,
-            }}
-          >
-            <Box
-              sx={{
-                width: 34,
-                height: 34,
-                borderRadius: 1.5,
-                bgcolor: '#f5f7fa',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            />
-
-            <Box sx={{ minWidth: 0 }}>
-              <Typography
-                sx={{
-                  fontSize: {
-                    xs: '0.92rem',
-                    sm: '0.98rem',
-                  },
-                  fontWeight: 650,
-                  lineHeight: 1.4,
-                  color: '#172b46',
-                }}
-              >
-                {meeting.title}
-              </Typography>
-
-              <Typography
-                sx={{
-                  mt: 0.35,
-                  fontSize: '0.72rem',
-                  color: '#66778d',
-                }}
-              >
-                {meeting.platform} · {dateText},{' '}
-                {timeText}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              px: 1.1,
-              py: 0.5,
-              borderRadius: '20px',
-              bgcolor: '#eaf7ef',
-              color: '#287a4d',
-              fontSize: '0.68rem',
-              fontWeight: 600,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            Recording available
-          </Box>
-        </Box>
-
-        {/* Participants and duration */}
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            flexWrap: 'wrap',
-            rowGap: 0.75,
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: '0.72rem',
-              color: '#52657d',
-            }}
-          >
-            {participantCount}{' '}
-            {participantCount === 1
-              ? 'participant'
-              : 'participants'}
-          </Typography>
-
-          {meeting.recording?.duration && (
-            <Typography
-              sx={{
-                fontSize: '0.72rem',
-                color: '#52657d',
-              }}
-            >
-              {meeting.recording.duration}
-            </Typography>
-          )}
-        </Stack>
-
-        {/* ====================================================== */}
-        {/* AVAILABLE CONTENT                                     */}
-        {/* ====================================================== */}
-
-        <Stack
-          data-tour="recorded-actions"
-          direction="row"
-          spacing={1}
-          sx={{
-            flexWrap: 'wrap',
-            rowGap: 0.75,
-          }}
-        >
-          <AvailabilityBadge
-            icon={<PlayArrowOutlinedIcon />}
-            label="Recording available"
-            available={
-              meeting.recording?.available
-            }
-          />
-
-          <AvailabilityBadge
-            icon={<DescriptionOutlinedIcon />}
-            label="Transcript available"
-            available={
-              meeting.transcript?.available
-            }
-          />
-
-          <AvailabilityBadge
-            icon={<NotesOutlinedIcon />}
-            label="Meeting notes available"
-            available={
-              meeting.meetingNotes?.available
-            }
-          />
-        </Stack>
-
-        {/* ====================================================== */}
-        {/* ACTION BUTTONS                                        */}
-        {/* ====================================================== */}
-
-        <Box
-          data-tour="recorded-content-actions"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            flexWrap: 'wrap',
-            pt: 0.25,
-          }}
-        >
-          {/* Watch recording */}
-          <Button
-            size="small"
-            variant="contained"
-            startIcon={
-              <PlayArrowOutlinedIcon />
-            }
-            disabled={
-              !meeting.recording?.available
-            }
-            onClick={onWatchRecording}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.76rem',
-              fontWeight: 600,
-              minHeight: 34,
-              px: 1.5,
-            }}
-          >
-            Watch recording
-          </Button>
-
-          {/* View transcript */}
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={
-              <DescriptionOutlinedIcon />
-            }
-            disabled={
-              !meeting.transcript?.available
-            }
-            onClick={onViewTranscript}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.76rem',
-              fontWeight: 500,
-              minHeight: 34,
-              px: 1.5,
-              borderColor: '#d1dae5',
-            }}
-          >
-            View transcript
-          </Button>
-
-          {/* Meeting notes */}
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={
-              <NotesOutlinedIcon />
-            }
-            disabled={
-              !meeting.meetingNotes?.available
-            }
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.76rem',
-              fontWeight: 500,
-              minHeight: 34,
-              px: 1.5,
-              borderColor: '#d1dae5',
-            }}
-          >
-            Meeting notes
-          </Button>
-        </Box>
-      </Stack>
-    </Paper>
-  )
-}
-
-/* ====================================================== */
-/* AVAILABILITY BADGE                                     */
-/* ====================================================== */
-
-function AvailabilityBadge({
-  icon,
-  label,
-  available,
-}) {
-  const displayLabel = available
-    ? label
-    : label.replace(
-        ' available',
-        ' unavailable',
-      )
-
-  return (
-    <Box
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 0.5,
-        px: 1,
-        py: 0.5,
-        borderRadius: '16px',
-        bgcolor: available
-          ? '#f1f8f4'
-          : '#f5f6f8',
-        color: available
-          ? '#287a4d'
-          : '#8793a3',
-        fontSize: '0.67rem',
-        fontWeight: 500,
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-
-          '& svg': {
-            fontSize: 14,
-          },
-        }}
-      >
-        {icon}
-      </Box>
-
-      {displayLabel}
-    </Box>
-  )
-}
-
-/* ====================================================== */
-/* DATE FILTERING                                         */
-/* ====================================================== */
-
-function matchesDateFilter(
-  value,
-  filter,
-) {
-  if (filter === 'All') {
-    return true
-  }
-
-  const date = new Date(value)
-  const now = new Date()
-
-  if (filter === 'Today') {
-    return isSameDay(date, now)
-  }
-
-  if (filter === 'This week') {
-    return isSameWeek(date, now)
-  }
-
-  if (filter === 'This month') {
-    return (
-      date.getFullYear() ===
-        now.getFullYear() &&
-      date.getMonth() === now.getMonth()
-    )
-  }
-
-  return true
-}
-
-function isSameDay(a, b) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  )
-}
-
-function isSameWeek(date, now) {
-  const start = new Date(now)
-
-  start.setHours(0, 0, 0, 0)
-
-  const day = start.getDay()
-
-  const diff =
-    day === 0 ? -6 : 1 - day
-
-  start.setDate(
-    start.getDate() + diff,
-  )
-
-  const end = new Date(start)
-
-  end.setDate(
-    end.getDate() + 7,
-  )
-
-  return date >= start && date < end
-}
-
-/* ====================================================== */
-/* TIME FORMAT                                            */
-/* ====================================================== */
-
-function formatTime(value) {
-  return new Intl.DateTimeFormat(
-    'en-US',
-    {
-      hour: 'numeric',
-      minute: '2-digit',
-    },
-  ).format(value)
 }

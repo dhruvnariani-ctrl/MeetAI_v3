@@ -1,13 +1,59 @@
+import { useState } from 'react'
+
 import Box from '@mui/material/Box'
-import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined'
 
-import MeetingStatusArea from './MeetingStatusArea'
+const NAVY = '#123A59'
+const BLUE = '#0967B2'
+const BORDER = '#DFE7EC'
+const MUTED = '#71818D'
+
+const PILLS = {
+  completed: ['Completed', '#eaf7ef', '#287a4d'],
+  live: ['Live now', '#eaf7ef', '#287a4d'],
+  'just-started': ['Live now', '#eaf7ef', '#287a4d'],
+  'starting-soon': ['Starting soon', '#fff4dc', '#946200'],
+  upcoming: ['Upcoming', '#eef4ff', '#245ea8'],
+}
+
+const buttonSx = {
+  textTransform: 'none',
+  fontSize: '.74rem',
+  fontWeight: 650,
+  color: NAVY,
+  bgcolor: '#fff',
+  borderColor: BORDER,
+  borderRadius: '8px',
+  px: 1.5,
+  height: 36,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  '& .MuiButton-startIcon': { mr: 0.75, '& svg': { fontSize: 17 } },
+  '&:hover': { borderColor: BLUE, bgcolor: '#fff' },
+}
+
+function openInCalendar(meeting) {
+  if (Number.isNaN(new Date(meeting.start).getTime())) return
+
+  const fmt = (value) =>
+    new Date(value).toISOString().replace(/[-:]|\.\d{3}/g, '')
+
+  const url =
+    'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    `&text=${encodeURIComponent(meeting.title || 'Meeting')}` +
+    `&dates=${fmt(meeting.start)}/${fmt(meeting.end)}`
+
+  window.open(url, '_blank', 'noopener')
+}
 
 export default function MeetingHeader({
   meeting,
@@ -15,191 +61,162 @@ export default function MeetingHeader({
   dateText,
   timeText,
   durationMinutes,
+  onViewRecording,
 }) {
-  const participantCount =
-    meeting?.participants?.length || 0
+  const [copied, setCopied] = useState(false)
+
+  const participantCount = meeting?.participants?.length || 0
+  const pill = PILLS[meetingState?.type]
+  const recordingAvailable = meeting?.recording?.available === true
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
 
   return (
-    <Paper
-      data-tour="meeting-header"
-      elevation={0}
-      sx={{
-        border: '1px solid #dce3eb',
-        borderRadius: 3,
-        bgcolor: '#fff',
-        overflow: 'hidden',
-      }}
+    <Stack
+      direction={{ xs: 'column', lg: 'row' }}
+      spacing={1.5}
+      justifyContent="space-between"
+      alignItems={{ xs: 'flex-start', lg: 'center' }}
     >
-      <Box
-        sx={{
-          p: {
-            xs: 2,
-            sm: 2.5,
-            md: 3,
-          },
-        }}
-      >
-        <Stack spacing={2.25}>
-          {/* Title + status */}
-          <Stack
-            direction={{
-              xs: 'column',
-              sm: 'row',
-            }}
-            spacing={2}
-            alignItems={{
-              xs: 'flex-start',
-              sm: 'flex-start',
-            }}
-            justifyContent="space-between"
-          >
-            <Box
-              sx={{
-                minWidth: 0,
-                flex: 1,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: {
-                    xs: '1.2rem',
-                    sm: '1.4rem',
-                    md: '1.55rem',
-                  },
-                  fontWeight: 750,
-                  lineHeight: 1.25,
-                  color: '#172b46',
-                  letterSpacing: '-.015em',
-                }}
-              >
-                {meeting.title}
-              </Typography>
-
-              <Typography
-                sx={{
-                  mt: .75,
-                  fontSize: '.8rem',
-                  color: '#66778d',
-                }}
-              >
-                {meeting.platform || 'Meeting'} · {dateText}
-              </Typography>
-            </Box>
-
-            <MeetingStatusArea
-              meeting={meeting}
-              state={meetingState}
-            />
-          </Stack>
-
-          {/* Main meeting information */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(3, 1fr)',
-              },
-              gap: 1,
-            }}
-          >
-            <Info
-              icon={<CalendarMonthOutlinedIcon />}
-              label="Date & time"
-              value={timeText}
-              secondary={dateText}
-            />
-
-            <Info
-              icon={<AccessTimeOutlinedIcon />}
-              label="Duration"
-              value={`${durationMinutes} minutes`}
-              secondary="Scheduled meeting length"
-            />
-
-            <Info
-              icon={<GroupsOutlinedIcon />}
-              label="People invited"
-              value={`${participantCount} ${
-                participantCount === 1
-                  ? 'person'
-                  : 'people'
-              }`}
-              secondary="See attendance below"
-            />
-          </Box>
-        </Stack>
-      </Box>
-    </Paper>
-  )
-}
-
-function Info({
-  icon,
-  label,
-  value,
-  secondary,
-}) {
-  return (
-    <Box
-      sx={{
-        p: 1.35,
-        borderRadius: 2,
-        bgcolor: '#f8fafc',
-        border: '1px solid #e7edf3',
-        minWidth: 0,
-      }}
-    >
+      {/* Left: icon, title, meta */}
       <Stack
         direction="row"
-        spacing={.8}
+        spacing={1.5}
         alignItems="center"
+        sx={{ minWidth: 0, flex: 1 }}
       >
         <Box
           sx={{
-            display: 'flex',
-            color: '#60748b',
-
-            '& svg': {
-              fontSize: 17,
-            },
+            width: 48,
+            height: 48,
+            borderRadius: '10px',
+            flexShrink: 0,
+            display: 'grid',
+            placeItems: 'center',
+            bgcolor: '#E6F1FA',
+            color: BLUE,
+            '& svg': { fontSize: 24 },
           }}
         >
-          {icon}
+          <VideocamOutlinedIcon />
         </Box>
 
-        <Typography
-          sx={{
-            fontSize: '.67rem',
-            fontWeight: 600,
-            color: '#7b8ba1',
-          }}
-        >
-          {label}
-        </Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            component="h1"
+            sx={{
+              fontSize: { xs: '1.15rem', sm: '1.35rem' },
+              fontWeight: 750,
+              lineHeight: 1.25,
+              letterSpacing: '-.015em',
+              color: NAVY,
+              overflowWrap: 'anywhere',
+            }}
+          >
+            {meeting.title || 'Untitled meeting'}
+          </Typography>
+
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={2}
+            sx={{ mt: 0.5, flexWrap: 'wrap', rowGap: 0.5 }}
+          >
+            <Meta icon={<CalendarMonthOutlinedIcon />}>{dateText}</Meta>
+            <Meta icon={<AccessTimeOutlinedIcon />}>
+              {timeText} ({durationMinutes} min)
+            </Meta>
+            <Meta icon={<GroupsOutlinedIcon />}>
+              {participantCount}{' '}
+              {participantCount === 1 ? 'participant' : 'participants'}
+            </Meta>
+
+            {pill && (
+              <Box
+                sx={{
+                  px: 1,
+                  py: 0.2,
+                  borderRadius: '6px',
+                  bgcolor: pill[1],
+                  color: pill[2],
+                  fontSize: '.66rem',
+                  fontWeight: 700,
+                  lineHeight: 1.6,
+                }}
+              >
+                {pill[0]}
+              </Box>
+            )}
+          </Stack>
+        </Box>
       </Stack>
 
-      <Typography
+      {/* Right: actions, always one row on desktop */}
+      <Stack
+        direction="row"
+        spacing={1}
         sx={{
-          mt: .65,
-          fontSize: '.8rem',
-          fontWeight: 700,
-          color: '#24364d',
-          lineHeight: 1.35,
+          flexShrink: 0,
+          flexWrap: { xs: 'wrap', lg: 'nowrap' },
+          rowGap: 1,
         }}
       >
-        {value}
-      </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<ShareOutlinedIcon />}
+          onClick={handleShare}
+          sx={buttonSx}
+        >
+          {copied ? 'Link copied' : 'Share'}
+        </Button>
 
-      <Typography
-        sx={{
-          mt: .25,
-          fontSize: '.65rem',
-          color: '#8997a8',
-        }}
-      >
-        {secondary}
+        <Button
+          variant="outlined"
+          startIcon={<CalendarMonthOutlinedIcon />}
+          onClick={() => openInCalendar(meeting)}
+          sx={buttonSx}
+        >
+          Open in Calendar
+        </Button>
+
+        <Button
+          variant="contained"
+          startIcon={<PlayArrowOutlinedIcon />}
+          disabled={!recordingAvailable}
+          onClick={onViewRecording}
+          sx={{
+            ...buttonSx,
+            color: '#fff',
+            bgcolor: BLUE,
+            borderColor: BLUE,
+            boxShadow: 'none',
+            '&:hover': { bgcolor: '#075A9D', boxShadow: 'none' },
+          }}
+        >
+          View Recording
+        </Button>
+      </Stack>
+    </Stack>
+  )
+}
+
+function Meta({ icon, children }) {
+  return (
+    <Stack direction="row" spacing={0.6} alignItems="center">
+      <Box sx={{ display: 'flex', color: MUTED, '& svg': { fontSize: 16 } }}>
+        {icon}
+      </Box>
+      <Typography sx={{ fontSize: '.74rem', color: NAVY, whiteSpace: 'nowrap' }}>
+        {children}
       </Typography>
-    </Box>
+    </Stack>
   )
 }

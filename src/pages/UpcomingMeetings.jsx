@@ -11,7 +11,7 @@ import RangeTabs from '../components/RangeTabs'
 import ViewToggle from '../components/ViewToggle'
 import InviteSwitch from '../components/InviteSwitch'
 import MeetingsPanel from '../components/MeetingsPanel'
-import { gradientButtonSx } from '../buttonStyles'
+import { gradientButtonSx } from '../ButtonStyles'
 import usePageTitle from '../hooks/usePageTitle'
 
 const RANGES = [

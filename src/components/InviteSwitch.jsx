@@ -14,7 +14,7 @@ export default function InviteSwitch({ checked, onChange }) {
             size="small"
             checked={checked}
             onChange={(e) => onChange(e.target.checked)}
-            inputProps={{ role: 'switch' }}
+            inputprops={{ role: 'switch' }}
             sx={{
               '& .MuiSwitch-switchBase, & .MuiSwitch-switchBase.Mui-checked': { color: '#fff' },
               '& .MuiSwitch-track': { opacity: 1, bgcolor: '#a9b5c5' },

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
 
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
@@ -12,25 +11,16 @@ import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
 import Tooltip from '@mui/material/Tooltip'
 
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
 import PlayCircleOutlineOutlinedIcon from '@mui/icons-material/PlayCircleOutlineOutlined'
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 
-const DEFAULT_USER = {
-  name: 'Dhruv Nariani',
-  email: 'dhruv@example.com',
-  initials: 'D',
-}
+import useCurrentUser from '../hooks/useCurrentUser'
 
 export default function AccountMenu({
-  user = DEFAULT_USER,
   onStartTour,
-  // onLogout,
-  // profilePath = '/profile',
-  // settingsPath = '/settings',
+  onLogout,
 }) {
-  const navigate = useNavigate()
+  const currentUser = useCurrentUser()
 
   const [anchorEl, setAnchorEl] = useState(null)
 
@@ -42,16 +32,6 @@ export default function AccountMenu({
 
   const handleClose = () => {
     setAnchorEl(null)
-  }
-
-  const handleProfile = () => {
-    handleClose()
-    navigate(profilePath)
-  }
-
-  const handleSettings = () => {
-    handleClose()
-    navigate(settingsPath)
   }
 
   const handleTour = () => {
@@ -70,10 +50,14 @@ export default function AccountMenu({
     }
   }
 
-  const displayName = user?.name || DEFAULT_USER.name
-  const displayEmail = user?.email || DEFAULT_USER.email
+  const displayName =
+    currentUser?.name || 'User'
+
+  const displayEmail =
+    currentUser?.email || ''
+
   const initials =
-    user?.initials ||
+    currentUser?.initials ||
     displayName
       .split(' ')
       .map((part) => part[0])
@@ -87,9 +71,13 @@ export default function AccountMenu({
       <Tooltip title="Account">
         <IconButton
           id="account-menu-button"
-          aria-controls={open ? 'account-menu' : undefined}
+          aria-controls={
+            open ? 'account-menu' : undefined
+          }
           aria-haspopup="true"
-          aria-expanded={open ? 'true' : undefined}
+          aria-expanded={
+            open ? 'true' : undefined
+          }
           onClick={handleOpen}
           sx={{
             width: 42,
@@ -110,7 +98,8 @@ export default function AccountMenu({
             },
 
             '&:focus-visible': {
-              outline: '2px solid rgba(13, 104, 201, 0.45)',
+              outline:
+                '2px solid rgba(13, 104, 201, 0.45)',
               outlineOffset: 2,
             },
           }}
@@ -139,7 +128,8 @@ export default function AccountMenu({
         open={open}
         onClose={handleClose}
         MenuListProps={{
-          'aria-labelledby': 'account-menu-button',
+          'aria-labelledby':
+            'account-menu-button',
           disablePadding: true,
         }}
         anchorOrigin={{
@@ -177,9 +167,7 @@ export default function AccountMenu({
           },
         }}
       >
-        {/* =================================================
-            USER INFORMATION
-            ================================================= */}
+        {/* USER INFORMATION */}
         <Box
           sx={{
             px: 2,
@@ -246,64 +234,7 @@ export default function AccountMenu({
 
         <Divider />
 
-        {/* =================================================
-            PROFILE
-            ================================================= */}
-        {/* <MenuItem
-          component={RouterLink}
-          to={profilePath}
-          onClick={handleClose}
-          sx={{
-            minHeight: 46,
-
-            px: 1.75,
-
-            color: '#243b5a',
-
-            '&:hover': {
-              bgcolor: '#f3f7fc',
-            },
-
-            '&:focus': {
-              bgcolor: '#f3f7fc',
-            },
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 38,
-              color: '#526b89',
-            }}
-          >
-            <PersonOutlineOutlinedIcon
-              sx={{ fontSize: 20 }}
-            />
-          </ListItemIcon>
-
-          <ListItemText
-            primary="Profile"
-            secondary="Manage your account"
-            slotProps={{
-              primary: {
-                sx: {
-                  fontSize: '0.84rem',
-                  fontWeight: 600,
-                },
-              },
-              secondary: {
-                sx: {
-                  mt: 0.15,
-                  fontSize: '0.7rem',
-                  color: '#8997a9',
-                },
-              },
-            }}
-          />
-        </MenuItem> */}
-
-        {/* =================================================
-            APP TOUR
-            ================================================= */}
+        {/* APP TOUR */}
         <MenuItem
           onClick={handleTour}
           sx={{
@@ -354,66 +285,9 @@ export default function AccountMenu({
           />
         </MenuItem>
 
-        {/* =================================================
-            SETTINGS
-            ================================================= */}
-        {/* <MenuItem
-          component={RouterLink}
-          to={settingsPath}
-          onClick={handleClose}
-          sx={{
-            minHeight: 46,
-
-            px: 1.75,
-
-            color: '#243b5a',
-
-            '&:hover': {
-              bgcolor: '#f3f7fc',
-            },
-
-            '&:focus': {
-              bgcolor: '#f3f7fc',
-            },
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 38,
-              color: '#526b89',
-            }}
-          >
-            <SettingsOutlinedIcon
-              sx={{ fontSize: 20 }}
-            />
-          </ListItemIcon>
-
-          <ListItemText
-            primary="Settings"
-            secondary="Customize MeetAI"
-            slotProps={{
-              primary: {
-                sx: {
-                  fontSize: '0.84rem',
-                  fontWeight: 600,
-                },
-              },
-              secondary: {
-                sx: {
-                  mt: 0.15,
-                  fontSize: '0.7rem',
-                  color: '#8997a9',
-                },
-              },
-            }}
-          />
-        </MenuItem> */}
-
         <Divider sx={{ my: 0.5 }} />
 
-        {/* =================================================
-            LOGOUT
-            ================================================= */}
+        {/* LOGOUT */}
         <MenuItem
           onClick={handleLogout}
           sx={{

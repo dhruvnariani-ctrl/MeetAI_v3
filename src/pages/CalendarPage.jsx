@@ -1,739 +1,284 @@
-import { useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 
-import PageShell from '../components/PageShell'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 
+import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined'
+
+import PageShell from '../components/PageShell'
 import CalendarSidebar from '../components/calendar/CalendarSidebar'
 import CalendarToolbar from '../components/calendar/CalendarToolbar'
-import CalendarFilters from '../components/calendar/CalendarFilters'
 import CalendarMeetingList from '../components/calendar/CalendarMeetingList'
 
-import { getTodaysMeetings } from '../data/Dashboard'
+import useCalendarState from '../hooks/useCalenderState'
+import useCurrentUser from '../hooks/useCurrentUser'
 
-const formatMeetingTime = (start, end) => {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+const format = (date, options) =>
+  new Intl.DateTimeFormat('en-US', options).format(date)
 
-  return `${formatter.format(new Date(start))} – ${formatter.format(
-    new Date(end),
-  )}`
-}
-
-const getMeetingType = (
-  start,
-  end,
-  now = new Date(),
-) => {
-  const startMs = new Date(start).getTime()
-  const endMs = new Date(end).getTime()
-  const nowMs = new Date(now).getTime()
-
-  if (nowMs >= endMs) return 'Done'
-  if (nowMs >= startMs && nowMs < endMs) return 'Live'
-
-  return 'Upcoming'
-}
-
-const pad = (value) =>
-  String(value).padStart(2, '0')
-
-const dateKey = (date) =>
-  `${date.getFullYear()}-${pad(
-    date.getMonth() + 1,
-  )}-${pad(date.getDate())}`
-
-/*
- * Calendar uses the same meetings as the dashboard.
- *
- * Any meeting returned by data/Dashboard.js
- * is available here.
- */
-const getCalendarMeetings = () =>
-  getTodaysMeetings().map((meeting) => ({
-    ...meeting,
-
-    date: dateKey(
-      new Date(meeting.start),
-    ),
-
-    time: formatMeetingTime(
-      meeting.start,
-      meeting.end,
-    ),
-
-    participants: Array.isArray(
-      meeting.participants,
-    )
-      ? meeting.participants.length
-      : 0,
-
-    type: getMeetingType(
-      meeting.start,
-      meeting.end,
-    ),
-  }))
-
-const parseDate = (value) => {
-  const [
-    year,
-    month,
-    day,
-  ] = value.split('-').map(Number)
-
-  return new Date(
-    year,
-    month - 1,
-    day,
-  )
-}
-
-function startOfWeek(date) {
-  const result = new Date(date)
-
-  result.setHours(
-    0,
-    0,
-    0,
-    0,
-  )
-
-  const day = result.getDay()
-
-  const difference =
-    day === 0 ? -6 : 1 - day
-
-  result.setDate(
-    result.getDate() + difference,
-  )
-
-  return result
-}
-
-function endOfWeek(date) {
-  const result = startOfWeek(date)
-
-  result.setDate(
-    result.getDate() + 6,
-  )
-
-  result.setHours(
-    23,
-    59,
-    59,
-    999,
-  )
-
-  return result
-}
-
-function formatDayTitle(date) {
-  return new Intl.DateTimeFormat(
-    'en-US',
-    {
+/* Heading shown at the top of the meetings panel. */
+function getPanelHeading(view, selectedDate) {
+  if (view === 'day') {
+    return format(selectedDate, {
       weekday: 'long',
       month: 'long',
       day: 'numeric',
       year: 'numeric',
-    },
-  ).format(date)
-}
-
-function formatWeekTitle(date) {
-  const startText =
-    new Intl.DateTimeFormat(
-      'en-US',
-      {
-        month: 'short',
-        day: 'numeric',
-      },
-    ).format(
-      startOfWeek(date),
-    )
-
-  const endText =
-    new Intl.DateTimeFormat(
-      'en-US',
-      {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      },
-    ).format(
-      endOfWeek(date),
-    )
-
-  return `${startText} – ${endText}`
-}
-
-function formatMonthTitle(date) {
-  return new Intl.DateTimeFormat(
-    'en-US',
-    {
-      month: 'long',
-      year: 'numeric',
-    },
-  ).format(date)
-}
-
-function getQuickDateLabel(date) {
-  const today = new Date()
-
-  today.setHours(
-    0,
-    0,
-    0,
-    0,
-  )
-
-  const target = new Date(date)
-
-  target.setHours(
-    0,
-    0,
-    0,
-    0,
-  )
-
-  const difference = Math.round(
-    (target - today) /
-      (1000 * 60 * 60 * 24),
-  )
-
-  if (difference === 0) {
-    return 'Today'
+    })
   }
 
-  if (difference === -1) {
-    return 'Yesterday'
-  }
+  if (view === 'week') {
+    const start = new Date(selectedDate)
+    start.setHours(0, 0, 0, 0)
+    start.setDate(start.getDate() - start.getDay())
 
-  if (difference === 1) {
-    return 'Tomorrow'
-  }
+    const end = new Date(start)
+    end.setDate(start.getDate() + 6)
 
-  return new Intl.DateTimeFormat(
-    'en-US',
-    {
+    return `${format(start, {
+      month: 'short',
+      day: 'numeric',
+    })} – ${format(end, {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
-    },
-  ).format(target)
+    })}`
+  }
+
+  return format(selectedDate, { month: 'long', year: 'numeric' })
+}
+
+const AGENDA_LABELS = {
+  day: 'Daily agenda',
+  week: 'Weekly agenda',
+  month: 'Monthly agenda',
 }
 
 export default function CalendarPage() {
-  /*
-   * New meeting opens the same Create Event
-   * dialog as the Dashboard.
-   */
+  const outletContext = useOutletContext() || {}
+  const { openCreate } = outletContext
+
+  const currentUser = useCurrentUser()
+  const calendar = useCalendarState(currentUser)
+
   const {
-    openCreate,
-  } = useOutletContext()
-
-  const meetings = useMemo(
-    () => getCalendarMeetings(),
-    [],
-  )
-
-  const [
     selectedDate,
-    setSelectedDate,
-  ] = useState(
-    () => new Date(),
-  )
-
-  const [
     view,
+    visibleMeetings,
+    filteredMeetings,
+    filters,
+    setFilters,
+    clearFilters,
+    platforms,
+    activeFilterCount,
     setView,
-  ] = useState('day')
-
-  const [
-    filter,
-    setFilter,
-  ] = useState('All')
-
-  /*
-   * Per-meeting settings.
-   *
-   * Example:
-   *
-   * {
-   *   m2: {
-   *     autoJoin: true,
-   *     recordVideo: false
-   *   }
-   * }
-   */
-  const [
     settings,
-    setSettings,
-  ] = useState({})
+    onSettingsChange,
+  } = calendar
 
-  const selectedKey =
-    dateKey(selectedDate)
+  const pageHeading = getPanelHeading(view, selectedDate)
+  const meetingCount = visibleMeetings.length
 
-  /*
-   * Change settings for ONE meeting.
-   *
-   * Used by MeetingToggles.
-   */
-  const onSettingsChange = (
-    meetingId,
-    changes,
-  ) => {
-    setSettings((current) => ({
-      ...current,
-
-      [meetingId]: {
-        ...current[meetingId],
-        ...changes,
-      },
-    }))
-  }
-
-  /*
-   * Meetings for the current
-   * Day / Week / Month + status filter.
-   */
-  const visibleMeetings = useMemo(() => {
-    let result = [...meetings]
-
-    if (view === 'day') {
-      result = result.filter(
-        (meeting) =>
-          meeting.date ===
-          selectedKey,
-      )
-    }
-
-    if (view === 'week') {
-      const start =
-        startOfWeek(
-          selectedDate,
-        )
-
-      const end =
-        endOfWeek(
-          selectedDate,
-        )
-
-      result = result.filter(
-        (meeting) => {
-          const meetingDate =
-            parseDate(
-              meeting.date,
-            )
-
-          return (
-            meetingDate >= start &&
-            meetingDate <= end
-          )
-        },
-      )
-    }
-
-    if (view === 'month') {
-      result = result.filter(
-        (meeting) => {
-          const meetingDate =
-            parseDate(
-              meeting.date,
-            )
-
-          return (
-            meetingDate.getFullYear() ===
-              selectedDate.getFullYear() &&
-            meetingDate.getMonth() ===
-              selectedDate.getMonth()
-          )
-        },
-      )
-    }
-
-    if (filter !== 'All') {
-      result = result.filter(
-        (meeting) =>
-          meeting.type === filter,
-      )
-    }
-
-    /*
-     * Sort by date, then time.
-     */
-    return result.sort((a, b) => {
-      if (a.date !== b.date) {
-        return a.date.localeCompare(
-          b.date,
-        )
-      }
-
-      return a.time.localeCompare(
-        b.time,
-      )
-    })
-  }, [
-    meetings,
-    selectedDate,
-    selectedKey,
-    view,
-    filter,
-  ])
-
-  /*
-   * Overall Invite MeetAI state.
-   *
-   * IMPORTANT:
-   *
-   * 1. If the user has changed a meeting,
-   *    use settings[meeting.id].autoJoin.
-   *
-   * 2. Otherwise use:
-   *    meeting.meetAI.invited
-   *
-   * 3. The toolbar is ON only when EVERY
-   *    visible meeting is invited.
-   */
-  const allVisibleAutoJoin =
-    visibleMeetings.length > 0 &&
-    visibleMeetings.every(
-      (meeting) => {
-        return (
-          settings?.[
-            meeting.id
-          ]?.autoJoin ??
-          meeting?.meetAI?.invited ??
-          false
-        )
-      },
-    )
-
-  /*
-   * Toolbar Invite MeetAI switch.
-   *
-   * Turning it ON:
-   *   -> Invite MeetAI for every visible meeting.
-   *
-   * Turning it OFF:
-   *   -> Remove MeetAI from every visible meeting.
-   *   -> Also turn video recording OFF.
-   */
-  const handleToolbarAutoJoin = (
-    checked,
-  ) => {
-    setSettings((current) => {
-      const next = {
-        ...current,
-      }
-
-      visibleMeetings.forEach(
-        (meeting) => {
-          next[meeting.id] = {
-            ...next[meeting.id],
-
-            autoJoin: checked,
-
-            /*
-             * Keep video independent when
-             * enabling MeetAI.
-             *
-             * When MeetAI is disabled,
-             * video recording is also disabled.
-             */
-            ...(checked
-              ? {}
-              : {
-                  recordVideo:
-                    false,
-                }),
-          }
-        },
-      )
-
-      return next
-    })
-  }
-
-  /*
-   * Today / Yesterday / Tomorrow
-   * are day selections.
-   */
-  const selectQuickDate = (
-    offset,
-  ) => {
-    const next = new Date()
-
-    next.setHours(
-      0,
-      0,
-      0,
-      0,
-    )
-
-    next.setDate(
-      next.getDate() + offset,
-    )
-
-    setSelectedDate(next)
-    setView('day')
-  }
-
-  const handleToday = () => {
-    selectQuickDate(0)
-  }
-
-  const handleYesterday = () => {
-    selectQuickDate(-1)
-  }
-
-  const handleTomorrow = () => {
-    selectQuickDate(1)
-  }
-
-  /*
-   * Previous / Next:
-   *
-   * Day   -> 1 day
-   * Week  -> 1 week
-   * Month -> 1 month
-   */
-  const navigateCalendar = (
-    direction,
-  ) => {
-    const next = new Date(
-      selectedDate,
-    )
-
-    if (view === 'day') {
-      next.setDate(
-        next.getDate() +
-          direction,
-      )
-    }
-
-    if (view === 'week') {
-      next.setDate(
-        next.getDate() +
-          direction * 7,
-      )
-    }
-
-    if (view === 'month') {
-      next.setDate(1)
-
-      next.setMonth(
-        next.getMonth() +
-          direction,
-      )
-    }
-
-    setSelectedDate(next)
-  }
-
-  const handlePrevious = () => {
-    navigateCalendar(-1)
-  }
-
-  const handleNext = () => {
-    navigateCalendar(1)
-  }
-
-  const title =
-    view === 'day'
-      ? formatDayTitle(
-          selectedDate,
-        )
-      : view === 'week'
-        ? formatWeekTitle(
-            selectedDate,
-          )
-        : formatMonthTitle(
-            selectedDate,
-          )
-
-  const selectedDateLabel =
-    getQuickDateLabel(
-      selectedDate,
-    )
-
-  /*
-   * Open Create Meeting dialog.
-   */
-  const handleNewMeeting = () => {
-    openCreate?.()
-  }
-
-  /*
-   * Select a day from the sidebar.
-   */
-  const selectDay = (date) => {
-    setSelectedDate(date)
-    setView('day')
-  }
+  const agendaLabel = `${AGENDA_LABELS[view] ?? 'Agenda'}${
+    activeFilterCount > 0
+      ? ` · ${activeFilterCount} ${activeFilterCount === 1 ? 'filter' : 'filters'} on`
+      : ''
+  }`
 
   return (
-    <PageShell
-      title="Calendar"
-      subtitle="See your meetings and choose a day."
-    >
-      <Stack spacing={2.5}>
-        {/* ============================================================ */}
-        {/* CALENDAR TOOLBAR                                             */}
-        {/* ============================================================ */}
-
-        <Box data-tour="calendar-date-navigation">
+      <Stack spacing={1.5} sx={{ minWidth: 0, width: '100%' }}>
+        <Box data-tour="calendar-date-navigation" sx={{ width: '100%' }}>
           <CalendarToolbar
             view={view}
+            selectedDate={selectedDate}
             onViewChange={setView}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            onToday={handleToday}
-            onYesterday={
-              handleYesterday
-            }
-            onTomorrow={
-              handleTomorrow
-            }
-            selectedDateLabel={
-              selectedDateLabel
-            }
-            meetings={
-              visibleMeetings
-            }
-            settings={settings}
-            onAutoJoinChange={
-              onSettingsChange
-            }
-            onNewMeeting={
-              handleNewMeeting
-            }
+            onPrevious={calendar.handlePrevious}
+            onNext={calendar.handleNext}
+            onToday={calendar.handleToday}
+            onYesterday={calendar.handleYesterday}
+            onTomorrow={calendar.handleTomorrow}
+            onCurrentPeriod={calendar.handleCurrentPeriod}
+            onNewMeeting={() => openCreate?.()}
+            filters={filters}
+            onFiltersChange={setFilters}
+            onClearFilters={clearFilters}
+            platforms={platforms}
+            activeFilterCount={activeFilterCount}
           />
         </Box>
-
-        {/* ============================================================ */}
-        {/* CALENDAR CONTENT                                             */}
-        {/* ============================================================ */}
 
         <Box
           sx={{
             display: 'grid',
-
             gridTemplateColumns: {
-              xs: '1fr',
-              md: '220px minmax(0, 1fr)',
+              xs: 'minmax(0, 1fr)',
+              lg: 'minmax(0, 1.45fr) minmax(340px, 1fr)',
             },
-
-            gap: 3,
-
-            alignItems: 'start',
+            gap: { xs: 1.5, md: 2 },
+            alignItems: 'stretch',
+            minWidth: 0,
           }}
         >
-          {/* ======================================================== */}
-          {/* SIDEBAR CALENDAR                                         */}
-          {/* ======================================================== */}
-
-          <CalendarSidebar
-            selectedDate={
-              selectedDate
-            }
-            view={view}
-            meetings={meetings}
-            onSelectDate={
-              selectDay
-            }
-          />
-
-          {/* ======================================================== */}
-          {/* MAIN MEETING CONTENT                                     */}
-          {/* ======================================================== */}
-
+          {/* Mini calendar: highlights the selected day / week / month */}
           <Box
+            data-tour="calendar-month-grid"
             sx={{
               minWidth: 0,
+              display: 'flex',
+              '& > *': { flex: 1 },
+            }}
+          >
+            <CalendarSidebar
+              selectedDate={selectedDate}
+              view={view}
+              meetings={filteredMeetings}
+              onSelectDate={calendar.selectDate}
+              onOpenDay={calendar.selectDay}
+              onToday={calendar.handleCurrentPeriod}
+            />
+          </Box>
+
+          {/*
+           * Meetings panel. On large screens the panel is positioned inside
+           * this wrapper, so its height always equals the calendar's height
+           * and the list scrolls inside it instead of stretching the page.
+           */}
+          <Box
+            data-tour="calendar-meeting-list"
+            sx={{
+              position: 'relative',
+              minWidth: 0,
+              minHeight: { lg: 460 },
             }}
           >
             <Box
               sx={{
-                mb: 1.5,
+                position: { xs: 'static', lg: 'absolute' },
+                top: { lg: 0 },
+                right: { lg: 0 },
+                bottom: { lg: 0 },
+                left: { lg: 0 },
+                maxHeight: { xs: 620, lg: 'none' },
+                display: 'flex',
+                flexDirection: 'column',
+                boxSizing: 'border-box',
+                border: '1px solid #DFEAF4',
+                borderRadius: '14px',
+                bgcolor: '#FFFFFF',
+                overflow: 'hidden',
               }}
             >
-              <Box
-                component="h2"
-                sx={{
-                  m: 0,
-
-                  fontSize:
-                    '1.05rem',
-
-                  lineHeight: 1.3,
-
-                  fontWeight: 600,
-                }}
-              >
-                {title}
-              </Box>
-
+              {/* Panel header: title and total count */}
               <Box
                 sx={{
-                  mt: 0.25,
-
-                  fontSize:
-                    '0.75rem',
-
-                  color:
-                    'text.secondary',
+                  flexShrink: 0,
+                  px: { xs: 1.5, md: 1.9 },
+                  py: { xs: 1.5, md: 1.75 },
+                  borderBottom: '1px solid #E8F0F7',
+                  bgcolor: '#FFFFFF',
                 }}
               >
-                {visibleMeetings.length}{' '}
-                {visibleMeetings.length ===
-                1
-                  ? 'meeting'
-                  : 'meetings'}
+                <Stack
+                  direction="row"
+                  sx={{
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1.25,
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    sx={{ alignItems: 'center', gap: 1.25, minWidth: 0 }}
+                  >
+                    <Box
+                      aria-hidden="true"
+                      sx={{
+                        flexShrink: 0,
+                        width: 38,
+                        height: 38,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '11px',
+                        bgcolor: '#EAF3FC',
+                        color: '#0967B2',
+                      }}
+                    >
+                      <EventNoteOutlinedIcon sx={{ fontSize: 21 }} />
+                    </Box>
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography
+                        component="h2"
+                        sx={{
+                          m: 0,
+                          color: '#123A59',
+                          fontSize: '1rem',
+                          lineHeight: 1.3,
+                          fontWeight: 700,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {pageHeading}
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          mt: 0.2,
+                          color: '#5A7189',
+                          fontSize: '0.78rem',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {agendaLabel}
+                      </Typography>
+                    </Box>
+                  </Stack>
+
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      px: 1.3,
+                      py: 0.5,
+                      borderRadius: '999px',
+                      bgcolor: '#EAF3FC',
+                      color: '#0967B2',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {meetingCount} {meetingCount === 1 ? 'meeting' : 'meetings'}
+                  </Box>
+                </Stack>
               </Box>
-            </Box>
 
-            {/* ====================================================== */}
-            {/* CALENDAR FILTERS                                      */}
-            {/* ====================================================== */}
-
-            <Box
-              data-tour="calendar-filters"
-            >
-              <CalendarFilters
-                value={filter}
-                onChange={
-                  setFilter
-                }
-              />
-            </Box>
-
-            {/* ====================================================== */}
-            {/* MEETING LIST                                           */}
-            {/* ====================================================== */}
-
-            <Box
-              data-tour="calendar-meeting-list"
-            >
-              <CalendarMeetingList
-                meetings={
-                  visibleMeetings
-                }
-                view={view}
-                settings={settings}
-                onSettingsChange={
-                  onSettingsChange
-                }
-                onSelectDate={
-                  selectDay
-                }
-              />
+              {/* Scrollable list: Live / Upcoming / Done sections */}
+              <Box
+                data-tour="calendar-filters"
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  overflowY: 'auto',
+                  px: { xs: 1.25, md: 1.5 },
+                  py: 1.5,
+                  bgcolor: '#F7FAFD',
+                }}
+              >
+                <CalendarMeetingList
+                  meetings={visibleMeetings}
+                  view={view}
+                  settings={settings}
+                  onSettingsChange={onSettingsChange}
+                  compact
+                />
+              </Box>
             </Box>
           </Box>
         </Box>
       </Stack>
-    </PageShell>
   )
 }

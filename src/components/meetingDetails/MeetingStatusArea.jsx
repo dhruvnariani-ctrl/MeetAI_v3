@@ -1,12 +1,17 @@
 import Box from '@mui/material/Box'
+
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined'
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
 
-import { formatElapsedTime } from './utils'
+import {
+  formatElapsedTime,
+  formatRemainingTime,
+} from './utils'
 
 export default function MeetingStatusArea({
   meeting,
   state,
+  meetAIInvited,
 }) {
   const type = state?.type || 'upcoming'
 
@@ -14,14 +19,6 @@ export default function MeetingStatusArea({
    * --------------------------------------------------------------------------
    * Completed
    * --------------------------------------------------------------------------
-   *
-   * Example:
-   *
-   * [ ✓ Completed ] [ Finished 1h 0m ago ] [ MeetAI attended ]
-   *
-   * or:
-   *
-   * [ ✓ Completed ] [ Finished 1h 0m ago ] [ MeetAI invited ]
    */
   if (type === 'completed') {
     return (
@@ -41,7 +38,10 @@ export default function MeetingStatusArea({
           color="#68778a"
         />
 
-        <MeetAIBadge meeting={meeting} />
+        <MeetAIBadge
+          meeting={meeting}
+          meetAIInvited={meetAIInvited}
+        />
       </StatusRow>
     )
   }
@@ -50,10 +50,6 @@ export default function MeetingStatusArea({
    * --------------------------------------------------------------------------
    * Starting soon
    * --------------------------------------------------------------------------
-   *
-   * Example:
-   *
-   * [ 🕐 Starting in 8m ] [ MeetAI invited ]
    */
   if (type === 'starting-soon') {
     return (
@@ -67,7 +63,10 @@ export default function MeetingStatusArea({
           color="#946200"
         />
 
-        <MeetAIBadge meeting={meeting} />
+        <MeetAIBadge
+          meeting={meeting}
+          meetAIInvited={meetAIInvited}
+        />
       </StatusRow>
     )
   }
@@ -76,10 +75,6 @@ export default function MeetingStatusArea({
    * --------------------------------------------------------------------------
    * Upcoming
    * --------------------------------------------------------------------------
-   *
-   * Example:
-   *
-   * [ 🕐 In 2h 15m ] [ MeetAI invited ]
    */
   if (type === 'upcoming') {
     return (
@@ -93,7 +88,10 @@ export default function MeetingStatusArea({
           color="#245ea8"
         />
 
-        <MeetAIBadge meeting={meeting} />
+        <MeetAIBadge
+          meeting={meeting}
+          meetAIInvited={meetAIInvited}
+        />
       </StatusRow>
     )
   }
@@ -116,7 +114,10 @@ export default function MeetingStatusArea({
           live
         />
 
-        <MeetAIBadge meeting={meeting} />
+        <MeetAIBadge
+          meeting={meeting}
+          meetAIInvited={meetAIInvited}
+        />
       </StatusRow>
     )
   }
@@ -128,17 +129,15 @@ export default function MeetingStatusArea({
 /* MeetAI status                                                              */
 /* -------------------------------------------------------------------------- */
 
-function MeetAIBadge({ meeting }) {
+function MeetAIBadge({
+  meeting,
+  meetAIInvited,
+}) {
   /*
    * Attended has priority.
    *
-   * This is important because a meeting can have:
-   *
-   * invited: true
-   * attended: true
-   *
-   * In that case we want "MeetAI attended", not
-   * "MeetAI invited".
+   * If MeetAI actually attended the meeting,
+   * keep showing "MeetAI attended".
    */
   if (meeting?.meetAI?.attended === true) {
     return (
@@ -151,14 +150,10 @@ function MeetAIBadge({ meeting }) {
   }
 
   /*
-   * If MeetAI was invited but did not attend,
-   * show "MeetAI invited".
-   *
-   * We intentionally don't call it "did not attend"
-   * because your requested UI terminology is
-   * "MeetAI invited".
+   * The saved localStorage setting is now the
+   * source of truth for whether MeetAI is invited.
    */
-  if (meeting?.meetAI?.invited === true) {
+  if (meetAIInvited === true) {
     return (
       <StatusBadge
         label="MeetAI invited"
@@ -169,10 +164,18 @@ function MeetAIBadge({ meeting }) {
   }
 
   /*
-   * No MeetAI information / not invited:
-   * don't show an unnecessary badge.
+   * MeetAI is explicitly OFF.
+   *
+   * Show the requested status instead of hiding
+   * the badge.
    */
-  return null
+  return (
+    <StatusBadge
+      label="MeetAI not invited"
+      bgcolor="#f4f6f8"
+      color="#68778a"
+    />
+  )
 }
 
 /* -------------------------------------------------------------------------- */
@@ -260,27 +263,4 @@ function StatusBadge({
       </Box>
     </Box>
   )
-}
-
-/* -------------------------------------------------------------------------- */
-/* Remaining time                                                             */
-/* -------------------------------------------------------------------------- */
-
-function formatRemainingTime(ms) {
-  const totalMinutes = Math.max(
-    0,
-    Math.ceil(ms / 60000),
-  )
-
-  const hours = Math.floor(
-    totalMinutes / 60,
-  )
-
-  const minutes = totalMinutes % 60
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  }
-
-  return `${minutes}m`
 }

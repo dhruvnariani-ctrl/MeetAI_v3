@@ -101,8 +101,8 @@ export default function ParticipantPicker({
           <TextField
             {...params}
             placeholder="Search participants by name or email…"
-            inputProps={{
-              ...params.inputProps,
+            inputprops={{
+              ...params.inputprops,
               'aria-label': 'Search participants by name or email',
               'aria-describedby': helpId,
             }}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -12,8 +13,15 @@ import Typography from '@mui/material/Typography'
 
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 
 import ParticipantRow from './ParticipantRow'
+import { getInitials } from './utils'
+
+const NAVY = '#123A59'
+const BLUE = '#0967B2'
+const BORDER = '#DFE7EC'
+const MUTED = '#71818D'
 
 /* -------------------------------------------------------------------------- */
 /* Participants                                                               */
@@ -22,68 +30,116 @@ import ParticipantRow from './ParticipantRow'
 export default function ParticipantsPreview({ attendance, meeting }) {
   const [open, setOpen] = useState(false)
 
+  const count = attendance.all.length
+
   return (
     <>
       <Paper
+        data-tour="meeting-participants"
         elevation={0}
         sx={{
           width: '100%',
-          border: '1px solid #dce3eb',
-          borderRadius: 2,
+          border: `1px solid ${BORDER}`,
+          borderRadius: '10px',
           bgcolor: '#fff',
-          px: 1.5,
-          py: 1.25,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 1.5,
+          p: { xs: 1.75, sm: 2 },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-          <Box
-            sx={{
-              width: 34,
-              height: 34,
-              borderRadius: 1.25,
-              bgcolor: '#f1f5f9',
-              color: '#52657d',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <GroupsOutlinedIcon sx={{ fontSize: 19 }} />
-          </Box>
-
-          <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#24364d' }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          spacing={1}
+          sx={{ mb: 1.25 }}
+        >
+          <Stack direction="row" spacing={0.9} alignItems="center">
+            <Box sx={{ display: 'flex', color: BLUE, '& svg': { fontSize: 19 } }}>
+              <GroupsOutlinedIcon />
+            </Box>
+            <Typography sx={{ fontSize: '.88rem', fontWeight: 750, color: NAVY }}>
               Participants
             </Typography>
-            <Typography sx={{ fontSize: '0.68rem', color: '#7b8ba1' }}>
-              {attendance.all.length} {attendance.all.length === 1 ? 'participant' : 'participants'}
-            </Typography>
+          </Stack>
+
+          <Box
+            sx={{
+              px: 0.9,
+              py: 0.2,
+              borderRadius: '6px',
+              bgcolor: '#EFF6FB',
+              color: MUTED,
+              fontSize: '.66rem',
+              fontWeight: 700,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {count} {count === 1 ? 'participant' : 'participants'}
           </Box>
+        </Stack>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: 1.5,
+          }}
+        >
+          {attendance.all.slice(0, 6).map((person, index) => (
+            <Box key={person.email || person.name || index} sx={{ minWidth: 0 }}>
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  fontSize: '.68rem',
+                  fontWeight: 700,
+                  bgcolor: '#dfe8ff',
+                  color: '#245ea8',
+                }}
+              >
+                {getInitials(person.name)}
+              </Avatar>
+
+              <Typography
+                noWrap
+                sx={{ mt: 0.6, fontSize: '.72rem', fontWeight: 600, color: NAVY }}
+              >
+                {person.name}
+              </Typography>
+
+              {(person.role || person.title || person.department) && (
+                <Typography noWrap sx={{ fontSize: '.64rem', color: MUTED }}>
+                  {person.role || person.title || person.department}
+                </Typography>
+              )}
+            </Box>
+          ))}
         </Box>
 
         <Button
-          variant="outlined"
           onClick={() => setOpen(true)}
+          endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: '15px !important' }} />}
           sx={{
+            mt: 1,
+            px: 0,
+            minWidth: 0,
             textTransform: 'none',
-            fontSize: '0.72rem',
-            fontWeight: 600,
-            whiteSpace: 'nowrap',
-            px: 1.5,
-            py: 0.65,
-            flexShrink: 0,
+            fontSize: '.73rem',
+            fontWeight: 700,
+            color: BLUE,
+            '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
           }}
         >
-          View participants
+          View all participants
         </Button>
       </Paper>
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{ sx: { borderRadius: '10px' } }}
+      >
         <DialogTitle
           sx={{
             display: 'flex',
@@ -94,17 +150,14 @@ export default function ParticipantsPreview({ attendance, meeting }) {
             color: '#24364d',
           }}
         >
-          All participants ({attendance.all.length})
+          All participants ({count})
           <IconButton size="small" onClick={() => setOpen(false)} aria-label="Close">
             <CloseOutlinedIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
 
         <DialogContent sx={{ pb: 2.5 }}>
-          <ParticipantGroups
-            attendance={attendance}
-            meeting={meeting}
-          />
+          <ParticipantGroups attendance={attendance} meeting={meeting} />
         </DialogContent>
       </Dialog>
     </>

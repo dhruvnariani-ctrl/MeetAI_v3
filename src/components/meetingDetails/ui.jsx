@@ -15,12 +15,12 @@ export function SectionCard({
     <Paper
       elevation={0}
       sx={{
-        border: '1px solid #dce3eb',
-        borderRadius: 2.5,
+        border: '1px solid #DFE7EC',
+        borderRadius: '10px',
         bgcolor: '#fff',
         p: {
           xs: 1.75,
-          sm: 2.25,
+          sm: 2,
         },
       }}
     >
@@ -29,14 +29,14 @@ export function SectionCard({
           display: 'flex',
           alignItems: 'center',
           gap: 0.9,
-          mb: 1.5,
+          mb: 1.25,
         }}
       >
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            color: 'primary.main',
+            color: '#0967B2',
 
             '& svg': {
               fontSize: 19,
@@ -48,9 +48,9 @@ export function SectionCard({
 
         <Typography
           sx={{
-            fontSize: '0.9rem',
-            fontWeight: 700,
-            color: '#24364d',
+            fontSize: '0.88rem',
+            fontWeight: 750,
+            color: '#123A59',
           }}
         >
           {title}
@@ -71,10 +71,10 @@ export function InfoCard({
     <Paper
       elevation={0}
       sx={{
-        border: '1px solid #dce3eb',
-        borderRadius: 2.5,
+        border: '1px solid #DFE7EC',
+        borderRadius: '10px',
         bgcolor: '#fff',
-        p: 1.75,
+        p: 1.5,
       }}
     >
       <Box
@@ -99,10 +99,10 @@ export function InfoCard({
 
       <Typography
         sx={{
-          mt: 0.8,
-          fontSize: '0.92rem',
+          mt: 0.6,
+          fontSize: '0.88rem',
           fontWeight: 700,
-          color: '#24364d',
+          color: '#123A59',
         }}
       >
         {value}
@@ -134,16 +134,16 @@ export function NotReadyMessage({
   return (
     <Box
       sx={{
-        p: 1.5,
-        borderRadius: 1.75,
+        p: 1.25,
+        borderRadius: '8px',
         bgcolor: '#f8fafc',
         border: '1px solid #e5eaf0',
       }}
     >
       <Typography
         sx={{
-          fontSize: '0.76rem',
-          lineHeight: 1.65,
+          fontSize: '0.74rem',
+          lineHeight: 1.6,
           color: '#66778d',
         }}
       >

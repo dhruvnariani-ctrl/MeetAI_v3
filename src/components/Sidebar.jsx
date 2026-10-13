@@ -1,4 +1,5 @@
 import { Link as RouterLink, useLocation } from 'react-router-dom'
+
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import ButtonBase from '@mui/material/ButtonBase'
@@ -11,26 +12,26 @@ import ListItemText from '@mui/material/ListItemText'
 import Tooltip from '@mui/material/Tooltip'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
-import { visuallyHidden } from '@mui/utils'
 
-import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
-// import PlayCircleOutlinedIcon from '@mui/icons-material/PlayCircleOutlined'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
-import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined'
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined'
-// import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined'
-import SyncIcon from '@mui/icons-material/Sync'
-import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import SyncOutlinedIcon from '@mui/icons-material/SyncOutlined'
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined'
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft'
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight'
+
+import { formatTime } from '../utils/time'
+import Logo from './Logo'
 
 const NAV_ITEMS = [
   {
     id: 'dashboard',
     label: 'Dashboard',
     to: '/',
-    Icon: GridViewOutlinedIcon,
+    Icon: HomeRoundedIcon,
   },
   {
     id: 'calendar',
@@ -50,49 +51,76 @@ const NAV_ITEMS = [
     to: '/tasks',
     Icon: AssignmentTurnedInOutlinedIcon,
   },
-
-  // Hidden for now.
-  // {
-  //   id: 'upcoming',
-  //   label: 'Upcoming meetings',
-  //   to: '/upcoming',
-  //   Icon: PlayCircleOutlinedIcon,
-  // },
-
-  // {
-  //   id: 'all',
-  //   label: 'All Meetings',
-  //   to: '/all',
-  //   Icon: VideocamOutlinedIcon,
-  // },
 ]
 
 const EXPANDED_W = 256
-const COLLAPSED_W = 72
+const COLLAPSED_W = 76
 
-const HEADER_H = 56
+/* On short screens (laptops, zoomed browsers) tighten spacing so nothing needs to scroll */
+const SHORT = '@media (max-height: 760px)'
 
-const bg =
-  'linear-gradient(180deg, #e6f0fc 0%, #edf4fd 60%, #f4f8fe 100%)'
+const SIDEBAR_BG =
+  'linear-gradient(180deg, #F0F6FE 0%, #EAF3FC 55%, #F7FAFD 100%)'
 
-const formatTime = (d) =>
-  new Intl.DateTimeFormat([], {
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(d)
+/* MeetAI brand: glossy ribbon "M" (/public/images/meetai-logo-256.png) + wordmark */
+function MeetAIBrand({ expanded }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: expanded ? 'flex-start' : 'center',
+        gap: 1,
+        height: 48,
+        px: expanded ? 1.25 : 0,
+        mb: 1.5,
+        color: '#123A59',
+        [SHORT]: { height: 40, mb: 0.5 },
+      }}
+    >
+      <Box
+        component="img"
+        src="/images/meetai-logo-256.png"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        sx={{
+          width: 36,
+          height: 36,
+          flexShrink: 0,
+          [SHORT]: { width: 30, height: 30 },
+          display: 'block',
+          objectFit: 'contain',
+        }}
+      />
+
+      {expanded && (
+        <Box
+          component="span"
+          sx={{
+            fontSize: '1.2rem',
+            fontWeight: 700,
+            letterSpacing: '-0.01em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          MeetAI
+        </Box>
+      )}
+    </Box>
+  )
+}
 
 function SidebarAction({
   Icon,
   label,
   expanded,
   onClick,
-  tooltip,
   component,
   to,
+  tooltip,
   ...rest
 }) {
-  const hide = expanded ? {} : visuallyHidden
-
   return (
     <Tooltip
       title={tooltip ?? (expanded ? '' : label)}
@@ -108,30 +136,40 @@ function SidebarAction({
           display: 'flex',
           alignItems: 'center',
           justifyContent: expanded ? 'flex-start' : 'center',
-          gap: '18px',
-
+          gap: '14px',
           width: expanded ? '100%' : 48,
-          height: expanded ? 40 : 48,
-
+          height: 40,
+          [SHORT]: { height: 36 },
           mx: 'auto',
-          px: expanded ? '20px' : 0,
-
-          borderRadius: expanded ? '10px' : '14px',
-
-          fontSize: '0.9rem',
+          px: expanded ? '14px' : 0,
+          borderRadius: '10px',
+          color: '#304858',
+          fontSize: '0.82rem',
           fontWeight: 500,
-          color: 'text.primary',
-
+          textAlign: 'left',
           '&:hover': {
-            bgcolor: 'rgba(10,98,201,.08)',
+            bgcolor: 'rgba(9,103,178,0.08)',
+          },
+          '&:focus-visible': {
+            outline: '2px solid #0967B2',
+            outlineOffset: 2,
           },
         }}
       >
-        <Icon sx={{ fontSize: 20 }} />
+        <Icon sx={{ fontSize: 20, flexShrink: 0 }} />
 
-        <Box component="span" sx={hide}>
-          {label}
-        </Box>
+        {expanded && (
+          <Box
+            component="span"
+            sx={{
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {label}
+          </Box>
+        )}
       </ButtonBase>
     </Tooltip>
   )
@@ -145,7 +183,6 @@ function SidebarContent({
   onToggle,
   lastSynced,
   onSync,
-  onHelp,
 }) {
   const { pathname } = useLocation()
 
@@ -153,8 +190,6 @@ function SidebarContent({
     to === '/'
       ? pathname === '/'
       : pathname === to || pathname.startsWith(`${to}/`)
-
-  const hide = expanded ? {} : visuallyHidden
 
   const syncedText = lastSynced
     ? `Last updated ${formatTime(lastSynced)}`
@@ -165,102 +200,42 @@ function SidebarContent({
       sx={{
         display: 'flex',
         flexDirection: 'column',
-
         width: '100%',
         height: '100%',
         minHeight: 0,
-
-        overflow: 'hidden',
-
-        p: '14px 12px 10px',
         boxSizing: 'border-box',
+        overflow: 'hidden',
+        px: 1.5,
+        pt: 2,
+        pb: 1.25,
       }}
     >
-      {/* =====================================================
-          NAVIGATION AREA
-          Only this section is allowed to scroll.
-          ===================================================== */}
+      <MeetAIBrand expanded={expanded} />
+
+      {/* Middle area: only scrolls on very short screens, scrollbar hidden */}
       <Box
-        component="nav"
-        aria-label="Primary"
         sx={{
           flex: 1,
           minHeight: 0,
-
+          display: 'flex',
+          flexDirection: 'column',
           overflowY: 'auto',
           overflowX: 'hidden',
-
-          pr: 0.25,
-
-          scrollbarWidth: 'thin',
-
-          '&::-webkit-scrollbar': {
-            width: 6,
-          },
-
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'rgba(11,37,69,.22)',
-            borderRadius: 999,
-          },
-
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: 'transparent',
-          },
+          px: 0.25,
+          pt: 0.75,
+          pb: 0.5,
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
-        {/* Add MeetAI */}
-        <Tooltip
-          title={expanded ? '' : 'Add MeetAI to a Meeting'}
-          placement="right"
-        >
-          <Button
-            data-tour="Add MeetAI to a Meeting"
-            variant="contained"
-            disableElevation
-            onClick={onInstantJoin}
-            sx={{
-              display: 'flex',
-              gap: 1.25,
-
-              mx: 'auto',
-
-              width: expanded ? '100%' : 48,
-              minWidth: 0,
-
-              height: expanded ? 44 : 48,
-
-              p: 0,
-
-              borderRadius: expanded ? '22px' : '50%',
-
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-
-              background:
-                'linear-gradient(90deg, #0f9f78, #0a62c9)',
-
-              '&:hover': {
-                filter: 'brightness(1.08)',
-              },
-            }}
-          >
-            <BoltOutlinedIcon sx={{ fontSize: 22 }} />
-
-            <Box component="span" sx={hide}>
-              Add MeetAI to a Meeting
-            </Box>
-          </Button>
-        </Tooltip>
-
-        {/* Navigation items */}
+      <Box component="nav" aria-label="Primary navigation">
         <List
           data-tour="sidebar-navigation"
-          role="list"
           disablePadding
           sx={{
-            mt: 1.5,
             display: 'grid',
-            gap: '4px',
+            gap: '6px',
+            [SHORT]: { gap: '3px' },
           }}
         >
           {NAV_ITEMS.map(({ id, label, to, Icon }) => {
@@ -276,106 +251,125 @@ function SidebarContent({
                     component={RouterLink}
                     to={to}
                     selected={selected}
-                    aria-current={
-                      selected ? 'page' : undefined
-                    }
+                    aria-current={selected ? 'page' : undefined}
                     onClick={onItemClick}
                     sx={{
-                      height: expanded ? 40 : 48,
-
+                      minHeight: 44,
+                      [SHORT]: { minHeight: 38 },
                       width: expanded ? '100%' : 48,
-
                       mx: 'auto',
-
-                      px: expanded ? '20px' : 0,
-
-                      justifyContent: expanded
-                        ? 'flex-start'
-                        : 'center',
-
-                      borderRadius: expanded
-                        ? '10px'
-                        : '14px',
-
-                      color: 'text.primary',
-
+                      px: expanded ? '14px' : 0,
+                      justifyContent: expanded ? 'flex-start' : 'center',
+                      borderRadius: '12px',
+                      color: '#304858',
+                      '&:hover': {
+                        bgcolor: 'rgba(9,103,178,0.08)',
+                      },
                       '&.Mui-selected, &.Mui-selected:hover': {
-                        bgcolor: '#d6e6fa',
+                        bgcolor: 'rgba(205,235,250,0.85)',
+                        color: '#0967B2',
+                        boxShadow: '0 2px 8px rgba(9,103,178,0.10)',
                       },
                     }}
                   >
                     <ListItemIcon
                       sx={{
                         minWidth: 0,
-
-                        mr: expanded
-                          ? '18px'
-                          : 0,
-
+                        mr: expanded ? '14px' : 0,
                         color: 'inherit',
+                        justifyContent: 'center',
                       }}
                     >
                       <Icon sx={{ fontSize: 20 }} />
                     </ListItemIcon>
 
-                    <ListItemText
-                      primary={label}
-                      sx={{
-                        m: 0,
-
-                        ...hide,
-
-                        '& .MuiTypography-root': {
-                          fontSize: '0.9rem',
-                          fontWeight: 500,
-                          whiteSpace: 'nowrap',
-                        },
-                      }}
-                    />
+                    {expanded && (
+                      <ListItemText
+                        primary={label}
+                        sx={{
+                          minWidth: 0,
+                          m: 0,
+                          '& .MuiTypography-root': {
+                            fontSize: '0.82rem',
+                            fontWeight: selected ? 650 : 500,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          },
+                        }}
+                      />
+                    )}
                   </ListItemButton>
                 </Tooltip>
               </ListItem>
             )
           })}
         </List>
+
+        <Tooltip
+          title={expanded ? '' : 'Start MeetAI'}
+          placement="right"
+        >
+          <Button
+            data-tour="Add MeetAI to a Meeting"
+            variant="contained"
+            disableElevation
+            onClick={onInstantJoin}
+            aria-label="Start MeetAI"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 0.75,
+              width: expanded ? '100%' : 48,
+              minWidth: 0,
+              minHeight: 40,
+              mx: 'auto',
+              mt: 3,
+              [SHORT]: { mt: 2, minHeight: 38 },
+              px: expanded ? '14px' : 0,
+              borderRadius: '10px',
+              color: '#fff',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              background: 'linear-gradient(100deg, #0967B2, #438FF0)',
+              boxShadow: '0 4px 12px rgba(9,103,178,0.22)',
+              '&:hover': {
+                background: 'linear-gradient(100deg, #075A9C, #327FE0)',
+              },
+            }}
+          >
+            <AddRoundedIcon sx={{ fontSize: 20, flexShrink: 0 }} />
+
+            {expanded && <span>Add MeetAI to a Meeting</span>}
+          </Button>
+        </Tooltip>
       </Box>
 
-      {/* =====================================================
-          BOTTOM CONTROLS
-          These never scroll out of the viewport.
-          ===================================================== */}
+      {/* Utility controls */}
       <Box
         data-tour="sidebar-controls"
         sx={{
           flexShrink: 0,
-
           display: 'grid',
-          gap: '4px',
-
-          pt: 1,
-
-          borderTop:
-            '1px solid rgba(11,37,69,.1)',
+          gap: '3px',
+          pt: 2,
+          mt: 'auto',
+          [SHORT]: { pt: 1 },
         }}
       >
-        {/* Refresh */}
         <SidebarAction
-          Icon={SyncIcon}
+          Icon={SyncOutlinedIcon}
           label="Refresh"
           expanded={expanded}
           onClick={onSync}
-          tooltip={
-            <>
-              <strong>Refresh</strong>
-              <br />
-              {syncedText}
-            </>
-          }
+          tooltip={`Refresh — ${syncedText}`}
         />
 
-        {/* How it works */}
         <SidebarAction
-          Icon={HelpOutlinedIcon}
+          Icon={HelpOutlineOutlinedIcon}
           label="How it works"
           expanded={expanded}
           component={RouterLink}
@@ -383,25 +377,38 @@ function SidebarContent({
           onClick={onItemClick}
         />
 
-        {/* Collapse */}
         {showCollapse && (
           <SidebarAction
             Icon={
               expanded
-                ? ChevronLeftIcon
-                : ChevronRightIcon
+                ? KeyboardDoubleArrowLeftIcon
+                : KeyboardDoubleArrowRightIcon
             }
-            label={
-              expanded
-                ? 'Collapse'
-                : 'Expand sidebar'
-            }
+            label={expanded ? 'Collapse' : 'Expand sidebar'}
             expanded={expanded}
             onClick={onToggle}
             aria-expanded={expanded}
             aria-controls="sidebar"
           />
         )}
+      </Box>
+
+      </Box>
+
+      {/* Avaada brand footer: always anchored at the bottom */}
+      <Box
+        sx={{
+          flexShrink: 0,
+          mt: 1.5,
+          pb: 0.5,
+          [SHORT]: { mt: 0.5 },
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <Logo compact={!expanded} />
       </Box>
     </Box>
   )
@@ -413,27 +420,16 @@ export default function Sidebar({
   onInstantJoin,
   lastSynced,
   onSync,
-  onHelp,
 }) {
   const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-  const isMobile = useMediaQuery(
-    theme.breakpoints.down('md'),
-    {
-      noSsr: true,
-    },
-  )
-
-  const shared = {
+  const sharedProps = {
     onInstantJoin,
     lastSynced,
     onSync,
-    onHelp,
   }
 
-  /* =====================================================
-     MOBILE
-     ===================================================== */
   if (isMobile) {
     return (
       <Drawer
@@ -442,20 +438,15 @@ export default function Sidebar({
         variant="temporary"
         open={open}
         onClose={onToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
+        ModalProps={{ keepMounted: true }}
         sx={{
           '& .MuiDrawer-paper': {
             width: EXPANDED_W,
-
-            height: '100vh',
-            maxHeight: '100vh',
-
+            height: '100dvh',
+            maxHeight: '100dvh',
             boxSizing: 'border-box',
-
-            background: bg,
-
+            background: SIDEBAR_BG,
+            borderRight: '1px solid #DFE7EC',
             overflow: 'hidden',
           },
         }}
@@ -465,65 +456,40 @@ export default function Sidebar({
           showCollapse={false}
           onItemClick={onToggle}
           onToggle={onToggle}
-          {...shared}
+          {...sharedProps}
         />
       </Drawer>
     )
   }
 
-  /* =====================================================
-     DESKTOP / TABLET
-     ===================================================== */
-
-  const w = open ? EXPANDED_W : COLLAPSED_W
+  const width = open ? EXPANDED_W : COLLAPSED_W
 
   return (
     <Drawer
       id="sidebar"
-      variant="permanent"
       data-tour="sidebar"
+      variant="permanent"
       sx={{
-        width: w,
-
-        // Sidebar starts below the 56px header.
-        height: `calc(100vh - ${HEADER_H}px)`,
-
+        width,
+        height: '100dvh',
         flexShrink: 0,
-
-        transition: theme.transitions.create(
-          'width',
-          {
-            duration: 200,
-          },
-        ),
-
+        transition: theme.transitions.create('width', {
+          duration: 200,
+        }),
         '& .MuiDrawer-paper': {
           position: 'relative',
-
-          width: w,
-
-          // IMPORTANT:
-          // The header already occupies 56px.
-          height: `calc(100vh - ${HEADER_H}px)`,
-          maxHeight: `calc(100vh - ${HEADER_H}px)`,
-
+          width,
+          height: '100dvh',
+          maxHeight: '100dvh',
           boxSizing: 'border-box',
-
           flexShrink: 0,
-
           border: 0,
-
-          background: bg,
-
-          // Never allow the whole sidebar to scroll.
+          borderRight: '1px solid #DFE7EC',
+          background: SIDEBAR_BG,
           overflow: 'hidden',
-
-          transition: theme.transitions.create(
-            'width',
-            {
-              duration: 200,
-            },
-          ),
+          transition: theme.transitions.create('width', {
+            duration: 200,
+          }),
         },
       }}
     >
@@ -531,7 +497,7 @@ export default function Sidebar({
         expanded={open}
         showCollapse
         onToggle={onToggle}
-        {...shared}
+        {...sharedProps}
       />
     </Drawer>
   )

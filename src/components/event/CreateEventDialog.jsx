@@ -1,25 +1,39 @@
 import { useId, useRef, useState } from 'react'
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
 import FormHelperText from '@mui/material/FormHelperText'
 import FormLabel from '@mui/material/FormLabel'
-import IconButton from '@mui/material/IconButton'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
-import CloseIcon from '@mui/icons-material/Close'
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
+import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined'
+import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined'
+import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined'
+import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
 import FormField, { labelSx } from '../instant/FormField'
 import ParticipantPicker from '../instant/ParticipantPicker'
+import DialogShell, {
+  ACCENTS,
+  COLORS,
+  ChoiceCard,
+  Section,
+  SummaryRow,
+  controlSx,
+} from '../instant/DialogShell'
 import SelectField from './SelectedField'
 
 const LABEL_SIZE = '0.75rem' // 12px labels
+const BLUE = '#0967B2'
 
 const PLATFORMS = [
   { id: 'teams', label: 'Microsoft Teams' },
@@ -47,9 +61,30 @@ function defaultTimes() {
   return { start: toTimeInput(s), end: toTimeInput(new Date(s.getTime() + 30 * 60000)) }
 }
 
+/* Display helpers for the live summary. */
+function formatDay(value) {
+  const d = new Date(`${value}T00:00:00`)
+  return Number.isNaN(d.getTime())
+    ? null
+    : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function formatClock(value) {
+  if (!value) return null
+  const [h, m] = value.split(':').map(Number)
+  const d = new Date()
+  d.setHours(h, m, 0, 0)
+  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+}
+
+function minutesBetween(start, end) {
+  if (!start || !end || end <= start) return null
+  const [sh, sm] = start.split(':').map(Number)
+  const [eh, em] = end.split(':').map(Number)
+  return eh * 60 + em - (sh * 60 + sm)
+}
+
 export default function CreateEventDialog({ open, onClose, onSubmit, currentUser, searchDirectory }) {
-  const theme = useTheme()
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const titleId = useId()
   const descId = useId()
 
@@ -103,33 +138,34 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
   }
 
   return (
-    <Dialog
+    <DialogShell
       open={open}
       onClose={onClose}
-      fullScreen={fullScreen}
-      aria-labelledby={titleId}
-      aria-describedby={descId}
-      sx={{ '& .MuiDialog-paper': { width: 520, maxWidth: '100%', borderRadius: fullScreen ? 0 : '20px', overflowY: 'auto' } }}
+      titleId={titleId}
+      descId={descId}
+      icon={<EventOutlinedIcon />}
+      title="Create an event"
+      subtitle="Schedule a meeting and invite participants"
+      accent={ACCENTS.blue}
+      sideLabel="Live summary"
+      side={
+        <EventSummary
+          title={title}
+          date={date}
+          instant={instant}
+          start={start}
+          end={end}
+          duration={duration}
+          platformLabels={PLATFORMS.filter((p) => platforms[p.id]).map((p) => p.label)}
+          participants={participants}
+          inviteMeetAI={inviteMeetAI}
+          recordVideo={recordVideo}
+        />
+      }
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2.25, py: 1.75, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Box aria-hidden="true" sx={{ display: 'grid', placeItems: 'center', width: 44, height: 44, flexShrink: 0, borderRadius: '14px', bgcolor: '#e3eefc', border: '1px solid #c5d9f5', color: 'primary.main' }}>
-          <EventOutlinedIcon />
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography id={titleId} component="h2" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.3 }}>
-            Create an event
-          </Typography>
-          <Typography id={descId} sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
-            Schedule a meeting and invite participants
-          </Typography>
-        </Box>
-        <IconButton aria-label="Close" onClick={onClose} sx={{ ml: 'auto', color: 'text.secondary' }}>
-          <CloseIcon />
-        </IconButton>
-      </Box>
-
-      <DialogContent sx={{ px: 2.25, pt: 2.25, pb: 2.5, overflowY: 'visible', flex: '0 0 auto' }}>
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ display: 'grid', gap: 2.25 }}>
+      <Box component="form" noValidate onSubmit={handleSubmit} sx={{ display: 'grid', gap: 2.25 }}>
+        {/* WHAT */}
+        <Section accent={ACCENTS.green} icon={<EditOutlinedIcon />} title="What">
           <FormField
             label="Title"
             required
@@ -142,82 +178,143 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
             error={!!errors.title}
             helper={errors.title}
           />
+        </Section>
 
-          <FormField
-            label="Date"
-            required
-            labelFontSize={LABEL_SIZE}
-            ref={refs.date}
-            type="date"
-            value={date}
-            onChange={(e) => { setDate(e.target.value); clearError('date') }}
-            inputAttrs={{ min: toDateInput(new Date()) }}
-            error={!!errors.date}
-            helper={errors.date}
-          />
+        {/* WHEN */}
+        <Section accent={ACCENTS.blue} icon={<ScheduleOutlinedIcon />} title="When">
+          <FormControl component="fieldset" variant="standard">
+            <FormLabel component="legend" sx={{ ...labelSx, fontSize: LABEL_SIZE }}>Start</FormLabel>
+            <RadioGroup
+              row
+              value={instant ? 'now' : 'later'}
+              onChange={(e) => setInstant(e.target.value === 'now')}
+              sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}
+            >
+              <ChoiceCard
+                accent={ACCENTS.blue}
+                checked={!instant}
+                control={<Radio value="later" size="small" sx={controlSx(ACCENTS.blue)} />}
+              >
+                <Stack direction="row" spacing={0.6} alignItems="center">
+                  <CalendarMonthOutlinedIcon sx={{ fontSize: 16, color: ACCENTS.blue.color }} />
+                  <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>Schedule for later</Typography>
+                </Stack>
+              </ChoiceCard>
 
-          {instant ? (
-            <SelectField label="Duration" labelFontSize={LABEL_SIZE} value={duration} onChange={setDuration} options={DURATIONS} />
-          ) : (
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, alignItems: 'start' }}>
+              <ChoiceCard
+                accent={ACCENTS.blue}
+                checked={instant}
+                control={<Radio value="now" size="small" sx={controlSx(ACCENTS.blue)} />}
+              >
+                <Stack direction="row" spacing={0.6} alignItems="center">
+                  <BoltOutlinedIcon sx={{ fontSize: 16, color: ACCENTS.blue.color }} />
+                  <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>Start now</Typography>
+                </Stack>
+              </ChoiceCard>
+            </RadioGroup>
+          </FormControl>
+
+          <Typography sx={{ fontSize: '.74rem', color: COLORS.muted, mt: -0.5 }}>
+            {instant
+              ? 'Start the event right away — only a duration is needed.'
+              : 'Pick the date and the start and end time.'}
+          </Typography>
+
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 1.25,
+              alignItems: 'start',
+              gridTemplateColumns: instant
+                ? { xs: '1fr', sm: '1fr 1fr' }
+                : { xs: '1fr 1fr', sm: '1.4fr 1fr 1fr' },
+            }}
+          >
+            <Box sx={{ gridColumn: { xs: instant ? 'auto' : '1 / -1', sm: 'auto' } }}>
               <FormField
-                label="Start time"
+                label="Date"
                 required
                 labelFontSize={LABEL_SIZE}
-                ref={refs.start}
-                type="time"
-                value={start}
-                onChange={(e) => { setStart(e.target.value); clearError('start'); clearError('end') }}
-                error={!!errors.start}
-                helper={errors.start}
-              />
-              <FormField
-                label="End time"
-                required
-                labelFontSize={LABEL_SIZE}
-                ref={refs.end}
-                type="time"
-                value={end}
-                onChange={(e) => { setEnd(e.target.value); clearError('end') }}
-                error={!!errors.end}
-                helper={errors.end}
+                ref={refs.date}
+                type="date"
+                value={date}
+                onChange={(e) => { setDate(e.target.value); clearError('date') }}
+                inputAttrs={{ min: toDateInput(new Date()) }}
+                error={!!errors.date}
+                helper={errors.date}
               />
             </Box>
-          )}
 
-          <Box>
-            <FormControlLabel
-              sx={{ ml: -0.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem', fontWeight: 500 } }}
-              control={<Checkbox size="small" checked={instant} onChange={(e) => setInstant(e.target.checked)} />}
-              label="Instant join"
-            />
-            <Typography sx={{ ml: 3.5, fontSize: '0.78rem', color: 'text.secondary' }}>
-              Start the event right away — only a duration is needed.
-            </Typography>
+            {instant ? (
+              <SelectField label="Duration" labelFontSize={LABEL_SIZE} value={duration} onChange={setDuration} options={DURATIONS} />
+            ) : (
+              <>
+                <FormField
+                  label="Start time"
+                  required
+                  labelFontSize={LABEL_SIZE}
+                  ref={refs.start}
+                  type="time"
+                  value={start}
+                  onChange={(e) => { setStart(e.target.value); clearError('start'); clearError('end') }}
+                  error={!!errors.start}
+                  helper={errors.start}
+                />
+                <FormField
+                  label="End time"
+                  required
+                  labelFontSize={LABEL_SIZE}
+                  ref={refs.end}
+                  type="time"
+                  value={end}
+                  onChange={(e) => { setEnd(e.target.value); clearError('end') }}
+                  error={!!errors.end}
+                  helper={errors.end}
+                />
+              </>
+            )}
           </Box>
+        </Section>
 
+        {/* WHERE */}
+        <Section accent={ACCENTS.purple} icon={<VideoCallOutlinedIcon />} title="Where">
           <FormControl component="fieldset" required error={!!errors.platforms} variant="standard">
-            <FormLabel component="legend" sx={{ ...labelSx, fontSize: LABEL_SIZE, mb: 0.25 }}>Video conferencing</FormLabel>
-            <FormGroup row sx={{ columnGap: 1 }}>
+            <FormLabel component="legend" sx={{ ...labelSx, fontSize: LABEL_SIZE }}>Video conferencing</FormLabel>
+            <Box
+              sx={{
+                display: 'grid',
+                gap: 1,
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
+              }}
+            >
               {PLATFORMS.map((p, i) => (
-                <FormControlLabel
+                <ChoiceCard
                   key={p.id}
-                  sx={{ ml: -0.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                  accent={ACCENTS.purple}
+                  checked={platforms[p.id]}
                   control={
                     <Checkbox
                       size="small"
                       checked={platforms[p.id]}
                       inputRef={i === 0 ? refs.platforms : undefined}
-                      onChange={(e) => { setPlatforms((cur) => ({ ...cur, [p.id]: e.target.checked })); clearError('platforms') }}
+                      onChange={(e) => {
+                        setPlatforms((cur) => ({ ...cur, [p.id]: e.target.checked }))
+                        clearError('platforms')
+                      }}
+                      sx={controlSx(ACCENTS.purple)}
                     />
                   }
-                  label={p.label}
-                />
+                >
+                  <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>{p.label}</Typography>
+                </ChoiceCard>
               ))}
-            </FormGroup>
+            </Box>
             {errors.platforms && <FormHelperText role="alert" sx={{ mx: 0 }}>{errors.platforms}</FormHelperText>}
           </FormControl>
+        </Section>
 
+        {/* WHO */}
+        <Section accent={ACCENTS.orange} icon={<GroupsOutlinedIcon />} title="Who">
           <ParticipantPicker
             labelFontSize={LABEL_SIZE}
             hint="(invited to this event)"
@@ -227,47 +324,165 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
             onAdd={(p) => setParticipants((list) => [...list, p])}
             onRemove={(email) => setParticipants((list) => list.filter((p) => p.email !== email))}
           />
+        </Section>
 
-          <Box sx={{ p: 1.5, borderRadius: '10px', bgcolor: '#eef4f9', border: '1px solid #dbe5ee' }}>
-            <FormControlLabel
-              sx={{ ml: -0.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem', fontWeight: 600 } }}
+        {/* MEETAI */}
+        <Section accent={ACCENTS.green} icon={<AutoAwesomeOutlinedIcon />} title="MeetAI" hint="optional">
+          <ChoiceCard
+            accent={ACCENTS.green}
+            checked={inviteMeetAI}
+            control={
+              <Checkbox
+                size="small"
+                checked={inviteMeetAI}
+                onChange={(e) => {
+                  setInviteMeetAI(e.target.checked)
+                  if (!e.target.checked) setRecordVideo(false)
+                }}
+                sx={controlSx(ACCENTS.green)}
+              />
+            }
+          >
+            <Typography sx={{ fontSize: '.82rem', fontWeight: 700 }}>Invite MeetAI</Typography>
+            <Typography sx={{ fontSize: '.74rem', color: COLORS.muted, lineHeight: 1.5 }}>
+              Avaada Meet Companion joins to capture the transcript and email MoM + action items.
+            </Typography>
+          </ChoiceCard>
+
+          {inviteMeetAI && (
+            <ChoiceCard
+              accent={ACCENTS.green}
+              checked={recordVideo}
               control={
                 <Checkbox
                   size="small"
-                  checked={inviteMeetAI}
-                  onChange={(e) => { setInviteMeetAI(e.target.checked); if (!e.target.checked) setRecordVideo(false) }}
+                  checked={recordVideo}
+                  onChange={(e) => setRecordVideo(e.target.checked)}
+                  sx={controlSx(ACCENTS.green)}
                 />
               }
-              label="Invite MeetAI"
-            />
-            <Typography sx={{ ml: 3.5, fontSize: '0.8125rem', color: 'text.secondary', lineHeight: 1.6 }}>
-              Avaada Meet Companion joins to capture the transcript and email MoM + action items.
-            </Typography>
-            {inviteMeetAI && (
-              <Box sx={{ mt: 1, ml: 3.5 }}>
-                <FormControlLabel
-                  sx={{ ml: -0.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-                  control={<Checkbox size="small" checked={recordVideo} onChange={(e) => setRecordVideo(e.target.checked)} />}
-                  label="Also enable Video Recording"
-                />
-                <Typography sx={{ ml: 3.5, fontSize: '0.78rem', color: 'text.secondary' }}>
-                  Saves a video file separately (7-day retention).
-                </Typography>
-              </Box>
-            )}
-          </Box>
+            >
+              <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>Also enable Video Recording</Typography>
+              <Typography sx={{ fontSize: '.74rem', color: COLORS.muted }}>
+                Saves a video file separately (7-day retention).
+              </Typography>
+            </ChoiceCard>
+          )}
+        </Section>
 
-          <Button
-            type="submit"
-            variant="contained"
-            disableElevation
-            fullWidth
-            sx={{ height: 48, borderRadius: '12px', bgcolor: '#0f2a4d', fontSize: '1rem', '&:hover': { bgcolor: '#173a66' } }}
-          >
-            {instant ? 'Create & start now' : 'Create event'}
-          </Button>
-        </Box>
-      </DialogContent>
-    </Dialog>
+        <Button
+          type="submit"
+          variant="contained"
+          disableElevation
+          fullWidth
+          sx={{
+            height: 44,
+            borderRadius: '10px',
+            bgcolor: BLUE,
+            fontSize: '.92rem',
+            fontWeight: 700,
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#075A9D' },
+          }}
+        >
+          {instant ? 'Create & start now' : 'Create event'}
+        </Button>
+      </Box>
+    </DialogShell>
+  )
+}
+
+/* Live summary card: updates as the form changes. */
+function EventSummary({
+  title, date, instant, start, end, duration,
+  platformLabels, participants, inviteMeetAI, recordVideo,
+}) {
+  const dayText = formatDay(date)
+  const mins = minutesBetween(start, end)
+
+  const timeText = instant
+    ? `Starts now · ${DURATIONS.find((d) => d.value === duration)?.label ?? `${duration} min`}`
+    : start && end
+      ? `${formatClock(start)} – ${formatClock(end)}${mins ? ` (${mins} min)` : ''}`
+      : null
+
+  return (
+    <Box sx={{ border: '1px solid', borderColor: COLORS.border, borderRadius: '12px', bgcolor: '#fff', overflow: 'hidden' }}>
+      <Box sx={{ px: 2, py: 1.5, bgcolor: ACCENTS.blue.bg }}>
+        <Typography
+          sx={{ fontSize: '.62rem', fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: ACCENTS.blue.color }}
+        >
+          Live summary
+        </Typography>
+        <Typography
+          sx={{
+            mt: 0.4,
+            fontSize: '1rem',
+            fontWeight: 750,
+            lineHeight: 1.3,
+            overflowWrap: 'anywhere',
+            color: title.trim() ? COLORS.navy : COLORS.muted,
+          }}
+        >
+          {title.trim() || 'Untitled event'}
+        </Typography>
+      </Box>
+
+      <Box sx={{ borderTop: '2px dashed', borderColor: COLORS.border }} />
+
+      <Stack spacing={1.5} sx={{ p: 2 }}>
+        <SummaryRow icon={<CalendarMonthOutlinedIcon />} accent={ACCENTS.blue} label="Date" muted={!dayText}>
+          {dayText || 'Pick a date'}
+        </SummaryRow>
+
+        <SummaryRow icon={<AccessTimeOutlinedIcon />} accent={ACCENTS.blue} label="Time" muted={!timeText}>
+          {timeText || 'Pick a start and end time'}
+        </SummaryRow>
+
+        <SummaryRow
+          icon={<VideocamOutlinedIcon />}
+          accent={ACCENTS.purple}
+          label="Where"
+          muted={platformLabels.length === 0}
+        >
+          {platformLabels.length ? platformLabels.join(', ') : 'No platform selected'}
+        </SummaryRow>
+
+        <SummaryRow icon={<GroupsOutlinedIcon />} accent={ACCENTS.orange} label="Who">
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" aria-hidden="true">
+              {participants.slice(0, 4).map((p, i) => (
+                <Avatar
+                  key={p.email}
+                  sx={{
+                    width: 22,
+                    height: 22,
+                    ml: i ? -0.6 : 0,
+                    fontSize: '.6rem',
+                    fontWeight: 700,
+                    border: '2px solid #fff',
+                    bgcolor: ACCENTS.orange.bg,
+                    color: ACCENTS.orange.color,
+                  }}
+                >
+                  {p.name.charAt(0)}
+                </Avatar>
+              ))}
+            </Stack>
+            <span>
+              {participants.length} {participants.length === 1 ? 'participant' : 'participants'}
+            </span>
+          </Stack>
+        </SummaryRow>
+
+        <SummaryRow icon={<AutoAwesomeOutlinedIcon />} accent={ACCENTS.green} label="MeetAI" muted={!inviteMeetAI}>
+          {inviteMeetAI
+            ? recordVideo
+              ? 'Invited · transcript, notes and video'
+              : 'Invited · transcript and notes'
+            : 'Not invited'}
+        </SummaryRow>
+      </Stack>
+    </Box>
   )
 }

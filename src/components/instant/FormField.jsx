@@ -48,7 +48,7 @@ const FormField = forwardRef(function FormField(
         id={id}
         inputRef={ref}
         startAdornment={startIcon && <Box sx={{ display: 'flex', mr: 1, color: 'text.secondary' }}>{startIcon}</Box>}
-        inputProps={{ 'aria-describedby': helper ? helperId : undefined, ...inputAttrs }}
+        inputprops={{ 'aria-describedby': helper ? helperId : undefined, ...inputAttrs }}
         sx={inputSx}
       />
       {helper && (

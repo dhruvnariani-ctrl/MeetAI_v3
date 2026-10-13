@@ -1,3 +1,4 @@
+import { formatTime } from "../../utils/time"
 /* -------------------------------------------------------------------------- */
 /* Meeting state calculations                                                 */
 /* -------------------------------------------------------------------------- */
@@ -210,29 +211,6 @@ export function getParticipantAttendance(
 /* -------------------------------------------------------------------------- */
 /* Formatting                                                                 */
 /* -------------------------------------------------------------------------- */
-
-export function formatDate(value) {
-  return new Intl.DateTimeFormat(
-    'en-US',
-    {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    },
-  ).format(new Date(value))
-}
-
-export function formatTime(value) {
-  return new Intl.DateTimeFormat(
-    'en-US',
-    {
-      hour: 'numeric',
-      minute: '2-digit',
-    },
-  ).format(new Date(value))
-}
-
 export function formatTimeRange(
   start,
   end,

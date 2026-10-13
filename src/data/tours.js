@@ -1,4 +1,8 @@
 import { DASHBOARD_TOUR_STEPS } from './dashboardTours'
+import { getAllMeetings } from './meetings'
+
+const FIRST_MEETING_ID =
+  getAllMeetings()[0]?.id ?? ''
 
 /*
  * ============================================================
@@ -14,7 +18,8 @@ import { DASHBOARD_TOUR_STEPS } from './dashboardTours'
 
 export const SIDEBAR_NAVIGATION_STEP = {
   path: '/',
-  target: '[data-tour="sidebar-navigation"]',
+  target:
+    '[data-tour="sidebar-navigation"]',
   title: 'Your main pages',
   icon: 'Groups',
   body:
@@ -27,7 +32,8 @@ export const SIDEBAR_NAVIGATION_STEP = {
 
 export const SIDEBAR_INSTANT_JOIN_STEP = {
   path: '/',
-  target: '[data-tour="Add MeetAI to a Meeting"]',
+  target:
+    '[data-tour="Add MeetAI to a Meeting"]',
   title: 'Add MeetAI to a Meeting',
   icon: 'PlayCircleOutlined',
   body:
@@ -40,7 +46,8 @@ export const SIDEBAR_INSTANT_JOIN_STEP = {
 
 export const SIDEBAR_CONTROLS_STEP = {
   path: '/',
-  target: '[data-tour="sidebar-controls"]',
+  target:
+    '[data-tour="sidebar-controls"]',
   title: 'Sidebar controls',
   icon: 'HelpOutlined',
   body:
@@ -51,9 +58,10 @@ export const SIDEBAR_CONTROLS_STEP = {
     'Collapsing the sidebar gives the main content more space.',
 }
 
-export const HEADER_SEARCH_BAR_STEP={
+export const HEADER_SEARCH_BAR_STEP = {
   path: '/',
-  target: '[data-tour="header-search"]',
+  target:
+    '[data-tour="header-search"]',
   title: 'Search your meetings',
   icon: 'Search',
   body:
@@ -63,6 +71,7 @@ export const HEADER_SEARCH_BAR_STEP={
   tip:
     'Click a result to open that meeting’s details page.',
 }
+
 export const SIDEBAR_TOUR_STEPS = [
   SIDEBAR_NAVIGATION_STEP,
   SIDEBAR_INSTANT_JOIN_STEP,
@@ -228,6 +237,7 @@ export const RECORDED_MEETINGS_TOUR_STEPS = [
     tip:
       'Only meetings with an available recording are displayed here.',
   },
+
   {
     path: '/recorded',
     target:
@@ -257,7 +267,7 @@ export const RECORDED_STEP =
 
 export const MEETING_DETAILS_TOUR_STEPS = [
   {
-    path: '/meetings/m1',
+    path: `/meetings/${FIRST_MEETING_ID}`,
     target:
       '[data-tour="meeting-header"]',
     title: 'Meeting details',
@@ -271,7 +281,7 @@ export const MEETING_DETAILS_TOUR_STEPS = [
   },
 
   {
-    path: '/meetings/m1',
+    path: `/meetings/${FIRST_MEETING_ID}`,
     target:
       '[data-tour="meeting-participants"]',
     title: 'Participants',
@@ -285,7 +295,7 @@ export const MEETING_DETAILS_TOUR_STEPS = [
   },
 
   {
-    path: '/meetings/m1',
+    path: `/meetings/${FIRST_MEETING_ID}`,
     target:
       '[data-tour="meeting-content"]',
     title: 'Meeting content',

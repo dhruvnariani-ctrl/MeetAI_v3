@@ -5,17 +5,6 @@
 export const DASHBOARD_TOUR_STEPS = [
   {
     path: '/',
-    target: '[data-tour="dashboard-welcome"]',
-    title: 'Welcome to your dashboard',
-    icon: 'Today',
-    body:
-      'This is your main MeetAI screen. It gives you a quick overview of your meetings, upcoming events, and tasks that need your attention.',
-    action: 'Take a moment to look at the information on your dashboard.',
-    tip: 'You can always return here when you want a quick overview of your day.',
-  },
-
-  {
-    path: '/',
     target: '[data-tour="dashboard-todays-meetings"]',
     title: "Today's meetings",
     icon: 'CalendarMonth',
@@ -24,29 +13,6 @@ export const DASHBOARD_TOUR_STEPS = [
     action: 'Look through the meetings shown here.',
     tip: 'Completed and upcoming meetings are shown differently so they are easier to recognise.',
   },
-
-  {
-    path: '/',
-    target: '[data-tour="dashboard-next-meeting"]',
-    title: 'Your next meeting',
-    icon: 'EventAvailable',
-    body:
-      'This shows the meeting you need to pay attention to next, including its time and important meeting information.',
-    action: 'Check the time of your next meeting.',
-    tip: 'You do not need to open the full calendar just to see what is coming next.',
-  },
-
-  {
-    path: '/',
-    target: '[data-tour="dashboard-join-meeting"]',
-    title: 'Join a meeting',
-    icon: 'PlayCircleOutlined',
-    body:
-      'When it is time to join, use the Join button. It will open the meeting using its video platform.',
-    action: 'Use the Join button when you are ready to enter a meeting.',
-    tip: 'The meeting may open in Google Meet, Microsoft Teams, Zoom, or another supported platform.',
-  },
-
   {
     path: '/',
     target: '[data-tour="dashboard-meetai-status"]',
@@ -69,26 +35,18 @@ export const DASHBOARD_TOUR_STEPS = [
     tip: 'You can open My Tasks to see all of your action items together.',
   },
 
-  {
-    path: '/',
-    target: '[data-tour="dashboard-calendar-link"]',
-    title: 'Open your calendar',
-    icon: 'CalendarMonth',
-    body:
-      'The dashboard gives you a quick overview. Use View all meetings when you want to see your complete schedule.',
-    action: 'Open the calendar.',
-    tip: 'Calendar gives you Day, Week, and Month views.',
-  },
 
   {
-    path: '/',
-    target: '[data-tour="dashboard-new-meeting"]',
-    title: 'Create a new meeting',
-    icon: 'EventAvailable',
-    body:
-      'Use Create new meeting when you want to schedule a meeting with other people.',
-    action: 'Select Create new meeting to open the meeting form.',
-    tip: 'You can add the title, date, time, participants, and MeetAI settings.',
-    opensDialog: true,
-  },
+  path: '/',
+  target: '[data-tour="dashboard-new-meeting"]',
+  title: 'Quick actions',
+  icon: 'Bolt',
+  body:
+    'Use Quick actions to access common meeting and productivity features directly from your Dashboard.',
+  action:
+    'Choose Schedule meeting to create a meeting, Add MeetAI to open the instant-join dialog, View recordings to access recorded meetings, or My tasks to open your task list.',
+  tip:
+    'Schedule meeting opens the meeting form. Add MeetAI opens the instant-join dialog. View recordings and My tasks take you to their respective pages.',
+  opensDialog: false,
+},
 ]
