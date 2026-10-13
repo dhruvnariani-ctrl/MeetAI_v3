@@ -12,7 +12,7 @@ export default function CompanionBot({
   onCreateMeeting,
   onInstantMeeting,
   onAsk,
-  imageSrc = 'public/images/companion-robot.svg',
+  imageSrc = `${import.meta.env.BASE_URL}/images/companion-robot.svg`,
 }) {
   const navigate = useNavigate()
   const routes = { ...DEFAULT_ROUTES, ...routeOverrides }

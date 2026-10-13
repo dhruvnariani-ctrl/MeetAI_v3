@@ -14,7 +14,7 @@ export default function TaskBanner() {
     >
       <Box
         component="img"
-        src="/images/Solar Panels and Wind Turbines in Green Fields.png"
+        src={`${import.meta.env.BASE_URL}/images/Solar Panels and Wind Turbines in Green Fields.png`}
         alt="Solar panels and wind turbines"
         sx={{
           width: { xs: 110, sm: 160, md: 190 },

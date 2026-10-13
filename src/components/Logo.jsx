@@ -34,8 +34,8 @@ export default function Logo({ compact = false }) {
         component="img"
         src={
           compact
-            ? '/images/avaada-swoosh.png'
-            : '/images/avaada-logo.png'
+            ? `${import.meta.env.BASE_URL}/images/avaada-swoosh.png`
+            : `${import.meta.env.BASE_URL}/images/avaada-logo.png`
         }
         alt=""
         aria-hidden="true"

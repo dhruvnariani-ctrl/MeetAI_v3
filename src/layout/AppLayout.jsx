@@ -180,7 +180,7 @@ export default function AppLayout() {
 
 <CompanionBot
   meetings={getAllMeetings()}
-  imageSrc="public/images/companion-robot.svg"            
+  imageSrc={`${import.meta.env.BASE_URL}images/companion-robot.svg`}            
   onCreateMeeting={() => setCreateOpen(true)}   
   onInstantMeeting={() => setInstantOpen(true)} 
   routes={{ tasks: '/tasks', recorded: '/recorded' }}

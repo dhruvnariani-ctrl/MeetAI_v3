@@ -113,21 +113,6 @@ export const CALENDAR_STEPS = [
     tip:
       'Month view is useful when you want to see your schedule at a glance.',
   },
-
-  {
-    path: '/calendar',
-    target:
-      '[data-tour="calendar-filters"]',
-    title: 'Filter your meetings',
-    icon: 'FilterList',
-    body:
-      'Use these filters to quickly find the meetings you need.',
-    action:
-      'Try Live, Upcoming, or Done.',
-    tip:
-      'All shows every meeting available in the current calendar view.',
-  },
-
   {
     path: '/calendar',
     target:
@@ -142,21 +127,6 @@ export const CALENDAR_STEPS = [
       'You can add the meeting details and participants before saving.',
     opensDialog: true,
   },
-
-  {
-    path: '/calendar',
-    target:
-      '[data-tour="invite-meetai"]',
-    title: 'Invite MeetAI',
-    icon: 'Mic',
-    body:
-      'This switch lets you decide whether MeetAI should be invited to your meetings.',
-    action:
-      'Try turning Invite MeetAI on or off.',
-    tip:
-      'Meeting-specific MeetAI settings can also be changed on each meeting.',
-  },
-
   {
     path: '/calendar',
     target:
@@ -236,20 +206,6 @@ export const RECORDED_MEETINGS_TOUR_STEPS = [
       'Review the information on a recorded meeting.',
     tip:
       'Only meetings with an available recording are displayed here.',
-  },
-
-  {
-    path: '/recorded',
-    target:
-      '[data-tour="recorded-content-actions"]',
-    title: 'Open meeting content',
-    icon: 'PlayCircleOutlined',
-    body:
-      'Use these buttons to watch the recording, view the transcript, or open the meeting notes when they are available.',
-    action:
-      'Review the available meeting actions.',
-    tip:
-      'Buttons are disabled when that particular content is unavailable.',
   },
 ]
 

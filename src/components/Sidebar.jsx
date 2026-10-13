@@ -80,7 +80,7 @@ function MeetAIBrand({ expanded }) {
     >
       <Box
         component="img"
-        src="/images/meetai-logo-256.png"
+        src={`${import.meta.env.BASE_URL}/images/meetai-logo-256.png`}
         alt=""
         aria-hidden="true"
         draggable={false}
