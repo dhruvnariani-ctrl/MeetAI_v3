@@ -17,15 +17,11 @@ export default function CompanionFab({
         position: 'fixed',
         right: { xs: 16, md: 27 },
 
-        // Bottom-right normally; top-right at the page bottom.
-        top: isAtBottom
-          ? { xs: 16, md: 27 }
-          : 'auto',
+        top: 'auto',
 
         bottom: isAtBottom
-          ? 'auto'
+          ? { xs: 80, md: 90 }
           : { xs: 16, md: 27 },
-
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
