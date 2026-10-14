@@ -1,10 +1,12 @@
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import CompanionDialog from './CompanionDialog'
 import CompanionFab from './CompanionFab'
 import { DEFAULT_ROUTES, GREETING, getReply } from './companionEngine'
+
+const BOTTOM_THRESHOLD = 32
 
 export default function CompanionBot({
   meetings = [],
@@ -22,7 +24,66 @@ export default function CompanionBot({
 
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [messages, setMessages] = useState([{ id: 1, role: 'bot', ...GREETING }])
+  const [isAtBottom, setIsAtBottom] = useState(false)
+  const [messages, setMessages] = useState([
+    { id: 1, role: 'bot', ...GREETING },
+  ])
+
+  // Detect scrolling on either the page or a scrollable app container.
+  useEffect(() => {
+    const checkPosition = (event) => {
+      const target = event?.target
+
+      // A scrollable element inside the application.
+      if (
+        target instanceof Element &&
+        target !== document.documentElement &&
+        target !== document.body &&
+        target.scrollHeight > target.clientHeight + 1
+      ) {
+        const atBottom =
+          target.scrollTop + target.clientHeight >=
+          target.scrollHeight - BOTTOM_THRESHOLD
+
+        setIsAtBottom(atBottom)
+        return
+      }
+
+      // The browser window/document.
+      const documentElement = document.documentElement
+      const scrollTop =
+        window.scrollY ||
+        documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0
+
+      const scrollHeight = Math.max(
+        documentElement.scrollHeight,
+        document.body.scrollHeight,
+      )
+
+      const viewportHeight = window.innerHeight
+
+      const atBottom =
+        scrollTop + viewportHeight >=
+        scrollHeight - BOTTOM_THRESHOLD
+
+      setIsAtBottom(atBottom)
+    }
+
+    checkPosition()
+
+    // Capture scroll events from nested scroll containers too.
+    document.addEventListener('scroll', checkPosition, true)
+    window.addEventListener('scroll', checkPosition, { passive: true })
+    window.addEventListener('resize', checkPosition)
+
+    return () => {
+      document.removeEventListener('scroll', checkPosition, true)
+      window.removeEventListener('scroll', checkPosition)
+      window.removeEventListener('resize', checkPosition)
+    }
+  }, [])
 
   const canRun = (action) =>
     Boolean(action.to) ||
@@ -30,7 +91,12 @@ export default function CompanionBot({
     (action.command === 'instant' && onInstantMeeting)
 
   const handleSend = async (text) => {
-    const userMessage = { id: nextId(), role: 'user', text }
+    const userMessage = {
+      id: nextId(),
+      role: 'user',
+      text,
+    }
+
     const history = [...messages, userMessage]
 
     setMessages(history)
@@ -39,18 +105,21 @@ export default function CompanionBot({
     try {
       const raw = onAsk
         ? await onAsk(text, history)
-        : (await new Promise((resolve) => setTimeout(resolve, 450)),
-          getReply(text, { meetings, routes }))
+        : (
+            await new Promise((resolve) => setTimeout(resolve, 450)),
+            getReply(text, { meetings, routes })
+          )
 
-      const reply = typeof raw === 'string' ? { text: raw } : raw
+      const reply =
+        typeof raw === 'string' ? { text: raw } : raw
 
       setMessages((list) => [
         ...list,
         {
           id: nextId(),
           role: 'bot',
-          text: reply.text,
-          actions: (reply.actions || []).filter(canRun),
+          text: reply?.text || 'I could not generate a response.',
+          actions: (reply?.actions || []).filter(canRun),
         },
       ])
     } catch {
@@ -76,19 +145,24 @@ export default function CompanionBot({
     else if (action.command === 'instant') onInstantMeeting?.()
   }
 
-  const reset = () =>
-    setMessages([{ id: nextId(), role: 'bot', ...GREETING }])
+  const reset = () => {
+    setMessages([
+      { id: nextId(), role: 'bot', ...GREETING },
+    ])
+  }
 
   return (
     <>
       <CompanionFab
         open={open}
+        isAtBottom={isAtBottom}
         imageSrc={imageSrc}
         onClick={() => setOpen(true)}
       />
 
       <CompanionDialog
         open={open}
+        isAtBottom={isAtBottom}
         onClose={() => setOpen(false)}
         messages={messages}
         busy={busy}

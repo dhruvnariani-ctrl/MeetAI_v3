@@ -143,7 +143,7 @@ function Typing({ imageSrc }) {
   )
 }
 
-export default function CompanionDialog({ open, onClose, messages, busy, onSend, onAction, onReset, imageSrc }) {
+export default function CompanionDialog({ open, onClose, messages, busy, onSend, onAction, onReset, imageSrc ,isAtBottom = false}) {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const titleId = useId()
@@ -170,16 +170,25 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
       fullScreen={fullScreen}
       aria-labelledby={titleId}
       sx={{
-        '& .MuiBackdrop-root': { bgcolor: 'rgba(18, 58, 89, .18)' },
-        '& .MuiDialog-container': { alignItems: 'flex-end', justifyContent: 'flex-end' },
+        '& .MuiBackdrop-root': {
+          bgcolor: 'rgba(18, 58, 89, .18)',
+        },
+        '& .MuiDialog-container': {
+          alignItems: isAtBottom ? 'flex-start' : 'flex-end',
+          justifyContent: 'flex-end',
+        },
         '& .MuiDialog-paper': {
           m: 0,
-          mr: { sm: '27px' },
-          mb: { sm: '104px' },
-          width: 400,
+          mr: fullScreen ? 0 : { sm: '27px' },
+          mt: isAtBottom ? { xs: 0, sm: '104px' } : 0,
+          mb: isAtBottom ? 0 : { sm: '104px' },
+          width: fullScreen ? '100%' : 400,
           maxWidth: '100%',
           height: { xs: '100%', sm: 580 },
-          maxHeight: { sm: 'calc(100% - 130px)' },
+          maxHeight: {
+            xs: '100%',
+            sm: 'calc(100% - 130px)',
+          },
           borderRadius: fullScreen ? 0 : '14px',
           overflow: 'hidden',
           display: 'flex',
