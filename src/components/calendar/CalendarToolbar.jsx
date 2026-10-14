@@ -211,11 +211,11 @@ export default function CalendarToolbar({
             flex: '0 1 auto',
             justifyContent: 'space-between',
             border: '1px solid #DCE8F3',
-            borderRadius: '22px',
+            borderRadius: '12px',
             bgcolor: '#FFFFFF',
             color: '#123A59',
             textTransform: 'none',
-            fontSize: '0.8rem',
+            fontSize: '0.8125rem',
             fontWeight: 650,
             whiteSpace: 'nowrap',
             '& .MuiButton-startIcon': {
@@ -281,7 +281,7 @@ export default function CalendarToolbar({
                 '& .MuiMenuItem-root': {
                   minHeight: 40,
                   px: 1.75,
-                  fontSize: '0.82rem',
+                  fontSize: '0.8125rem',
                   color: '#123A59',
                 },
                 '& .MuiMenuItem-root:hover': {
@@ -349,11 +349,11 @@ export default function CalendarToolbar({
             px: 1.35,
             border: '1px solid',
             borderColor: activeFilterCount > 0 ? '#0967B2' : '#DCE8F3',
-            borderRadius: '22px',
+            borderRadius: '12px',
             bgcolor: activeFilterCount > 0 ? '#EAF3FC' : '#FFFFFF',
             color: '#0967B2',
             textTransform: 'none',
-            fontSize: '0.8rem',
+            fontSize: '0.8125rem',
             fontWeight: 600,
             whiteSpace: 'nowrap',
             '&:hover': {
@@ -378,7 +378,7 @@ export default function CalendarToolbar({
                 borderRadius: '999px',
                 bgcolor: '#0967B2',
                 color: '#FFFFFF',
-                fontSize: '0.72rem',
+                fontSize: '0.75rem',
                 fontWeight: 700,
               }}
             >
@@ -396,12 +396,12 @@ export default function CalendarToolbar({
             flexShrink: 0,
             height: 38,
             px: { xs: 1.35, sm: 1.8 },
-            borderRadius: '22px',
+            borderRadius: '12px',
             bgcolor: '#0967B2',
             color: '#FFFFFF',
             boxShadow: 'none',
             textTransform: 'none',
-            fontSize: '0.8rem',
+            fontSize: '0.8125rem',
             fontWeight: 700,
             whiteSpace: 'nowrap',
             '&:hover': {
@@ -431,7 +431,7 @@ export default function CalendarToolbar({
               maxWidth: 'calc(100vw - 32px)',
               p: 2,
               border: '1px solid #DFE7EC',
-              borderRadius: '14px',
+              borderRadius: '12px',
               boxShadow: '0 8px 24px rgba(18, 58, 89, 0.13)',
             },
           },
@@ -446,7 +446,7 @@ export default function CalendarToolbar({
           }}
         >
           <Typography
-            sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#123A59' }}
+            sx={{ fontSize: '0.9375rem', fontWeight: 700, color: '#123A59' }}
           >
             Filters
           </Typography>
@@ -459,7 +459,7 @@ export default function CalendarToolbar({
               minWidth: 0,
               px: 1,
               textTransform: 'none',
-              fontSize: '0.78rem',
+              fontSize: '0.75rem',
               fontWeight: 650,
               color: '#0967B2',
             }}
@@ -471,7 +471,7 @@ export default function CalendarToolbar({
         <Typography
           sx={{
             mb: 0.8,
-            fontSize: '0.78rem',
+            fontSize: '0.75rem',
             fontWeight: 700,
             color: '#456079',
           }}
@@ -480,7 +480,7 @@ export default function CalendarToolbar({
         </Typography>
 
         {platforms.length === 0 ? (
-          <Typography sx={{ mb: 1.5, fontSize: '0.78rem', color: '#5A7189' }}>
+          <Typography sx={{ mb: 1.5, fontSize: '0.75rem', color: '#5A7189' }}>
             No platforms found in your meetings.
           </Typography>
         ) : (
@@ -506,7 +506,7 @@ export default function CalendarToolbar({
                     bgcolor: selected ? '#0967B2' : '#FFFFFF',
                     color: selected ? '#FFFFFF' : '#31506B',
                     fontFamily: 'inherit',
-                    fontSize: '0.78rem',
+                    fontSize: '0.75rem',
                     fontWeight: 650,
                     '&:hover': {
                       bgcolor: selected ? '#075797' : '#F3F8FD',
@@ -527,7 +527,7 @@ export default function CalendarToolbar({
         <Typography
           sx={{
             mb: 0.4,
-            fontSize: '0.78rem',
+            fontSize: '0.75rem',
             fontWeight: 700,
             color: '#456079',
           }}
@@ -547,7 +547,7 @@ export default function CalendarToolbar({
               />
             }
             label={
-              <Typography sx={{ fontSize: '0.84rem', color: '#123A59' }}>
+              <Typography sx={{ fontSize: '0.8125rem', color: '#123A59' }}>
                 MeetAI invited
               </Typography>
             }
@@ -564,7 +564,7 @@ export default function CalendarToolbar({
               />
             }
             label={
-              <Typography sx={{ fontSize: '0.84rem', color: '#123A59' }}>
+              <Typography sx={{ fontSize: '0.8125rem', color: '#123A59' }}>
                 Hosted by me
               </Typography>
             }
@@ -578,11 +578,11 @@ export default function CalendarToolbar({
           sx={{
             mt: 1.5,
             height: 38,
-            borderRadius: '22px',
+            borderRadius: '12px',
             bgcolor: '#0967B2',
             boxShadow: 'none',
             textTransform: 'none',
-            fontSize: '0.82rem',
+            fontSize: '0.8125rem',
             fontWeight: 700,
             '&:hover': { bgcolor: '#075797', boxShadow: 'none' },
           }}

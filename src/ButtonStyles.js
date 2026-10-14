@@ -5,7 +5,7 @@ export const gradientButtonSx = (height = 32) => ({
   borderRadius: `${height / 2}px`,
   fontSize: height > 32 ? '0.875rem' : '0.8125rem',
   fontWeight: 600,
-  background: 'linear-gradient(90deg, #0b7f62, #0a62c9)',
+  background: 'linear-gradient(90deg, #0b7f62, #0967B2)',
   '&:hover': { filter: 'brightness(1.08)' },
 })
 

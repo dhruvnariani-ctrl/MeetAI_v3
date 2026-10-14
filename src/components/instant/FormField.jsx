@@ -8,7 +8,7 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 export const inputSx = {
   borderRadius: '12px',
   bgcolor: '#fff',
-  fontSize: '0.9rem',
+  fontSize: '0.875rem',
   '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8e3' },
   '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#9fb0c6' },
   '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main', borderWidth: 2 },
@@ -52,7 +52,7 @@ const FormField = forwardRef(function FormField(
         sx={inputSx}
       />
       {helper && (
-        <FormHelperText id={helperId} role={error ? 'alert' : undefined} sx={{ mx: 0, mt: 0.75, fontSize: '0.78rem', color: error ? 'error.main' : 'text.secondary' }}>
+        <FormHelperText id={helperId} role={error ? 'alert' : undefined} sx={{ mx: 0, mt: 0.75, fontSize: '0.75rem', color: error ? 'error.main' : 'text.secondary' }}>
           {helper}
         </FormHelperText>
       )}

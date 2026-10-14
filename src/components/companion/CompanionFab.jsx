@@ -11,7 +11,7 @@ export default function CompanionFab({ onClick, imageSrc, open = false }) {
     <Box sx={{ position: 'fixed', right: { xs: 16, md: 27 }, bottom: { xs: 16, md: 27 }, display: 'flex', alignItems: 'center', gap: '10px', zIndex: (t) => t.zIndex.fab }}>
       {/* Visual label only; the button below carries the same accessible name */}
       <Paper aria-hidden="true" elevation={0}
-        sx={{ display: { xs: 'none', sm: 'block' }, px: 2, height: 32, lineHeight: '32px', borderRadius: '16px', border: '1px solid', borderColor: 'divider', fontSize: '0.875rem', fontWeight: 600, boxShadow: '0 4px 14px rgba(11,37,69,.08)' }}>
+        sx={{ display: { xs: 'none', sm: 'block' }, px: 2, height: 32, lineHeight: '32px', borderRadius: '12px', border: '1px solid', borderColor: 'divider', fontSize: '0.875rem', fontWeight: 600, boxShadow: '0 4px 14px rgba(11,37,69,.08)' }}>
         Ask your Companion
       </Paper>
 

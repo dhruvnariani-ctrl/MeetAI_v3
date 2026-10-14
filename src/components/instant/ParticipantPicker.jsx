@@ -52,14 +52,14 @@ export default function ParticipantPicker({
           <Box
             component="li"
             key={p.email}
-            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1, bgcolor: '#e9eef6', border: '1px solid #cdd7e4', borderRadius: '10px' }}
+            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1, bgcolor: '#e9eef6', border: '1px solid #cdd7e4', borderRadius: '8px' }}
           >
             <Avatar sx={avatarSx} aria-hidden="true">{p.name.charAt(0)}</Avatar>
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600 }} noWrap>{p.name}</Typography>
+                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }} noWrap>{p.name}</Typography>
                 {p.you && (
-                  <Box component="span" sx={{ px: 0.75, borderRadius: '6px', bgcolor: '#c5d4e6', fontSize: '0.75rem', fontWeight: 600 }}>You</Box>
+                  <Box component="span" sx={{ px: 0.75, borderRadius: '8px', bgcolor: '#c5d4e6', fontSize: '0.75rem', fontWeight: 600 }}>You</Box>
                 )}
               </Box>
               <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }} noWrap>{p.email}</Typography>
@@ -92,7 +92,7 @@ export default function ParticipantPicker({
         onChange={(_, person) => { if (person) { onAdd(person); setQuery(''); setResults([]) } }}
         renderOption={({ key, ...props }, o) => (
           <Box component="li" key={key} {...props} sx={{ display: 'block !important' }}>
-            <Typography sx={{ fontSize: '0.9rem', fontWeight: 600 }}>{o.name}</Typography>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>{o.name}</Typography>
             <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>{o.email}</Typography>
           </Box>
         )}
@@ -111,7 +111,7 @@ export default function ParticipantPicker({
         )}
       />
 
-      <Typography id={helpId} sx={{ mt: 1, fontSize: '0.78rem', color: 'text.secondary' }}>
+      <Typography id={helpId} sx={{ mt: 1, fontSize: '0.75rem', color: 'text.secondary' }}>
         Search by name or email — results come from the Darwin employee directory.
       </Typography>
       {note && (

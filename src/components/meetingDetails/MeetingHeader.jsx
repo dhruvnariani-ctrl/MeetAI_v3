@@ -15,7 +15,7 @@ import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined'
 const NAVY = '#123A59'
 const BLUE = '#0967B2'
 const BORDER = '#DFE7EC'
-const MUTED = '#71818D'
+const MUTED = '#5A7189'
 
 const PILLS = {
   completed: ['Completed', '#eaf7ef', '#287a4d'],
@@ -27,7 +27,7 @@ const PILLS = {
 
 const buttonSx = {
   textTransform: 'none',
-  fontSize: '.74rem',
+  fontSize: '0.75rem',
   fontWeight: 650,
   color: NAVY,
   bgcolor: '#fff',
@@ -82,22 +82,18 @@ export default function MeetingHeader({
   return (
     <Stack
       direction={{ xs: 'column', lg: 'row' }}
-      spacing={1.5}
-      justifyContent="space-between"
-      alignItems={{ xs: 'flex-start', lg: 'center' }}
-    >
+      spacing={1.5} sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', lg: 'center' } }}>
       {/* Left: icon, title, meta */}
       <Stack
         direction="row"
         spacing={1.5}
-        alignItems="center"
-        sx={{ minWidth: 0, flex: 1 }}
+        sx={{ alignItems: 'center', minWidth: 0, flex: 1 }}
       >
         <Box
           sx={{
             width: 48,
             height: 48,
-            borderRadius: '10px',
+            borderRadius: '8px',
             flexShrink: 0,
             display: 'grid',
             placeItems: 'center',
@@ -113,7 +109,7 @@ export default function MeetingHeader({
           <Typography
             component="h1"
             sx={{
-              fontSize: { xs: '1.15rem', sm: '1.35rem' },
+              fontSize: { xs: '1.25rem', md: '1.5rem' },
               fontWeight: 750,
               lineHeight: 1.25,
               letterSpacing: '-.015em',
@@ -126,9 +122,8 @@ export default function MeetingHeader({
 
           <Stack
             direction="row"
-            alignItems="center"
             spacing={2}
-            sx={{ mt: 0.5, flexWrap: 'wrap', rowGap: 0.5 }}
+            sx={{ alignItems: 'center', mt: 0.5, flexWrap: 'wrap', rowGap: 0.5 }}
           >
             <Meta icon={<CalendarMonthOutlinedIcon />}>{dateText}</Meta>
             <Meta icon={<AccessTimeOutlinedIcon />}>
@@ -144,10 +139,10 @@ export default function MeetingHeader({
                 sx={{
                   px: 1,
                   py: 0.2,
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   bgcolor: pill[1],
                   color: pill[2],
-                  fontSize: '.66rem',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
                   lineHeight: 1.6,
                 }}
@@ -210,11 +205,11 @@ export default function MeetingHeader({
 
 function Meta({ icon, children }) {
   return (
-    <Stack direction="row" spacing={0.6} alignItems="center">
+    <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
       <Box sx={{ display: 'flex', color: MUTED, '& svg': { fontSize: 16 } }}>
         {icon}
       </Box>
-      <Typography sx={{ fontSize: '.74rem', color: NAVY, whiteSpace: 'nowrap' }}>
+      <Typography sx={{ fontSize: '0.75rem', color: NAVY, whiteSpace: 'nowrap' }}>
         {children}
       </Typography>
     </Stack>

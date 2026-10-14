@@ -62,7 +62,7 @@ export default function Header({
               width: 38,
               height: 38,
               color: '#123A59',
-              borderRadius: '10px',
+              borderRadius: '8px',
               '&:hover': { bgcolor: '#EFF6FB' },
             }}
           >

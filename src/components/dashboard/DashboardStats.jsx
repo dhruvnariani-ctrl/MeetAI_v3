@@ -51,7 +51,7 @@ function StatCard({ value, label, icon: Icon, iconColor, iconBg, trend }) {
         py: 0.8,
         bgcolor: '#FFFFFF',
         border: '1px solid #E4EDF5',
-        borderRadius: '9px',
+        borderRadius: '8px',
         boxSizing: 'border-box',
       }}
     >
@@ -63,7 +63,7 @@ function StatCard({ value, label, icon: Icon, iconColor, iconBg, trend }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '10px',
+          borderRadius: '8px',
           bgcolor: iconBg,
         }}
       >
@@ -129,7 +129,7 @@ function DayProgress({ value }) {
         justifyContent: 'center',
         bgcolor: '#FFFFFF',
         border: '1px solid #E4EDF5',
-        borderRadius: '9px',
+        borderRadius: '8px',
         boxSizing: 'border-box',
       }}
     >
@@ -172,10 +172,10 @@ function DayProgress({ value }) {
         aria-label="Day progress"
         sx={{
           height: 6,
-          borderRadius: 99,
+          borderRadius: 999,
           bgcolor: '#E9EFF5',
           '& .MuiLinearProgress-bar': {
-            borderRadius: 99,
+            borderRadius: 999,
             background: 'linear-gradient(90deg, #16815B 0%, #65C780 100%)',
           },
         }}

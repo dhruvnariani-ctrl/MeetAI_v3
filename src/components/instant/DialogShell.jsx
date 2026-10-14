@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close'
 export const COLORS = {
   navy: '#123A59',
   border: '#DFE7EC',
-  muted: '#71818D',
+  muted: '#5A7189',
   page: '#F7F9FB',
 }
 
@@ -35,7 +35,7 @@ export const controlSx = (accent) => ({
 export function Section({ accent, icon, title, hint, children }) {
   return (
     <Box component="section" sx={{ display: 'grid', gap: 1.25 }}>
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
         <Box
           aria-hidden="true"
           sx={{
@@ -53,12 +53,12 @@ export function Section({ accent, icon, title, hint, children }) {
           {icon}
         </Box>
 
-        <Typography component="h3" sx={{ fontSize: '.86rem', fontWeight: 750, color: COLORS.navy }}>
+        <Typography component="h3" sx={{ fontSize: '0.875rem', fontWeight: 750, color: COLORS.navy }}>
           {title}
         </Typography>
 
         {hint && (
-          <Typography sx={{ fontSize: '.72rem', color: COLORS.muted }}>{hint}</Typography>
+          <Typography sx={{ fontSize: '0.75rem', color: COLORS.muted }}>{hint}</Typography>
         )}
       </Stack>
 
@@ -81,7 +81,7 @@ export function ChoiceCard({ control, checked, accent, children }) {
         px: 1.25,
         py: 0.9,
         cursor: 'pointer',
-        borderRadius: '10px',
+        borderRadius: '8px',
         border: '1px solid',
         borderColor: checked ? accent.color : COLORS.border,
         bgcolor: checked ? accent.bg : '#fff',
@@ -99,7 +99,7 @@ export function ChoiceCard({ control, checked, accent, children }) {
 /* One row of the live summary: tinted icon + small label + value. */
 export function SummaryRow({ icon, accent, label, children, muted = false }) {
   return (
-    <Stack direction="row" spacing={1.25} alignItems="center">
+    <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
       <Box
         aria-hidden="true"
         sx={{
@@ -118,10 +118,10 @@ export function SummaryRow({ icon, accent, label, children, muted = false }) {
       </Box>
 
       <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Typography sx={{ fontSize: '.64rem', color: COLORS.muted }}>{label}</Typography>
+        <Typography sx={{ fontSize: '0.75rem', color: COLORS.muted }}>{label}</Typography>
         <Box
           sx={{
-            fontSize: '.78rem',
+            fontSize: '0.75rem',
             fontWeight: 650,
             lineHeight: 1.4,
             color: muted ? COLORS.muted : COLORS.navy,
@@ -192,7 +192,7 @@ export default function DialogShell({
             flexShrink: 0,
             display: 'grid',
             placeItems: 'center',
-            borderRadius: '10px',
+            borderRadius: '8px',
             bgcolor: '#fff',
             color: accent.color,
           }}
@@ -208,7 +208,7 @@ export default function DialogShell({
           >
             {title}
           </Typography>
-          <Typography id={descId} sx={{ fontSize: '.78rem', color: COLORS.muted }}>
+          <Typography id={descId} sx={{ fontSize: '0.75rem', color: COLORS.muted }}>
             {subtitle}
           </Typography>
         </Box>

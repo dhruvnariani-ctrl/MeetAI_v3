@@ -1,28 +1,29 @@
-
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import CompanionBot from '../components/companion/CompanionBot'
-import { getAllMeetings } from '../data/meetings'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
+import Snackbar from '@mui/material/Snackbar'
 
+import CompanionBot from '../components/companion/CompanionBot'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import InstantJoinDialog from '../components/instant/InstantJoinDialog'
 import CreateEventDialog from '../components/event/CreateEventDialog'
+import { ErrorBoundary, PageSkeleton } from '../components/StateViews'
 
+import { getAllMeetings } from '../data/meetings'
 import { searchDirectory } from '../data/Directory'
 import useCurrentUser from '../hooks/useCurrentUser'
 
 export default function AppLayout() {
-  const [navOpen, setNavOpen] = useState(() =>
-    window.matchMedia('(min-width: 900px)').matches,
-  )
-  const [query, setQuery] = useState('')
+  const [navOpen, setNavOpen] = useState(() => window.matchMedia('(min-width: 900px)').matches)
   const [lastSynced, setLastSynced] = useState(() => new Date())
   const [createOpen, setCreateOpen] = useState(false)
   const [createKey, setCreateKey] = useState(0)
   const [instantOpen, setInstantOpen] = useState(false)
   const [instantKey, setInstantKey] = useState(0)
+  const [toast, setToast] = useState('')
+  const [query, setQuery] = useState('')
 
   const currentUser = useCurrentUser()
   const mainRef = useRef(null)
@@ -34,11 +35,11 @@ export default function AppLayout() {
       firstRender.current = false
       return
     }
-
     mainRef.current?.scrollTo(0, 0)
     mainRef.current?.focus()
   }, [pathname])
 
+  // A new key remounts the dialog, so every open starts with a blank form.
   const openCreate = () => {
     setCreateKey((key) => key + 1)
     setCreateOpen(true)
@@ -50,29 +51,24 @@ export default function AppLayout() {
   }
 
   const handleCreate = (event) => {
-    console.log('Create event', event)
     setCreateOpen(false)
+    setToast(`"${event.title}" was created`)
   }
 
   const handleRecord = (details) => {
-    console.log('Start recording', details)
     setInstantOpen(false)
-  }
-
-  const toggleNav = () => {
-    setNavOpen((open) => !open)
+    setToast(`MeetAI is joining${details.title ? ` "${details.title}"` : ' your meeting'}`)
   }
 
   return (
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'row',
         width: '100%',
         height: '100dvh',
         minHeight: 0,
         overflow: 'hidden',
-        bgcolor: '#F7F9FB',
+        bgcolor: 'background.default',
       }}
     >
       <Box
@@ -85,8 +81,8 @@ export default function AppLayout() {
           zIndex: 2000,
           px: 2,
           py: 1.25,
-          borderRadius: 2,
-          bgcolor: '#123A59',
+          borderRadius: '12px',
+          bgcolor: 'text.primary',
           color: '#fff',
           '&:focus': { top: 12 },
         }}
@@ -94,16 +90,14 @@ export default function AppLayout() {
         Skip to main content
       </Box>
 
-      {/* Full-height sidebar on desktop */}
       <Sidebar
         open={navOpen}
-        onToggle={toggleNav}
+        onToggle={() => setNavOpen((open) => !open)}
         onInstantJoin={openInstant}
         lastSynced={lastSynced}
         onSync={() => setLastSynced(new Date())}
       />
 
-      {/* Header and page content occupy the area to the right */}
       <Box
         sx={{
           display: 'flex',
@@ -117,11 +111,13 @@ export default function AppLayout() {
       >
         <Header
           navOpen={navOpen}
-          onToggleNav={toggleNav}
+          onToggleNav={() => setNavOpen((open) => !open)}
           query={query}
           onQueryChange={setQuery}
         />
 
+        {/* Single page gutter for every page: 12px on phones, 16px elsewhere.
+            Extra bottom room on phones keeps the Companion button off the last row. */}
         <Box
           component="main"
           id="main"
@@ -134,30 +130,20 @@ export default function AppLayout() {
             minHeight: 0,
             overflow: 'auto',
             outline: 'none',
-            bgcolor: '#F7F9FB',
-            p: { xs: 1.5, md: 2.5 },
-            '&:focus-visible': {
-              outline: '2px solid #0967B2',
-              outlineOffset: -2,
-            },
+            bgcolor: 'background.default',
+            p: { xs: 1.5, md: 2 },
+            pb: { xs: 11, md: 2 },
+            '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: -2 },
           }}
         >
-          <Outlet
-            context={{
-              openCreate,
-              openInstant,
-              onCreateMeeting: openCreate,
-              openCreateMeeting: openCreate,
-              onInstantJoin: openInstant,
-              openInstantJoin: openInstant,
-              currentUser,
-              query,
-            }}
-          />
+          <ErrorBoundary resetKey={pathname}>
+            <Suspense fallback={<PageSkeleton />}>
+              <Outlet context={{ openCreate, openInstant, currentUser }} />
+            </Suspense>
+          </ErrorBoundary>
         </Box>
       </Box>
 
-      {/* Shared dialogs available to all pages */}
       <CreateEventDialog
         key={`create-${createKey}`}
         open={createOpen}
@@ -176,15 +162,24 @@ export default function AppLayout() {
         searchDirectory={searchDirectory}
       />
 
-      
+      <CompanionBot
+        meetings={getAllMeetings()}
+        imageSrc={`${import.meta.env.BASE_URL}images/companion-robot.svg`}
+        onCreateMeeting={openCreate}
+        onInstantMeeting={openInstant}
+        routes={{ tasks: '/tasks', recorded: '/recorded' }}
+      />
 
-<CompanionBot
-  meetings={getAllMeetings()}
-  imageSrc={`${import.meta.env.BASE_URL}images/companion-robot.svg`}            
-  onCreateMeeting={() => setCreateOpen(true)}   
-  onInstantMeeting={() => setInstantOpen(true)} 
-  routes={{ tasks: '/tasks', recorded: '/recorded' }}
-/>
+      <Snackbar
+        open={Boolean(toast)}
+        autoHideDuration={4000}
+        onClose={() => setToast('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" variant="filled" onClose={() => setToast('')} sx={{ width: '100%' }}>
+          {toast}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

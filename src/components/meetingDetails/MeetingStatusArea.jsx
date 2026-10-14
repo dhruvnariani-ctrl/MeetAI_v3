@@ -254,7 +254,7 @@ function StatusBadge({
       <Box
         component="span"
         sx={{
-          fontSize: '0.72rem',
+          fontSize: '0.75rem',
           lineHeight: 1,
           fontWeight: 700,
         }}

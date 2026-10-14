@@ -21,7 +21,7 @@ import { getInitials } from './utils'
 const NAVY = '#123A59'
 const BLUE = '#0967B2'
 const BORDER = '#DFE7EC'
-const MUTED = '#71818D'
+const MUTED = '#5A7189'
 
 /* -------------------------------------------------------------------------- */
 /* Participants                                                               */
@@ -40,23 +40,21 @@ export default function ParticipantsPreview({ attendance, meeting }) {
         sx={{
           width: '100%',
           border: `1px solid ${BORDER}`,
-          borderRadius: '10px',
+          borderRadius: '8px',
           bgcolor: '#fff',
           p: { xs: 1.75, sm: 2 },
         }}
       >
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
           spacing={1}
-          sx={{ mb: 1.25 }}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.25 }}
         >
-          <Stack direction="row" spacing={0.9} alignItems="center">
+          <Stack direction="row" spacing={0.9} sx={{ alignItems: 'center' }}>
             <Box sx={{ display: 'flex', color: BLUE, '& svg': { fontSize: 19 } }}>
               <GroupsOutlinedIcon />
             </Box>
-            <Typography sx={{ fontSize: '.88rem', fontWeight: 750, color: NAVY }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 750, color: NAVY }}>
               Participants
             </Typography>
           </Stack>
@@ -65,10 +63,10 @@ export default function ParticipantsPreview({ attendance, meeting }) {
             sx={{
               px: 0.9,
               py: 0.2,
-              borderRadius: '6px',
+              borderRadius: '8px',
               bgcolor: '#EFF6FB',
               color: MUTED,
-              fontSize: '.66rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
               whiteSpace: 'nowrap',
             }}
@@ -90,7 +88,7 @@ export default function ParticipantsPreview({ attendance, meeting }) {
                 sx={{
                   width: 32,
                   height: 32,
-                  fontSize: '.68rem',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
                   bgcolor: '#dfe8ff',
                   color: '#245ea8',
@@ -101,13 +99,13 @@ export default function ParticipantsPreview({ attendance, meeting }) {
 
               <Typography
                 noWrap
-                sx={{ mt: 0.6, fontSize: '.72rem', fontWeight: 600, color: NAVY }}
+                sx={{ mt: 0.6, fontSize: '0.75rem', fontWeight: 600, color: NAVY }}
               >
                 {person.name}
               </Typography>
 
               {(person.role || person.title || person.department) && (
-                <Typography noWrap sx={{ fontSize: '.64rem', color: MUTED }}>
+                <Typography noWrap sx={{ fontSize: '0.75rem', color: MUTED }}>
                   {person.role || person.title || person.department}
                 </Typography>
               )}
@@ -123,7 +121,7 @@ export default function ParticipantsPreview({ attendance, meeting }) {
             px: 0,
             minWidth: 0,
             textTransform: 'none',
-            fontSize: '.73rem',
+            fontSize: '0.75rem',
             fontWeight: 700,
             color: BLUE,
             '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
@@ -138,7 +136,7 @@ export default function ParticipantsPreview({ attendance, meeting }) {
         onClose={() => setOpen(false)}
         fullWidth
         maxWidth="sm"
-        PaperProps={{ sx: { borderRadius: '10px' } }}
+        PaperProps={{ sx: { borderRadius: '8px' } }}
       >
         <DialogTitle
           sx={{

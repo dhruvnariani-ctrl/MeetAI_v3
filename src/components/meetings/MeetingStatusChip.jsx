@@ -51,7 +51,7 @@ export default function MeetingStatusChip({ status, compact = false }) {
           borderRadius: '999px',
           backgroundColor: statusStyle.backgroundColor,
           color: statusStyle.color,
-          fontSize: compact ? '0.68rem' : '0.75rem',
+          fontSize: compact ? '0.75rem' : '0.75rem',
           fontWeight: 700,
           userSelect: 'none',
           '& .MuiChip-label': { px: compact ? 1 : 1.5 },

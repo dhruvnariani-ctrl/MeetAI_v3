@@ -17,7 +17,7 @@ export default function ActionItem({ item }) {
         gap: 1,
         p: 1.25,
         border: '1px solid #e5eaf0',
-        borderRadius: 1.75,
+        borderRadius: '12px',
       }}
     >
       {done ? (
@@ -41,7 +41,7 @@ export default function ActionItem({ item }) {
       <Box sx={{ minWidth: 0 }}>
         <Typography
           sx={{
-            fontSize: '0.78rem',
+            fontSize: '0.75rem',
             lineHeight: 1.5,
             color: '#24364d',
             textDecoration: done
@@ -56,7 +56,7 @@ export default function ActionItem({ item }) {
           <Typography
             sx={{
               mt: 0.3,
-              fontSize: '0.68rem',
+              fontSize: '0.75rem',
               color: '#7b8ba1',
             }}
           >

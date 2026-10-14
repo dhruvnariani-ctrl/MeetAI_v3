@@ -47,7 +47,7 @@ export default function RecordingTab({
             xs: 220,
             sm: 360,
           },
-          borderRadius: 2,
+          borderRadius: '12px',
           bgcolor: '#172b46',
           display: 'flex',
           alignItems: 'center',
@@ -72,7 +72,7 @@ export default function RecordingTab({
       <Typography
         sx={{
           mt: 1.5,
-          fontSize: '0.74rem',
+          fontSize: '0.75rem',
           color: '#66778d',
         }}
       >

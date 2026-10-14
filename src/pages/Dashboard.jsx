@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import Box from '@mui/material/Box'
@@ -9,9 +10,12 @@ import DashboardActionItemsCard from '../components/dashboard/DashboardActionIte
 import MeetingTimeline from '../components/dashboard/MeetingTimeline'
 
 import { getTodaysMeetings } from '../data/meetings'
-import { createMeetingSettings, saveMeetingSettings } from '../data/meetingSettings'
-import useNow  from '../hooks/Usenow'
-import  useCurrentUser from '../hooks/useCurrentUser'
+import {
+  createMeetingSettings,
+  saveMeetingSettings,
+} from '../data/meetingSettings'
+import useNow from '../hooks/Usenow'
+import useCurrentUser from '../hooks/useCurrentUser'
 import { filterUserMeetings } from '../utils/meetingAccess'
 
 import {
@@ -22,26 +26,23 @@ import {
   COLORS,
 } from '../components/dashboard/dashboardUtils'
 
+const MAX_ACTION_ITEMS = 5
+
 export default function Dashboard() {
   const now = useNow()
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const outletContext = useOutletContext() ?? {}
 
-  const [meetingSettings, setMeetingSettings] = useState(() => createMeetingSettings())
+  const [meetingSettings, setMeetingSettings] = useState(() =>
+    createMeetingSettings(),
+  )
   const [doneIds, setDoneIds] = useState(() => new Set())
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [showAllTasks, setShowAllTasks] = useState(false)
 
-  /*
-   * Connect these two callbacks to your existing meeting dialogs.
-   * The layout no longer places meeting buttons in the welcome header.
-   */
-  const handleCreateMeeting =
-    outletContext.onCreateMeeting ?? outletContext.openCreateMeeting ?? (() => {})
-
-  const handleInstantJoin =
-    outletContext.onInstantJoin ?? outletContext.openInstantJoin ?? (() => {})
+  const handleCreateMeeting = outletContext.openCreate
+  const handleInstantJoin = outletContext.openInstant
 
   const userMeetings = useMemo(() => {
     const allTodaysMeetings = getTodaysMeetings(now)
@@ -52,16 +53,19 @@ export default function Dashboard() {
     return [...userMeetings]
       .map((meeting) => ({
         ...meeting,
-        _start: meeting._start instanceof Date
-          ? meeting._start
-          : new Date(meeting.start),
-        _end: meeting._end instanceof Date
-          ? meeting._end
-          : new Date(meeting.end),
+        _start:
+          meeting._start instanceof Date
+            ? meeting._start
+            : new Date(meeting.start),
+        _end:
+          meeting._end instanceof Date
+            ? meeting._end
+            : new Date(meeting.end),
       }))
-      .filter((meeting) =>
-        !Number.isNaN(meeting._start.getTime()) &&
-        !Number.isNaN(meeting._end.getTime()),
+      .filter(
+        (meeting) =>
+          !Number.isNaN(meeting._start.getTime()) &&
+          !Number.isNaN(meeting._end.getTime()),
       )
       .sort((a, b) => a._start.getTime() - b._start.getTime())
   }, [userMeetings])
@@ -70,18 +74,34 @@ export default function Dashboard() {
     const tasks = getActionItemsFromMeetings(sortedMeetings)
     return tasksDueTodayForUser(tasks, currentUser, now)
   }, [sortedMeetings, currentUser, now])
-
-  // Statistics deliberately include all statuses, including Done and Blocked.
+  // Statistics include all statuses, including Done and Blocked.
   const actionCount = allTodaysUserTasks.length
 
-  // The card only shows actionable statuses and locally completed items disappear.
+  // Show only open/actionable items; hide items completed locally.
   const actionableTasks = useMemo(
-    () => allTodaysUserTasks.filter(
-      (item) => isActionableTask(item) && !doneIds.has(item.id),
-    ),
+    () =>
+      allTodaysUserTasks.filter(
+        (item) => isActionableTask(item) && !doneIds.has(item.id),
+      ),
     [allTodaysUserTasks, doneIds],
-  )
+  )  // Apply the selected priority filter before limiting the visible list.
+  const priorityFilteredTasks = useMemo(() => {
+    if (priorityFilter === 'all') return actionableTasks
 
+    return actionableTasks.filter(
+      (item) =>
+        String(item.priority ?? '').toLowerCase() ===
+        priorityFilter.toLowerCase(),
+    )
+  }, [actionableTasks, priorityFilter])
+  // Display at most five items unless Show All is enabled.
+  const visibleActionItems = useMemo(
+    () =>
+      showAllTasks
+        ? priorityFilteredTasks
+        : priorityFilteredTasks.slice(0, MAX_ACTION_ITEMS),
+    [priorityFilteredTasks, showAllTasks],
+  )
   const liveCount = sortedMeetings.filter(
     (meeting) => statusOf(meeting, now) === 'live',
   ).length
@@ -124,25 +144,32 @@ export default function Dashboard() {
       return next
     })
   }
+  console.log(doneIds)
+  const handleShowAllChange = (nextShowAll) => {
+    setShowAllTasks(nextShowAll)
+  }
 
   return (
-    <Box sx={{
-      width: '100%',
-      minWidth: 0,
-      pb: 3,
-      color: COLORS.text,
-    }}>
-      {/* Welcome and quick actions share the top row. */}
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: {
-          xs: 'minmax(0, 1fr)',
-          lg: 'minmax(0, 1.65fr) minmax(280px, 1fr)',
-        },
-        gap: 2,
-        alignItems: 'stretch',
-        mb: 2,
-      }}>
+    <Box
+      sx={{
+        width: '100%',
+        minWidth: 0,
+        color: COLORS.text,
+      }}
+    >
+      {/* Welcome and quick actions */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: 'minmax(0, 1fr)',
+            lg: 'minmax(0, 1.65fr) minmax(280px, 1fr)',
+          },
+          gap: 1.5,
+          alignItems: 'stretch',
+          mb: 1.5,
+        }}
+      >
         <DashboardOverviewHeader
           now={now}
           firstName={firstName}
@@ -164,16 +191,18 @@ export default function Dashboard() {
         dayProgress={dayProgress}
       />
 
-      {/* Main dashboard content */}
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: {
-          xs: 'minmax(0, 1fr)',
-          lg: 'minmax(0, 1.5fr) minmax(320px, .9fr)',
-        },
-        gap: 2,
-        alignItems: 'start',
-      }}>
+      {/* Meeting timeline and action items */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: 'minmax(0, 1fr)',
+            lg: 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
+          },
+          gap: 1.5,
+          alignItems: 'stretch',
+        }}
+      >
         <MeetingTimeline
           meetings={sortedMeetings}
           now={now}
@@ -182,13 +211,13 @@ export default function Dashboard() {
         />
 
         <DashboardActionItemsCard
-          items={actionableTasks}
+          items={visibleActionItems}
           doneIds={doneIds}
           onToggleDone={handleTaskDone}
           priorityFilter={priorityFilter}
           onPriorityChange={setPriorityFilter}
           showAll={showAllTasks}
-          onShowAllChange={setShowAllTasks}
+          onShowAllChange={handleShowAllChange}
         />
       </Box>
     </Box>

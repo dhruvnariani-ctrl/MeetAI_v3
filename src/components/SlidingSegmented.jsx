@@ -115,7 +115,7 @@ export default function SlidingSegmented({
         alignItems: 'center',
         gap: isCompact ? 0.35 : 0.4,
         p: isCompact ? 0.35 : 0.4,
-        borderRadius: 1.75,
+        borderRadius: '12px',
         bgcolor: '#f5f7fa',
         minWidth: 0,
         width: fullWidth ? '100%' : 'fit-content',
@@ -138,8 +138,8 @@ export default function SlidingSegmented({
           left: 0,
           width: indicator.width,
           height: indicator.height,
-          borderRadius: 1.35,
-          bgcolor: '#0d68c9',
+          borderRadius: '8px',
+          bgcolor: '#0967B2',
           boxShadow:
             '0 2px 7px rgba(13, 104, 201, 0.22)',
           transform: `translateX(${indicator.left}px)`,
@@ -197,7 +197,7 @@ export default function SlidingSegmented({
               py: 0,
               flexShrink: 0,
               border: 'none',
-              borderRadius: 1.35,
+              borderRadius: '8px',
               textTransform: 'none',
               whiteSpace: 'nowrap',
               fontSize: isCompact

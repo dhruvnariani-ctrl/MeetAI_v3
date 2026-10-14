@@ -21,7 +21,7 @@ import { SUGGESTIONS } from './companionEngine'
 const NAVY = '#123A59'
 const BLUE = '#0967B2'
 const BORDER = '#DFE7EC'
-const MUTED = '#71818D'
+const MUTED = '#5A7189'
 const CHIP_COLORS = ['#1b8a55', '#2f6fe4', '#7a4de0', '#e8820c', '#d6336c']
 
 function BotAvatar({ size = 28, imageSrc }) {
@@ -52,7 +52,7 @@ function Bubble({ message, imageSrc, onAction }) {
   const bot = message.role === 'bot'
 
   return (
-    <Stack direction="row" spacing={1} alignItems="flex-end" justifyContent={bot ? 'flex-start' : 'flex-end'}>
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end', justifyContent: bot ? 'flex-start' : 'flex-end' }}>
       {bot && <BotAvatar imageSrc={imageSrc} />}
 
       <Box sx={{ maxWidth: '82%', minWidth: 0 }}>
@@ -64,7 +64,7 @@ function Bubble({ message, imageSrc, onAction }) {
             bgcolor: bot ? '#fff' : BLUE,
             color: bot ? NAVY : '#fff',
             border: bot ? `1px solid ${BORDER}` : 0,
-            fontSize: '.8rem',
+            fontSize: '0.8125rem',
             lineHeight: 1.55,
             whiteSpace: 'pre-line',
             overflowWrap: 'anywhere',
@@ -85,7 +85,7 @@ function Bubble({ message, imageSrc, onAction }) {
                 onClick={() => onAction(action)}
                 sx={{
                   textTransform: 'none',
-                  fontSize: '.72rem',
+                  fontSize: '0.75rem',
                   fontWeight: 650,
                   py: 0.25,
                   borderRadius: '8px',
@@ -107,7 +107,7 @@ function Bubble({ message, imageSrc, onAction }) {
 
 function Typing({ imageSrc }) {
   return (
-    <Stack direction="row" spacing={1} alignItems="flex-end">
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
       <BotAvatar imageSrc={imageSrc} />
       <Box
         role="status"
@@ -190,16 +190,13 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
       {/* Header */}
 <Stack
   direction="row"
-  alignItems="center"
   spacing={1.25}
-  sx={{
-    px: 2,
+  sx={{ alignItems: 'center', px: 2,
     py: 1.5,
     bgcolor: '#e8f0fd',
     borderBottom: `1px solid ${BORDER}`,
     minHeight: 72,
-    boxSizing: 'border-box',
-  }}
+    boxSizing: 'border-box', }}
 >
   <BotAvatar size={38} imageSrc={imageSrc} />
 
@@ -215,7 +212,7 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
       id={titleId}
       component="h2"
       sx={{
-        fontSize: '.95rem',
+        fontSize: '0.9375rem',
         fontWeight: 750,
         lineHeight: 1.3,
         color: NAVY,
@@ -224,7 +221,7 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
       MeetAI Companion
     </Typography>
 
-    <Stack direction="row" spacing={0.6} alignItems="center">
+    <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
       <Box
         aria-hidden="true"
         sx={{
@@ -237,7 +234,7 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
       />
       <Typography
         sx={{
-          fontSize: '.7rem',
+          fontSize: '0.75rem',
           lineHeight: 1.4,
           color: MUTED,
         }}
@@ -249,9 +246,8 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
 
   <Stack
     direction="row"
-    alignItems="center"
     spacing={0.25}
-    sx={{ flexShrink: 0 }}
+    sx={{ alignItems: 'center', flexShrink: 0 }}
   >
     <IconButton
       size="small"
@@ -311,7 +307,7 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
       sx={{
         width: '100%',
         minWidth: 0,
-        fontSize: '.7rem',
+        fontSize: '0.75rem',
         fontWeight: 650,
         color: CHIP_COLORS[i % CHIP_COLORS.length],
         borderColor: CHIP_COLORS[i % CHIP_COLORS.length],
@@ -340,7 +336,7 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
           onChange={(e) => setText(e.target.value)}
           placeholder="Ask about meetings, tasks, recordings…"
           inputProps={{ 'aria-label': 'Message the Companion', maxLength: 300 }}
-          sx={{ borderRadius: '10px', fontSize: '.82rem', bgcolor: '#fff', '& input': { py: '9px' } }}
+          sx={{ borderRadius: '8px', fontSize: '0.8125rem', bgcolor: '#fff', '& input': { py: '9px' } }}
         />
 
         <IconButton
@@ -350,7 +346,7 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
           sx={{
             width: 40,
             height: 40,
-            borderRadius: '10px',
+            borderRadius: '8px',
             color: '#fff',
             bgcolor: BLUE,
             '&:hover': { bgcolor: '#075A9D' },

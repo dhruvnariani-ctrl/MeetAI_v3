@@ -112,7 +112,7 @@ export default function AccountMenu({
               bgcolor: 'transparent',
               color: '#fff',
 
-              fontSize: '0.95rem',
+              fontSize: '0.9375rem',
               fontWeight: 500,
             }}
           >
@@ -150,7 +150,7 @@ export default function AccountMenu({
 
               overflow: 'hidden',
 
-              borderRadius: '14px',
+              borderRadius: '12px',
 
               border:
                 '1px solid rgba(16, 42, 70, 0.09)',
@@ -189,7 +189,7 @@ export default function AccountMenu({
 
               bgcolor: '#172437',
 
-              fontSize: '0.9rem',
+              fontSize: '0.875rem',
               fontWeight: 600,
             }}
           >
@@ -203,7 +203,7 @@ export default function AccountMenu({
           >
             <Typography
               sx={{
-                fontSize: '0.9rem',
+                fontSize: '0.875rem',
                 fontWeight: 650,
                 color: '#142942',
 
@@ -270,14 +270,14 @@ export default function AccountMenu({
             slotProps={{
               primary: {
                 sx: {
-                  fontSize: '0.84rem',
+                  fontSize: '0.8125rem',
                   fontWeight: 600,
                 },
               },
               secondary: {
                 sx: {
                   mt: 0.15,
-                  fontSize: '0.7rem',
+                  fontSize: '0.75rem',
                   color: '#8997a9',
                 },
               },
@@ -298,7 +298,7 @@ export default function AccountMenu({
 
             px: 1,
 
-            borderRadius: '9px',
+            borderRadius: '8px',
 
             color: '#b42318',
 
@@ -327,7 +327,7 @@ export default function AccountMenu({
             slotProps={{
               primary: {
                 sx: {
-                  fontSize: '0.84rem',
+                  fontSize: '0.8125rem',
                   fontWeight: 600,
                 },
               },

@@ -19,7 +19,7 @@ export default function HowItWorksHero() {
         <Typography
           component="h1"
           sx={{
-            fontSize: { xs: '1.5rem', md: '1.85rem' },
+            fontSize: { xs: '1.25rem', md: '1.5rem' },
             fontWeight: 800,
             letterSpacing: '-.02em',
             lineHeight: 1.2,
@@ -32,7 +32,7 @@ export default function HowItWorksHero() {
         <Typography
           sx={{
             mt: 0.5,
-            fontSize: '.85rem',
+            fontSize: '0.8125rem',
             color: 'text.secondary',
           }}
         >
@@ -48,16 +48,14 @@ export default function HowItWorksHero() {
           position: 'absolute',
           top: 4,
           right: 12,
-           transform: 'rotate(-20deg) translateY(-20px)',
+           transform: 'rotate(-15deg) translateY(3px)',
   transformOrigin: 'center',
   pointerEvents: 'none',
         }}
       >
         <Stack
           direction="row"
-          spacing={0.8}
-          alignItems="center"
-        >
+          spacing={0.8} sx={{ alignItems: 'center' }}>
           <Typography
             sx={{
               fontFamily: '"Segoe Script", "Brush Script MT", cursive',

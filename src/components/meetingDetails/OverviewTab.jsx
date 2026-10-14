@@ -30,7 +30,7 @@ import ParticipantsPreview from './ParticipantsPreview'
 const NAVY = '#123A59'
 const BLUE = '#0967B2'
 const BORDER = '#DFE7EC'
-const MUTED = '#71818D'
+const MUTED = '#5A7189'
 
 const PRIORITY = {
   High: ['#fdecee', '#c53b4d'],
@@ -45,6 +45,14 @@ const DUMMY_TAKEAWAYS = [
   'Align on go-to-market strategy for new features.',
   'Schedule a design review for next week.',
 ]
+
+/* Short due label ("Oct 14") so it never wraps; falls back to formatDate. */
+const shortDate = (value) => {
+  const d = new Date(value)
+  return Number.isNaN(d.getTime())
+    ? formatDate(value)
+    : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
 
 export default function OverviewTab({
   meeting,
@@ -114,7 +122,7 @@ export default function OverviewTab({
           {summary ? (
             <Typography
               sx={{
-                fontSize: '.8rem',
+                fontSize: '0.8125rem',
                 lineHeight: 1.7,
                 color: '#52657d',
                 whiteSpace: 'pre-line',
@@ -154,9 +162,9 @@ export default function OverviewTab({
           {takeaways.length > 0 ? (
             <Stack spacing={1}>
               {takeaways.map((text, index) => (
-                <Stack key={index} direction="row" spacing={1} alignItems="center">
+                <Stack key={index} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <CheckCircleOutlinedIcon sx={{ fontSize: 17, color: '#287a4d' }} />
-                  <Typography sx={{ fontSize: '.78rem', color: '#42546b' }}>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#42546b' }}>
                     {text}
                   </Typography>
                 </Stack>
@@ -262,11 +270,11 @@ export default function OverviewTab({
 
 const smallButtonSx = {
   textTransform: 'none',
-  fontSize: '.68rem',
+  fontSize: '0.75rem',
   fontWeight: 600,
   color: NAVY,
   borderColor: BORDER,
-  borderRadius: '6px',
+  borderRadius: '8px',
   py: 0.25,
   whiteSpace: 'nowrap',
 }
@@ -277,23 +285,21 @@ function Card({ icon, title, right, children }) {
       elevation={0}
       sx={{
         border: `1px solid ${BORDER}`,
-        borderRadius: '10px',
+        borderRadius: '8px',
         bgcolor: '#fff',
         p: { xs: 1.75, sm: 2 },
       }}
     >
       <Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
         spacing={1}
-        sx={{ mb: 1.25 }}
+        sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.25 }}
       >
-        <Stack direction="row" spacing={0.9} alignItems="center" sx={{ minWidth: 0 }}>
+        <Stack direction="row" spacing={0.9} sx={{ alignItems: 'center', minWidth: 0 }}>
           <Box sx={{ display: 'flex', color: BLUE, '& svg': { fontSize: 19 } }}>
             {icon}
           </Box>
-          <Typography sx={{ fontSize: '.88rem', fontWeight: 750, color: NAVY }}>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 750, color: NAVY }}>
             {title}
           </Typography>
         </Stack>
@@ -312,10 +318,10 @@ function Chip({ children }) {
       sx={{
         px: 0.9,
         py: 0.2,
-        borderRadius: '6px',
+        borderRadius: '8px',
         bgcolor: '#EFF6FB',
         color: MUTED,
-        fontSize: '.66rem',
+        fontSize: '0.75rem',
         fontWeight: 700,
         whiteSpace: 'nowrap',
       }}
@@ -328,11 +334,11 @@ function Chip({ children }) {
 function Field({ label, value }) {
   return (
     <Box sx={{ minWidth: 0 }}>
-      <Typography sx={{ fontSize: '.68rem', color: MUTED }}>{label}</Typography>
+      <Typography sx={{ fontSize: '0.75rem', color: MUTED }}>{label}</Typography>
       <Typography
         sx={{
           mt: 0.2,
-          fontSize: '.78rem',
+          fontSize: '0.75rem',
           fontWeight: 600,
           color: NAVY,
           overflowWrap: 'anywhere',
@@ -354,7 +360,7 @@ function LinkButton({ children, onClick }) {
         px: 0,
         minWidth: 0,
         textTransform: 'none',
-        fontSize: '.73rem',
+        fontSize: '0.75rem',
         fontWeight: 700,
         color: BLUE,
         '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
@@ -370,7 +376,7 @@ function ActionRow({ item }) {
   const priority = PRIORITY[item.priority]
 
   return (
-    <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ py: 1 }}>
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', py: 1 }}>
       {done ? (
         <CheckCircleOutlinedIcon sx={{ fontSize: 19, color: '#287a4d', mt: 0.1 }} />
       ) : (
@@ -380,7 +386,7 @@ function ActionRow({ item }) {
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
           sx={{
-            fontSize: '.78rem',
+            fontSize: '0.75rem',
             lineHeight: 1.4,
             color: done ? MUTED : NAVY,
             textDecoration: done ? 'line-through' : 'none',
@@ -391,17 +397,22 @@ function ActionRow({ item }) {
         </Typography>
 
         {(priority || item.due) && (
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
+          <Stack
+            direction="row"
+            sx={{ alignItems: 'center', flexWrap: 'wrap', columnGap: 1, rowGap: 0.4, mt: 0.5 }}
+          >
             {priority && (
               <Box
                 sx={{
                   px: 0.9,
                   py: 0.15,
-                  borderRadius: '6px',
+                  mx:0.4,
+                  borderRadius: '8px',
                   bgcolor: priority[0],
                   color: priority[1],
-                  fontSize: '.64rem',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {item.priority}
@@ -409,8 +420,10 @@ function ActionRow({ item }) {
             )}
 
             {item.due && (
-              <Typography sx={{ fontSize: '.68rem', color: MUTED }}>
-                {formatDate(item.due)}
+              <Typography
+                sx={{ fontSize: '0.75rem', color: MUTED, whiteSpace: 'nowrap' }}
+              >
+                {shortDate(item.due)}
               </Typography>
             )}
           </Stack>
@@ -423,7 +436,7 @@ function ActionRow({ item }) {
           sx={{
             width: 24,
             height: 24,
-            fontSize: '.58rem',
+            fontSize: '0.75rem',
             fontWeight: 700,
             bgcolor: '#dfe8ff',
             color: '#245ea8',
@@ -438,7 +451,7 @@ function ActionRow({ item }) {
 
 function ContentRow({ icon, label, available, detail, upcoming, action, onClick }) {
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
       <Box
         sx={{
           width: 36,
@@ -456,10 +469,10 @@ function ContentRow({ icon, label, available, detail, upcoming, action, onClick 
       </Box>
 
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography sx={{ fontSize: '.76rem', fontWeight: 600, color: NAVY }}>
+        <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: NAVY }}>
           {label}
         </Typography>
-        <Typography sx={{ fontSize: '.66rem', color: MUTED }}>
+        <Typography sx={{ fontSize: '0.75rem', color: MUTED }}>
           {available
             ? detail || 'Available'
             : upcoming

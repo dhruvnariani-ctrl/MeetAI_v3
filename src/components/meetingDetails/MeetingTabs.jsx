@@ -27,7 +27,7 @@ export default function MeetingTabs({ value, onChange }) {
             minWidth: { xs: 90, sm: 110 },
             px: 2.25,
             textTransform: 'none',
-            fontSize: '.82rem',
+            fontSize: '0.8125rem',
             fontWeight: 600,
             color: '#123A59',
           },

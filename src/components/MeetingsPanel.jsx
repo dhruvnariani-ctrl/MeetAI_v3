@@ -12,7 +12,7 @@ export default function MeetingsPanel({ id, tabId, meetings, view }) {
       tabIndex={0}
       sx={{
         minHeight: 235, p: 3, display: 'grid', placeItems: empty ? 'center' : 'start stretch',
-        bgcolor: '#f5f5f5', border: '1px dashed #c8d0db', borderRadius: '20px',
+        bgcolor: '#f5f5f5', border: '1px dashed #c8d0db', borderRadius: '12px',
       }}
     >
       {empty ? (

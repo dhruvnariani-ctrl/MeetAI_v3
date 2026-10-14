@@ -1,3 +1,4 @@
+
 import { Box, Stack, Typography } from '@mui/material'
 
 import { COLORS } from './taskConstants'
@@ -6,15 +7,17 @@ export default function MetricLine({ label, count, color }) {
   return (
     <Stack
       direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      spacing={0.8}
+      spacing={1.5}
+      sx={{ alignItems: 'center', justifyContent: 'space-between', width: '100%',
+        minWidth: 0,
+        boxSizing: 'border-box', }}
     >
+      {/* Label aligned to the left */}
       <Stack
         direction="row"
-        alignItems="center"
-        spacing={0.8}
-        sx={{ minWidth: 0 }}
+        spacing={1}
+        sx={{ alignItems: 'center', flex: '1 1 0',
+          minWidth: 0, }}
       >
         <Box
           sx={{
@@ -25,22 +28,32 @@ export default function MetricLine({ label, count, color }) {
             flexShrink: 0,
           }}
         />
+
         <Typography
           sx={{
             color: COLORS.text,
-            fontSize: '0.73rem',
-            overflowWrap: 'anywhere',
+            fontSize: '0.75rem',
+            lineHeight: 1.4,
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}
         >
           {label}
         </Typography>
       </Stack>
 
+      {/* Count aligned consistently to the right */}
       <Typography
         sx={{
           color: COLORS.navy,
           fontWeight: 800,
-          fontSize: '0.76rem',
+          fontSize: '0.75rem',
+          lineHeight: 1.4,
+          textAlign: 'right',
+          minWidth: 28,
+          flexShrink: 0,
           fontVariantNumeric: 'tabular-nums',
         }}
       >

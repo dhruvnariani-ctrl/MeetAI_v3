@@ -1,5 +1,6 @@
 
 import { useState } from 'react'
+
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import Menu from '@mui/material/Menu'
@@ -11,27 +12,41 @@ import TextField from '@mui/material/TextField'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
-const COLORS = {
-  blue: '#0967B2',
-  text: '#304858',
-  muted: '#71818D',
-  border: '#DFE7EC',
-}
-
 const dropdownButtonSx = {
   minWidth: { xs: '100%', sm: 132 },
   minHeight: 40,
   justifyContent: 'space-between',
   textTransform: 'none',
-  fontSize: '0.76rem',
+  fontSize: '0.8125rem',
   fontWeight: 600,
-  color: COLORS.text,
-  borderColor: COLORS.border,
-  borderRadius: '9px',
+  color: 'text.primary',
+  borderColor: 'divider',
+  borderRadius: '8px',
   whiteSpace: 'nowrap',
   '&:hover': {
-    borderColor: '#B7CDDF',
-    bgcolor: '#F7FAFC',
+    borderColor: 'primary.main',
+    bgcolor: 'primary.light',
+  },
+}
+
+const menuPaperSx = {
+  minWidth: 160,
+  mt: 0.5,
+  border: '1px solid',
+  borderColor: 'divider',
+  borderRadius: '8px',
+  boxShadow: '0 8px 24px rgba(18, 58, 89, 0.10)',
+}
+
+const menuItemSx = {
+  minHeight: 38,
+  fontSize: '0.8125rem',
+  '&.Mui-selected': {
+    bgcolor: 'primary.light',
+    color: 'primary.main',
+  },
+  '&.Mui-selected:hover': {
+    bgcolor: 'primary.light',
   },
 }
 
@@ -52,10 +67,12 @@ export default function RecordedFilters({
     <Paper
       elevation={0}
       sx={{
+        width: '100%',
         minWidth: 0,
-        border: `1px solid ${COLORS.border}`,
-        borderRadius: '14px',
-        bgcolor: '#fff',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: '12px',
+        bgcolor: 'background.paper',
         p: { xs: 1.25, sm: 1.5 },
       }}
     >
@@ -71,31 +88,36 @@ export default function RecordedFilters({
           placeholder="Search meetings or people"
           size="small"
           fullWidth
-          inputProps={{ 'aria-label': 'Search meetings or people' }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchOutlinedIcon
-                  sx={{ fontSize: 19, color: COLORS.muted }}
-                />
-              </InputAdornment>
-            ),
+          slotProps={{
+            htmlInput: { 'aria-label': 'Search meetings or people' },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchOutlinedIcon
+                    sx={{
+                      fontSize: 19,
+                      color: 'text.secondary',
+                    }}
+                  />
+                </InputAdornment>
+              ),
+            },
           }}
           sx={{
             flex: '1 1 auto',
             minWidth: 0,
             '& .MuiOutlinedInput-root': {
               minHeight: 40,
-              borderRadius: '9px',
-              fontSize: '0.76rem',
-              color: COLORS.text,
+              borderRadius: '8px',
+              fontSize: '0.8125rem',
+              color: 'text.primary',
             },
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: COLORS.border,
+              borderColor: 'divider',
             },
             '& .MuiInputBase-input::placeholder': {
-              color: '#9AA9B8',
-              opacity: 1,
+              color: 'text.secondary',
+              opacity: 0.8,
             },
           }}
         />
@@ -117,13 +139,7 @@ export default function RecordedFilters({
           onClose={() => setDateAnchorEl(null)}
           slotProps={{
             paper: {
-              sx: {
-                minWidth: 160,
-                mt: 0.5,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: '10px',
-                boxShadow: '0 8px 24px rgba(18,58,89,0.10)',
-              },
+              sx: menuPaperSx,
             },
           }}
         >
@@ -135,14 +151,7 @@ export default function RecordedFilters({
                 onDateFilterChange(item)
                 setDateAnchorEl(null)
               }}
-              sx={{
-                minHeight: 38,
-                fontSize: '0.76rem',
-                '&.Mui-selected': {
-                  bgcolor: '#EFF6FB',
-                  color: COLORS.blue,
-                },
-              }}
+              sx={menuItemSx}
             >
               {item}
             </MenuItem>
@@ -167,11 +176,8 @@ export default function RecordedFilters({
           slotProps={{
             paper: {
               sx: {
+                ...menuPaperSx,
                 minWidth: 175,
-                mt: 0.5,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: '10px',
-                boxShadow: '0 8px 24px rgba(18,58,89,0.10)',
               },
             },
           }}
@@ -184,14 +190,7 @@ export default function RecordedFilters({
                 onSortChange(item)
                 setSortAnchorEl(null)
               }}
-              sx={{
-                minHeight: 38,
-                fontSize: '0.76rem',
-                '&.Mui-selected': {
-                  bgcolor: '#EFF6FB',
-                  color: COLORS.blue,
-                },
-              }}
+              sx={menuItemSx}
             >
               {item}
             </MenuItem>

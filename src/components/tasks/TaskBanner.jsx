@@ -9,7 +9,7 @@ export default function TaskBanner() {
         display: 'flex',
         flexDirection: 'row',
         overflow: 'hidden',
-        borderRadius: 2,
+        borderRadius: '12px',
       }}
     >
       <Box
@@ -33,7 +33,7 @@ export default function TaskBanner() {
           <Typography
             sx={{
               color: COLORS.navy,
-              fontSize: '1.05rem',
+              fontSize: '0.9375rem',
               fontWeight: 800,
               lineHeight: 1.35,
             }}
@@ -45,7 +45,7 @@ export default function TaskBanner() {
             sx={{
               mt: 0.6,
               color: COLORS.text,
-              fontSize: '0.84rem',
+              fontSize: '0.8125rem',
               lineHeight: 1.6,
             }}
           >
@@ -57,7 +57,7 @@ export default function TaskBanner() {
               mt: 1.4,
               width: 52,
               height: 4,
-              borderRadius: 99,
+              borderRadius: 999,
               backgroundColor: COLORS.green,
             }}
           />

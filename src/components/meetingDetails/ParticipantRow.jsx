@@ -27,7 +27,7 @@ export default function ParticipantRow({
         justifyContent: 'space-between',
         gap: 1.5,
         p: 1,
-        borderRadius: 1.5,
+        borderRadius: '12px',
         bgcolor: attended
           ? '#f8fbf9'
           : '#fafafa',
@@ -59,7 +59,7 @@ export default function ParticipantRow({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '0.65rem',
+            fontSize: '0.75rem',
             fontWeight: 700,
             flexShrink: 0,
           }}
@@ -70,7 +70,7 @@ export default function ParticipantRow({
         <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: '0.76rem',
+              fontSize: '0.75rem',
               fontWeight: 600,
               color: '#24364d',
             }}
@@ -82,7 +82,7 @@ export default function ParticipantRow({
             <Typography
               sx={{
                 mt: 0.15,
-                fontSize: '0.65rem',
+                fontSize: '0.75rem',
                 color: '#7b8ba1',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -103,7 +103,7 @@ export default function ParticipantRow({
       >
         <Typography
           sx={{
-            fontSize: '0.67rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             color: attended === true
               ? '#287a4d'
@@ -123,7 +123,7 @@ export default function ParticipantRow({
           <Typography
             sx={{
               mt: 0.2,
-              fontSize: '0.62rem',
+              fontSize: '0.75rem',
               color: '#7b8ba1',
             }}
           >

@@ -26,7 +26,7 @@ export default function TourIntro({ onStart, onSkip }) {
     >
       <Paper
         elevation={12}
-        sx={{ width: '100%', maxWidth: 480, borderRadius: 3, overflow: 'hidden' }}
+        sx={{ width: '100%', maxWidth: 480, borderRadius: '12px', overflow: 'hidden' }}
       >
         <LinearProgress variant="determinate" value={0} sx={{ height: 4 }} />
 
@@ -36,7 +36,7 @@ export default function TourIntro({ onStart, onSkip }) {
               sx={{
                 width: 52,
                 height: 52,
-                borderRadius: 2.5,
+                borderRadius: '12px',
                 display: 'grid',
                 placeItems: 'center',
                 bgcolor: '#eaf2fd',
@@ -48,7 +48,7 @@ export default function TourIntro({ onStart, onSkip }) {
 
             <Box>
               <Typography
-                sx={{ fontSize: '.72rem', fontWeight: 700, color: 'text.secondary' }}
+                sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'text.secondary' }}
               >
                 MeetAI guided tour
               </Typography>
@@ -60,7 +60,7 @@ export default function TourIntro({ onStart, onSkip }) {
               <Typography
                 sx={{
                   mt: 1,
-                  fontSize: '.9rem',
+                  fontSize: '0.875rem',
                   lineHeight: 1.6,
                   color: 'text.secondary',
                 }}
@@ -76,7 +76,7 @@ export default function TourIntro({ onStart, onSkip }) {
               tour. You can skip it at any time.
             </TourHint>
 
-            <Stack direction="row" justifyContent="flex-end" spacing={1}>
+            <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
               <Button
                 size="small"
                 color="inherit"

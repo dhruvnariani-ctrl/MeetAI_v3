@@ -161,7 +161,7 @@ export default function CalendarSidebar({
         flexDirection: 'column',
         p: { xs: 1.25, md: 1.5 },
         border: '1px solid #DFEAF4',
-        borderRadius: '14px',
+        borderRadius: '12px',
         bgcolor: '#FFFFFF',
         boxSizing: 'border-box',
       }}
@@ -183,7 +183,7 @@ export default function CalendarSidebar({
         >
           <Typography
             sx={{
-              fontSize: '0.98rem',
+              fontSize: '0.9375rem',
               fontWeight: 700,
               lineHeight: 1,
               color: '#123A59',
@@ -227,7 +227,7 @@ export default function CalendarSidebar({
             bgcolor: '#FFFFFF',
             color: '#0967B2',
             textTransform: 'none',
-            fontSize: '0.78rem',
+            fontSize: '0.75rem',
             fontWeight: 650,
             '&:hover': { bgcolor: '#EFF6FB', borderColor: '#B9D3E8' },
           }}
@@ -245,7 +245,7 @@ export default function CalendarSidebar({
           gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
           gridTemplateRows: `34px repeat(${weekCount}, minmax(64px, 1fr))`,
           border: '1px solid #E4EEF7',
-          borderRadius: '10px',
+          borderRadius: '8px',
           overflow: 'hidden',
         }}
       >
@@ -258,7 +258,7 @@ export default function CalendarSidebar({
               justifyContent: 'center',
               bgcolor: '#F7FAFD',
               color: '#456079',
-              fontSize: '0.74rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
               borderRight: index === 6 ? 0 : '1px solid #E4EEF7',
               borderBottom: '1px solid #E4EEF7',
@@ -348,7 +348,7 @@ export default function CalendarSidebar({
                     : isToday
                       ? '#0878DF'
                       : 'inherit',
-                  fontSize: '0.78rem',
+                  fontSize: '0.75rem',
                   fontWeight: isSelectedDay || isToday || inRange ? 700 : 500,
                 }}
               >
@@ -379,10 +379,10 @@ export default function CalendarSidebar({
                       maxWidth: '100%',
                       px: 0.7,
                       py: 0.15,
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       bgcolor: topStyle.backgroundColor,
                       color: topStyle.color,
-                      fontSize: '0.72rem',
+                      fontSize: '0.75rem',
                       fontWeight: 700,
                       lineHeight: 1.35,
                       overflow: 'hidden',
@@ -464,7 +464,7 @@ export default function CalendarSidebar({
                 bgcolor: getStatusStyle(label).color,
               }}
             />
-            <Typography sx={{ fontSize: '0.74rem', color: '#456079' }}>
+            <Typography sx={{ fontSize: '0.75rem', color: '#456079' }}>
               {label}
             </Typography>
           </Stack>

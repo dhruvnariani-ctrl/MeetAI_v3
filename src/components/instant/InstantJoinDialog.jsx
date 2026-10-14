@@ -119,11 +119,10 @@ export default function InstantJoinDialog({ open, onClose, onSubmit, currentUser
           <Stack
             direction="row"
             spacing={1}
-            alignItems="flex-start"
-            sx={{ p: 1.25, borderRadius: '10px', bgcolor: ACCENTS.green.bg, border: '1px solid #cfe8da' }}
+            sx={{ alignItems: 'flex-start', p: 1.25, borderRadius: '8px', bgcolor: ACCENTS.green.bg, border: '1px solid #cfe8da' }}
           >
             <CheckCircleOutlinedIcon sx={{ fontSize: 18, mt: 0.1, color: ACCENTS.green.color }} aria-hidden="true" />
-            <Typography sx={{ fontSize: '.78rem', lineHeight: 1.55, color: COLORS.navy }}>
+            <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.55, color: COLORS.navy }}>
               <strong>Meet AI / transcription:</strong> Always enabled for instant meetings. Avaada Meet Companion joins to
               capture the transcript and generate MoM / insights.
             </Typography>
@@ -141,8 +140,8 @@ export default function InstantJoinDialog({ open, onClose, onSubmit, currentUser
               />
             }
           >
-            <Typography sx={{ fontSize: '.82rem', fontWeight: 700 }}>Also enable Video Recording</Typography>
-            <Typography sx={{ fontSize: '.74rem', color: COLORS.muted }}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700 }}>Also enable Video Recording</Typography>
+            <Typography sx={{ fontSize: '0.75rem', color: COLORS.muted }}>
               Saves a video file separately (7-day retention).
             </Typography>
           </ChoiceCard>
@@ -157,9 +156,9 @@ export default function InstantJoinDialog({ open, onClose, onSubmit, currentUser
             startIcon={<BoltOutlinedIcon />}
             sx={{
               height: 44,
-              borderRadius: '10px',
+              borderRadius: '8px',
               bgcolor: GREEN,
-              fontSize: '.92rem',
+              fontSize: '0.9375rem',
               fontWeight: 700,
               textTransform: 'none',
               '&:hover': { bgcolor: '#166a42' },
@@ -167,7 +166,7 @@ export default function InstantJoinDialog({ open, onClose, onSubmit, currentUser
           >
             Record meeting
           </Button>
-          <Typography sx={{ mt: 1, textAlign: 'center', fontSize: '.76rem', color: COLORS.muted }}>
+          <Typography sx={{ mt: 1, textAlign: 'center', fontSize: '0.75rem', color: COLORS.muted }}>
             {recordVideo
               ? 'Starts Meet AI transcription and saves a video file (7-day retention)'
               : 'Starts Meet AI transcription only (no video file unless you check Video Recording)'}
@@ -185,13 +184,13 @@ function AfterStart({ titleId, count }) {
   return (
     <Stack spacing={2}>
       <Box sx={{ p: 1.5, borderRadius: '12px', bgcolor: ACCENTS.green.bg, border: '1px solid #cfe8da' }}>
-        <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mb: 0.5, color: ACCENTS.green.color }}>
+        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', mb: 0.5, color: ACCENTS.green.color }}>
           <InfoOutlinedIcon sx={{ fontSize: 17 }} aria-hidden="true" />
-          <Typography component="h3" sx={{ fontSize: '.84rem', fontWeight: 750 }}>
+          <Typography component="h3" sx={{ fontSize: '0.8125rem', fontWeight: 750 }}>
             What “Record meeting” does
           </Typography>
         </Stack>
-        <Typography sx={{ fontSize: '.76rem', lineHeight: 1.6, color: COLORS.navy }}>
+        <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.6, color: COLORS.navy }}>
           Starts <strong>Meet AI / transcription</strong>: Avaada Meet Companion joins, captures the live transcript,
           and emails MoM + action items when the meeting ends. Optional <strong>Video Recording</strong> saves a
           video file separately (7-day retention).
@@ -199,7 +198,7 @@ function AfterStart({ titleId, count }) {
       </Box>
 
       <Box component="section" aria-labelledby={`${titleId}-after`}>
-        <Typography id={`${titleId}-after`} component="h3" sx={{ mb: 1.5, fontSize: '.86rem', fontWeight: 750, color: COLORS.navy }}>
+        <Typography id={`${titleId}-after`} component="h3" sx={{ mb: 1.5, fontSize: '0.875rem', fontWeight: 750, color: COLORS.navy }}>
           What happens after you start
         </Typography>
 
@@ -229,14 +228,14 @@ function AfterStart({ titleId, count }) {
                     borderRadius: '50%',
                     bgcolor: accent.bg,
                     color: accent.color,
-                    fontSize: '.7rem',
+                    fontSize: '0.75rem',
                     fontWeight: 800,
                   }}
                 >
                   {i + 1}
                 </Box>
 
-                <Typography sx={{ pt: 0.2, fontSize: '.78rem', lineHeight: 1.5, color: COLORS.navy }}>
+                <Typography sx={{ pt: 0.2, fontSize: '0.75rem', lineHeight: 1.5, color: COLORS.navy }}>
                   {text}
                 </Typography>
               </Box>

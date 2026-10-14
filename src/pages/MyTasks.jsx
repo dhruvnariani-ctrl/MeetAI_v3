@@ -1,12 +1,17 @@
+
 import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 
 import usePageTitle from '../hooks/usePageTitle'
 import useCurrentUser from '../hooks/useCurrentUser'
 
-import { filterAndSortTasks, getTasksFromDashboard } from '../data/tasks'
+import {
+  filterAndSortTasks,
+  getTasksFromDashboard,
+} from '../data/tasks'
+
 import { updateMeetingActionItemStatus } from '../data/meetings'
 
 import { COLORS } from '../components/tasks/taskConstants'
@@ -25,7 +30,10 @@ export default function MyTasks() {
   const navigate = useNavigate()
   const actionItemsRef = useRef(null)
 
-  const [tasks, setTasks] = useState(() => getTasksFromDashboard(currentUser))
+  const [tasks, setTasks] = useState(() =>
+    getTasksFromDashboard(currentUser),
+  )
+
   const [filter, setFilter] = useState('All')
   const [sortBy, setSortBy] = useState('My Order')
   const [search, setSearch] = useState('')
@@ -33,34 +41,58 @@ export default function MyTasks() {
   const [expandedTaskId, setExpandedTaskId] = useState(null)
 
   const filteredTasks = useMemo(
-    () => filterAndSortTasks(tasks, { filter, search, dueDate }, sortBy),
+    () =>
+      filterAndSortTasks(
+        tasks,
+        { filter, search, dueDate },
+        sortBy,
+      ),
     [tasks, filter, search, dueDate, sortBy],
   )
 
-  const { filterCounts, highPriority, dueSoon, todayFocus, progress } =
-    useTaskStats(tasks)
+  const {
+    filterCounts,
+    highPriority,
+    dueSoon,
+    todayFocus,
+    progress,
+  } = useTaskStats(tasks)
 
-  const handleToggle = (taskId) =>
-    setExpandedTaskId((current) => (current === taskId ? null : taskId))
+  const handleToggle = (taskId) => {
+    setExpandedTaskId((current) =>
+      current === taskId ? null : taskId,
+    )
+  }
 
   const handleMarkDone = (taskId) => {
     const task = tasks.find((item) => item.id === taskId)
     if (!task) return
 
-    updateMeetingActionItemStatus(task.meetingId, task.id, 'Done')
+    updateMeetingActionItemStatus(
+      task.meetingId,
+      task.id,
+      'Done',
+    )
 
     setTasks((current) =>
       current.map((item) =>
-        item.id === taskId ? { ...item, status: 'Done', completed: true } : item,
+        item.id === taskId
+          ? { ...item, status: 'Done', completed: true }
+          : item,
       ),
     )
   }
 
   const handleOpenMeeting = (task) => {
-    if (task.meetingId) navigate(`/meetings/${task.meetingId}`)
+    if (task.meetingId) {
+      navigate(`/meetings/${task.meetingId}`)
+    }
   }
 
-  const showOpenTasks = ({ dueDate: nextDueDate, sortBy: nextSortBy }) => {
+  const showOpenTasks = ({
+    dueDate: nextDueDate,
+    sortBy: nextSortBy,
+  }) => {
     setFilter('Open')
     setSearch('')
     setDueDate(nextDueDate)
@@ -82,34 +114,12 @@ export default function MyTasks() {
   }
 
   return (
-<Box
-  sx={{
-    width: '100%',
-    minWidth: 0,
-    color: COLORS.text,
-    pb: 3,
-  }}
->
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: { xs: 'column', xl: 'row' },
-      alignItems: { xs: 'stretch', xl: 'center' },
-      justifyContent: 'space-between',
-      gap: 1.5,
-      width: '100%',
-      mb: 2,
-    }}
-  >
-    {/* Right: Toolbar */}
     <Box
       sx={{
-        flex: '0 0 auto',
-        display: 'flex',
-        justifyContent: { xs: 'flex-start', xl: 'flex-end' },
-        alignSelf: { xs: 'stretch', xl: 'center' },
+        width: '100%',
         minWidth: 0,
-        maxWidth: '100%',
+        color: COLORS.text,
+        pb: 1,
       }}
     >
       <TaskToolbar
@@ -120,24 +130,35 @@ export default function MyTasks() {
         sortBy={sortBy}
         onSortByChange={setSortBy}
       />
-    </Box>
-  </Box>
-      {/* Three panels: 25% / 50% / 25% */}
+
+      {/* Three-column layout */}
       <Box
         sx={{
           display: 'grid',
+          width: '100%',
+          minWidth: 0,
           gridTemplateColumns: {
             xs: 'minmax(0, 1fr)',
             lg: 'minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr)',
           },
-          gap: { xs: 1.5, lg: 1.75 },
-          alignItems: 'start',
+          gap: 1.5,
+          alignItems: 'stretch',
         }}
       >
         {/* LEFT: Today's Focus */}
         <Stack
           spacing={1.5}
-          sx={{ minWidth: 0, gridColumn: { xs: '1', lg: '1' }, gridRow: { xs: '2', lg: '1' } }}
+          sx={{
+            minWidth: 0,
+            height: '100%',
+            alignSelf: 'stretch',
+            gridColumn: { xs: '1', lg: '1' },
+            gridRow: { xs: '2', lg: '1' },
+            '& > *': {
+              flex: 1,
+              minHeight: 0,
+            },
+          }}
         >
           <TodayFocusCard
             tasks={todayFocus}
@@ -146,15 +167,28 @@ export default function MyTasks() {
             onMarkDone={handleMarkDone}
             onOpen={handleOpenMeeting}
             onViewToday={() =>
-              showOpenTasks({ dueDate: 'today', sortBy: 'Priority' })
+              showOpenTasks({
+                dueDate: 'today',
+                sortBy: 'Priority',
+              })
             }
           />
         </Stack>
 
-        {/* CENTRE: Banner and My action items */}
+        {/* CENTRE: Banner and My Action Items */}
         <Stack
           spacing={1.5}
-          sx={{ minWidth: 0, gridColumn: { xs: '1', lg: '2' }, gridRow: { xs: '1', lg: '1' } }}
+          sx={{
+            minWidth: 0,
+            height: '100%',
+            alignSelf: 'stretch',
+            gridColumn: { xs: '1', lg: '2' },
+            gridRow: { xs: '1', lg: '1' },
+            '& > :last-child': {
+              flex: 1,
+              minHeight: 0,
+            },
+          }}
         >
           <TaskBanner />
 
@@ -169,25 +203,44 @@ export default function MyTasks() {
             onMarkDone={handleMarkDone}
             onOpen={handleOpenMeeting}
             onClearFilters={handleClearFilters}
+            pageResetKey={[filter, search, dueDate, sortBy].join('|')}
           />
         </Stack>
+      <Stack
+        spacing={1.5}
+        sx={{
+          minWidth: 0,
+          height: '100%',
+          alignSelf: 'stretch',
+          gridColumn: { xs: '1', lg: '3' },
+          gridRow: { xs: '3', lg: '1' },
+          '& > :first-child': {
+            flex: '3 1 0',
+            minHeight: 0,
+          },
+          '& > :last-child': {
+            flex: '1 1 0',
+            minHeight: 0,
+          },
+        }}
+      >
+        <TaskProgressCard
+          filterCounts={filterCounts}
+          progress={progress}
+        />
 
-        {/* RIGHT: Task progress and Workload overview */}
-        <Stack
-          spacing={1.5}
-          sx={{ minWidth: 0, gridColumn: { xs: '1', lg: '3' }, gridRow: { xs: '3', lg: '1' } }}
-        >
-          <TaskProgressCard filterCounts={filterCounts} progress={progress} />
-
-          <WorkloadCard
-            openCount={filterCounts.Open}
-            highPriority={highPriority}
-            dueSoon={dueSoon}
-            onViewAll={() =>
-              showOpenTasks({ dueDate: 'default', sortBy: 'Due date' })
-            }
-          />
-        </Stack>
+        <WorkloadCard
+          openCount={filterCounts.Open}
+          highPriority={highPriority}
+          dueSoon={dueSoon}
+          onViewAll={() =>
+            showOpenTasks({
+              dueDate: 'default',
+              sortBy: 'Due date',
+            })
+          }
+        />
+      </Stack>
       </Box>
     </Box>
   )

@@ -28,7 +28,7 @@ export default function SearchResults({ meetings, onSelect }) {
         right: 0,
         zIndex: 1300,
         border: '1px solid #dce3eb',
-        borderRadius: 2.5,
+        borderRadius: '12px',
         bgcolor: '#fff',
         boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12)',
         overflow: 'hidden',
@@ -44,7 +44,7 @@ export default function SearchResults({ meetings, onSelect }) {
           <Box sx={{ px: 2, py: 1.25 }}>
             <Typography
               sx={{
-                fontSize: '0.68rem',
+                fontSize: '0.75rem',
                 fontWeight: 700,
                 color: '#7b8ba1',
                 textTransform: 'uppercase',
@@ -76,18 +76,18 @@ export default function SearchResults({ meetings, onSelect }) {
                 cursor: 'pointer',
                 transition: 'background-color 140ms ease',
                 '&:hover': { bgcolor: '#f5f8fc' },
-                '&:focus-visible': { outline: '2px solid #0d68c9', outlineOffset: -2 },
+                '&:focus-visible': { outline: '2px solid #0967B2', outlineOffset: -2 },
               }}
             >
               <Box
                 sx={{
                   width: 34,
                   height: 34,
-                  borderRadius: 1.5,
+                  borderRadius: '12px',
                   display: 'grid',
                   placeItems: 'center',
                   bgcolor: '#eaf2fd',
-                  color: '#0d68c9',
+                  color: '#0967B2',
                   flexShrink: 0,
                 }}
               >
@@ -96,13 +96,13 @@ export default function SearchResults({ meetings, onSelect }) {
 
               <Box sx={{ minWidth: 0, flex: 1 }}>
                 <Typography
-                  sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#172b46', ...ellipsis }}
+                  sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#172b46', ...ellipsis }}
                 >
                   {meeting.title || 'Untitled meeting'}
                 </Typography>
 
                 <Typography
-                  sx={{ mt: 0.25, fontSize: '0.7rem', color: '#718198', ...ellipsis }}
+                  sx={{ mt: 0.25, fontSize: '0.75rem', color: '#718198', ...ellipsis }}
                 >
                   {meeting.platform || 'Meeting'}
                   {meeting.start ? ` · ${formatDate(meeting.start)}` : ''}
@@ -115,7 +115,7 @@ export default function SearchResults({ meetings, onSelect }) {
             <>
               <Divider />
               <Box sx={{ px: 2, py: 1 }}>
-                <Typography sx={{ fontSize: '0.68rem', color: '#8793a3' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: '#5A7189' }}>
                   Showing the first {MAX_RESULTS} matching meetings
                 </Typography>
               </Box>
@@ -126,11 +126,11 @@ export default function SearchResults({ meetings, onSelect }) {
         <Box sx={{ px: 2.5, py: 2.5, textAlign: 'center' }}>
           <SearchIcon sx={{ fontSize: 26, color: '#a5b0be', mb: 0.75 }} />
 
-          <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#42546b' }}>
+          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#42546b' }}>
             No meetings found
           </Typography>
 
-          <Typography sx={{ mt: 0.35, fontSize: '0.7rem', color: '#8793a3' }}>
+          <Typography sx={{ mt: 0.35, fontSize: '0.75rem', color: '#5A7189' }}>
             Try searching for a meeting title or person.
           </Typography>
         </Box>

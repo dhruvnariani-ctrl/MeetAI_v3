@@ -50,13 +50,13 @@ export default function TranscriptTab({
         sx={{
           bgcolor: '#f8fafc',
           border: '1px solid #e5eaf0',
-          borderRadius: 2,
+          borderRadius: '12px',
           p: 2,
         }}
       >
         <Typography
           sx={{
-            fontSize: '0.8rem',
+            fontSize: '0.8125rem',
             lineHeight: 1.8,
             color: '#42546b',
             whiteSpace: 'pre-line',

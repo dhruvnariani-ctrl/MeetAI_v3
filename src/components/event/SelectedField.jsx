@@ -22,7 +22,7 @@ export default function SelectField({ label, value, onChange, options, labelFont
         sx={{ ...inputSx, '& .MuiSelect-select': { py: '10px' } }}
       >
         {options.map((o) => (
-          <MenuItem key={o.value} value={o.value} sx={{ fontSize: '0.9rem' }}>{o.label}</MenuItem>
+          <MenuItem key={o.value} value={o.value} sx={{ fontSize: '0.875rem' }}>{o.label}</MenuItem>
         ))}
       </Select>
     </FormControl>

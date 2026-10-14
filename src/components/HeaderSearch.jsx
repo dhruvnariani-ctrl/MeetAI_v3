@@ -79,15 +79,15 @@ export default function HeaderSearch({ query, onQueryChange }) {
           alignItems: 'center',
           gap: 1,
           px: 2,
-          borderRadius: '20px',
+          borderRadius: '12px',
           border: '1px solid',
-          borderColor: showDropdown ? '#0d68c9' : 'divider',
+          borderColor: showDropdown ? '#0967B2' : 'divider',
           color: 'text.secondary',
           transition: 'border-color 160ms ease, box-shadow 160ms ease',
           '&:focus-within': {
             outline: '3px solid rgba(13, 98, 201, 0.12)',
             outlineOffset: 1,
-            borderColor: '#0d68c9',
+            borderColor: '#0967B2',
           },
         }}
       >
@@ -103,7 +103,7 @@ export default function HeaderSearch({ query, onQueryChange }) {
           sx={{
             flex: 1,
             minWidth: 0,
-            fontSize: '0.9rem',
+            fontSize: '0.875rem',
             '& input::placeholder': { opacity: 1, color: 'text.secondary' },
           }}
         />

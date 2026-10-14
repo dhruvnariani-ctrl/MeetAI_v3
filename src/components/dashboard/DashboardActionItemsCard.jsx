@@ -143,7 +143,7 @@ export default function DashboardActionItemsCard({
               aria-pressed={active}
               sx={{
                 height: 25,
-                borderRadius: '99px',
+                borderRadius: '999px',
                 fontWeight: 700,
                 fontSize: '.63rem',
                 color: active ? '#FFFFFF' : COLORS.navy,
@@ -215,8 +215,8 @@ export default function DashboardActionItemsCard({
                   checked={done}
                   disabled={done}
                   onChange={() => onToggleDone?.(item.id)}
-                  inputProps={{
-                    'aria-label': `Mark "${item.title}" as done`,
+                  slotProps={{
+                    input: { 'aria-label': `Mark "${item.title}" as done` },
                   }}
                   sx={{
                     mt: -0.15,

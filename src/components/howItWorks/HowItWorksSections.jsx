@@ -70,7 +70,7 @@ export default function HowItWorksSections() {
               height: '100%',
               border: '1px solid',
               borderColor: 'divider',
-              borderRadius: '10px',
+              borderRadius: '8px',
               overflow: 'hidden',
               transition: 'box-shadow 180ms ease, transform 180ms ease',
               '&:hover': {
@@ -125,8 +125,8 @@ export default function HowItWorksSections() {
                     top: 8,
                     left: 8,
                     height: 20,
-                    borderRadius: '6px',
-                    fontSize: '.64rem',
+                    borderRadius: '8px',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     bgcolor: '#fff',
                     color: accent.color,
@@ -136,13 +136,13 @@ export default function HowItWorksSections() {
             </Box>
 
             <CardContent sx={{ p: 1.75, '&:last-child': { pb: 1.75 } }}>
-              <Stack direction="row" spacing={0.75} alignItems="baseline">
+              <Stack direction="row" spacing={0.75} sx={{ alignItems: 'baseline' }}>
                 <Typography
                   sx={{ fontSize: '1.1rem', fontWeight: 800, color: accent.color }}
                 >
                   {index + 1}.
                 </Typography>
-                <Typography sx={{ fontSize: '.95rem', fontWeight: 700, lineHeight: 1.3 }}>
+                <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, lineHeight: 1.3 }}>
                   {section.title}
                 </Typography>
               </Stack>
@@ -150,7 +150,7 @@ export default function HowItWorksSections() {
               <Typography
                 sx={{
                   mt: 0.5,
-                  fontSize: '.76rem',
+                  fontSize: '0.75rem',
                   lineHeight: 1.55,
                   color: 'text.secondary',
                 }}
@@ -163,14 +163,12 @@ export default function HowItWorksSections() {
                   <Stack
                     key={`${section.id}-${stepIndex}`}
                     direction="row"
-                    spacing={0.8}
-                    alignItems="flex-start"
-                  >
+                    spacing={0.8} sx={{ alignItems: 'flex-start' }}>
                     <CheckCircleOutlined
-                      sx={{ mt: '.1rem', fontSize: 15, color: accent.color, flexShrink: 0 }}
+                      sx={{ mt: '0.75rem', fontSize: 15, color: accent.color, flexShrink: 0 }}
                     />
                     <Typography
-                      sx={{ fontSize: '.72rem', lineHeight: 1.5, color: 'text.secondary' }}
+                      sx={{ fontSize: '0.75rem', lineHeight: 1.5, color: 'text.secondary' }}
                     >
                       {step}
                     </Typography>

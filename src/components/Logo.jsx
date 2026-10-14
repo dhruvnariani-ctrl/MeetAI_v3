@@ -26,7 +26,7 @@ export default function Logo({ compact = false }) {
         '&:focus-visible': {
           outline: '2px solid #0967B2',
           outlineOffset: 2,
-          borderRadius: 2,
+          borderRadius: '12px',
         },
       }}
     >

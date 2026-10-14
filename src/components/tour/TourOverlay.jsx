@@ -35,7 +35,7 @@ export default function TourOverlay({ targetRect }) {
           left: targetRect.left - PAD,
           width: targetRect.width + PAD * 2,
           height: targetRect.height + PAD * 2,
-          borderRadius: 2,
+          borderRadius: '12px',
           border: '2px solid',
           borderColor: 'primary.main',
           boxShadow: '0 2px 12px rgba(25,118,210,.22)',

@@ -1,3 +1,4 @@
+
 import {
   Box,
   Button,
@@ -7,13 +8,17 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { TaskAltOutlined } from '@mui/icons-material'
+
+import PaginationBar from '../PaginationBar'
+import { EmptyPanel } from '../PageShell'
+import usePagination from '../../hooks/usePagination'
 
 import { normalizeTaskStatus } from '../../data/tasks'
 import { COLORS, STATUS_FILTERS } from './taskConstants'
 import TaskRow from './TaskRow'
 
 const TABLE_HEADINGS = ['Task', 'Priority', 'Status / Due', '']
+const TASKS_PER_PAGE = 5
 
 export default function TaskListCard({
   containerRef,
@@ -26,9 +31,12 @@ export default function TaskListCard({
   onMarkDone,
   onOpen,
   onClearFilters,
+  pageResetKey,
 }) {
+  const pager = usePagination(tasks, TASKS_PER_PAGE, pageResetKey)
+
   /* The first not-done task carries the product-tour anchor. */
-  const tourTaskId = tasks.find(
+  const tourTaskId = pager.pageItems.find(
     (task) => normalizeTaskStatus(task.status) !== 'Done',
   )?.id
 
@@ -41,7 +49,7 @@ export default function TaskListCard({
         minWidth: 0,
         overflow: 'hidden',
         border: `1px solid ${COLORS.border}`,
-        borderRadius: '15px',
+        borderRadius: '12px',
         backgroundColor: COLORS.white,
         scrollMarginTop: 18,
       }}
@@ -49,14 +57,15 @@ export default function TaskListCard({
       <Box sx={{ px: 1.5, pt: 1.6, pb: 1.25 }}>
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          gap={0.75}
-          sx={{ width: '100%' }}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 0.75, width: '100%' }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography
-              sx={{ color: COLORS.navy, fontSize: '0.92rem', fontWeight: 800 }}
+              sx={{
+                color: COLORS.navy,
+                fontSize: '0.9375rem',
+                fontWeight: 800,
+              }}
             >
               My action items
             </Typography>
@@ -65,7 +74,7 @@ export default function TaskListCard({
               sx={{
                 mt: 0.35,
                 color: COLORS.muted,
-                fontSize: '0.69rem',
+                fontSize: '0.75rem',
                 lineHeight: 1.5,
               }}
             >
@@ -74,7 +83,9 @@ export default function TaskListCard({
           </Box>
 
           <Chip
-            label={`${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'}`}
+            label={`${tasks.length} ${
+              tasks.length === 1 ? 'task' : 'tasks'
+            }`}
             size="small"
             sx={{
               flexShrink: 0,
@@ -82,7 +93,7 @@ export default function TaskListCard({
               backgroundColor: COLORS.paleBlue,
               borderRadius: '8px',
               fontWeight: 750,
-              fontSize: '0.67rem',
+              fontSize: '0.75rem',
             }}
           />
         </Stack>
@@ -90,6 +101,7 @@ export default function TaskListCard({
 
       <Divider sx={{ borderColor: COLORS.border }} />
 
+      {/* Status filters */}
       <Box
         sx={{
           display: 'flex',
@@ -100,7 +112,7 @@ export default function TaskListCard({
           '&::-webkit-scrollbar': { height: 4 },
           '&::-webkit-scrollbar-thumb': {
             backgroundColor: '#D7E3EB',
-            borderRadius: 99,
+            borderRadius: 999,
           },
         }}
       >
@@ -120,7 +132,7 @@ export default function TaskListCard({
                 py: 0.6,
                 borderRadius: '8px',
                 textTransform: 'none',
-                fontSize: '0.67rem',
+                fontSize: '0.75rem',
                 fontWeight: 750,
                 borderColor: selected ? COLORS.blue : COLORS.border,
                 color: selected ? '#fff' : COLORS.text,
@@ -128,12 +140,21 @@ export default function TaskListCard({
                 boxShadow: 'none',
                 '&:hover': {
                   borderColor: COLORS.blue,
-                  backgroundColor: selected ? '#075A9D' : COLORS.paleBlue,
+                  backgroundColor: selected
+                    ? '#075A9D'
+                    : COLORS.paleBlue,
                 },
               }}
             >
               {status}
-              <Box component="span" sx={{ ml: 0.55, fontSize: '0.62rem', opacity: 0.8 }}>
+              <Box
+                component="span"
+                sx={{
+                  ml: 0.55,
+                  fontSize: '0.75rem',
+                  opacity: 0.8,
+                }}
+              >
                 {filterCounts[status]}
               </Box>
             </Button>
@@ -141,12 +162,13 @@ export default function TaskListCard({
         })}
       </Box>
 
+      {/* Table headings */}
       <Box
         sx={{
           mx: 1,
           px: 0.75,
           py: 0.9,
-          borderRadius: '7px',
+          borderRadius: '8px',
           backgroundColor: '#F3F7FA',
           display: { xs: 'none', md: 'grid' },
           gridTemplateColumns: 'minmax(0, 1fr) 72px 110px 26px',
@@ -159,7 +181,7 @@ export default function TaskListCard({
             sx={{
               color: '#698197',
               fontWeight: 800,
-              fontSize: '0.61rem',
+              fontSize: '0.75rem',
               textTransform: 'uppercase',
               letterSpacing: '.025em',
             }}
@@ -169,46 +191,35 @@ export default function TaskListCard({
         ))}
       </Box>
 
+      {/* Task rows */}
       {tasks.length === 0 ? (
-        <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
-          <TaskAltOutlined sx={{ fontSize: 30, color: '#A3B8C7', mb: 0.75 }} />
-
-          <Typography sx={{ color: COLORS.navy, fontWeight: 800, fontSize: '0.84rem' }}>
-            No tasks found
-          </Typography>
-
-          <Typography sx={{ color: COLORS.muted, fontSize: '0.7rem', mt: 0.5 }}>
-            Try another status, date range or search term.
-          </Typography>
-
-          <Button
-            size="small"
-            onClick={onClearFilters}
-            sx={{
-              mt: 0.75,
-              textTransform: 'none',
-              color: COLORS.blue,
-              fontWeight: 750,
-              fontSize: '0.72rem',
-            }}
+        <Box sx={{ p: 1.5 }}>
+          <EmptyPanel
+            title="No tasks found"
+            minHeight={140}
+            action={<Button onClick={onClearFilters}>Clear filters</Button>}
           >
-            Clear filters
-          </Button>
+            Try another status, date range or search term.
+          </EmptyPanel>
         </Box>
       ) : (
-        <Box sx={{ px: 0.25 }}>
-          {tasks.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              expanded={expandedTaskId === task.id}
-              onToggle={onToggle}
-              onMarkDone={onMarkDone}
-              onOpen={onOpen}
-              showMarkDoneTour={task.id === tourTaskId}
-            />
-          ))}
-        </Box>
+        <>
+          <Box sx={{ px: 0.25 }}>
+            {pager.pageItems.map((task) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                expanded={expandedTaskId === task.id}
+                onToggle={onToggle}
+                onMarkDone={onMarkDone}
+                onOpen={onOpen}
+                showMarkDoneTour={task.id === tourTaskId}
+              />
+            ))}
+          </Box>
+
+          <PaginationBar pager={pager} label="tasks" />
+        </>
       )}
     </Paper>
   )

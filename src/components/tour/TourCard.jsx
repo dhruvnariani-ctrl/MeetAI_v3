@@ -41,7 +41,7 @@ const TourCard = forwardRef(function TourCard(
           top: { xs: 'auto', sm: position?.top ?? -9999 },
           left: { xs: 16, sm: position?.left ?? -9999 },
           bottom: { xs: 16, sm: 'auto' },
-          borderRadius: 2.5,
+          borderRadius: '12px',
           overflow: 'hidden',
           transition: 'top 180ms ease, left 180ms ease',
         }}
@@ -55,18 +55,17 @@ const TourCard = forwardRef(function TourCard(
         <Box sx={{ p: 2.5 }}>
           <Stack spacing={2}>
             {/* Header */}
-            <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
+            <Stack direction="row" sx={{ alignItems: 'center', width: '100%' }}>
               <Stack
                 direction="row"
                 spacing={1.2}
-                alignItems="center"
-                sx={{ flex: 1, minWidth: 0 }}
+                sx={{ alignItems: 'center', flex: 1, minWidth: 0 }}
               >
                 <Box
                   sx={{
                     width: 40,
                     height: 40,
-                    borderRadius: 2,
+                    borderRadius: '12px',
                     display: 'grid',
                     placeItems: 'center',
                     bgcolor: '#eaf2fd',
@@ -79,7 +78,7 @@ const TourCard = forwardRef(function TourCard(
 
                 <Box sx={{ minWidth: 0 }}>
                   <Typography
-                    sx={{ fontSize: '.68rem', fontWeight: 600, color: 'text.secondary' }}
+                    sx={{ fontSize: '0.75rem', fontWeight: 600, color: 'text.secondary' }}
                   >
                     MeetAI tour
                   </Typography>
@@ -111,7 +110,7 @@ const TourCard = forwardRef(function TourCard(
 
             {/* Description */}
             <Typography
-              sx={{ fontSize: '.84rem', lineHeight: 1.55, color: 'text.secondary' }}
+              sx={{ fontSize: '0.8125rem', lineHeight: 1.55, color: 'text.secondary' }}
             >
               {step.body}
             </Typography>
@@ -120,7 +119,7 @@ const TourCard = forwardRef(function TourCard(
             {step.tip && <TourHint label="Helpful tip">{step.tip}</TourHint>}
 
             {/* Controls */}
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
               <Button
                 size="small"
                 color="inherit"
@@ -155,7 +154,7 @@ const TourCard = forwardRef(function TourCard(
             </Stack>
 
             <Typography
-              sx={{ textAlign: 'right', fontSize: '.67rem', color: 'text.secondary' }}
+              sx={{ textAlign: 'right', fontSize: '0.75rem', color: 'text.secondary' }}
             >
               {current} of {total}
             </Typography>

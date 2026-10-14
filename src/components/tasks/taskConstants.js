@@ -5,7 +5,7 @@ export const COLORS = {
   blue: '#0967B2',
   green: '#16815B',
   text: '#304858',
-  muted: '#71818D',
+  muted: '#5A7189',
   border: '#DCE6EE',
   background: '#F5F8FA',
   paleBlue: '#EFF6FB',
@@ -50,6 +50,6 @@ export const CARD_SX = {
   minWidth: 0,
   p: 1.75,
   border: `1px solid ${COLORS.border}`,
-  borderRadius: '16px',
+  borderRadius: '12px',
   backgroundColor: COLORS.white,
 }

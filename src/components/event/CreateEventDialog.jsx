@@ -108,6 +108,7 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
     const e = {}
     if (!title.trim()) e.title = 'Enter a title'
     if (!date) e.date = 'Pick a date'
+    else if (date < toDateInput(new Date())) e.date = 'The date cannot be in the past'
     if (!instant) {
       if (!start) e.start = 'Pick a start time'
       if (!end) e.end = 'Pick an end time'
@@ -195,9 +196,9 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
                 checked={!instant}
                 control={<Radio value="later" size="small" sx={controlSx(ACCENTS.blue)} />}
               >
-                <Stack direction="row" spacing={0.6} alignItems="center">
+                <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
                   <CalendarMonthOutlinedIcon sx={{ fontSize: 16, color: ACCENTS.blue.color }} />
-                  <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>Schedule for later</Typography>
+                  <Typography sx={{ fontSize: '0.8125rem', fontWeight: 650 }}>Schedule for later</Typography>
                 </Stack>
               </ChoiceCard>
 
@@ -206,15 +207,15 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
                 checked={instant}
                 control={<Radio value="now" size="small" sx={controlSx(ACCENTS.blue)} />}
               >
-                <Stack direction="row" spacing={0.6} alignItems="center">
+                <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
                   <BoltOutlinedIcon sx={{ fontSize: 16, color: ACCENTS.blue.color }} />
-                  <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>Start now</Typography>
+                  <Typography sx={{ fontSize: '0.8125rem', fontWeight: 650 }}>Start now</Typography>
                 </Stack>
               </ChoiceCard>
             </RadioGroup>
           </FormControl>
 
-          <Typography sx={{ fontSize: '.74rem', color: COLORS.muted, mt: -0.5 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: COLORS.muted, mt: -0.5 }}>
             {instant
               ? 'Start the event right away — only a duration is needed.'
               : 'Pick the date and the start and end time.'}
@@ -305,7 +306,7 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
                     />
                   }
                 >
-                  <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>{p.label}</Typography>
+                  <Typography sx={{ fontSize: '0.8125rem', fontWeight: 650 }}>{p.label}</Typography>
                 </ChoiceCard>
               ))}
             </Box>
@@ -343,8 +344,8 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
               />
             }
           >
-            <Typography sx={{ fontSize: '.82rem', fontWeight: 700 }}>Invite MeetAI</Typography>
-            <Typography sx={{ fontSize: '.74rem', color: COLORS.muted, lineHeight: 1.5 }}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700 }}>Invite MeetAI</Typography>
+            <Typography sx={{ fontSize: '0.75rem', color: COLORS.muted, lineHeight: 1.5 }}>
               Avaada Meet Companion joins to capture the transcript and email MoM + action items.
             </Typography>
           </ChoiceCard>
@@ -362,8 +363,8 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
                 />
               }
             >
-              <Typography sx={{ fontSize: '.8rem', fontWeight: 650 }}>Also enable Video Recording</Typography>
-              <Typography sx={{ fontSize: '.74rem', color: COLORS.muted }}>
+              <Typography sx={{ fontSize: '0.8125rem', fontWeight: 650 }}>Also enable Video Recording</Typography>
+              <Typography sx={{ fontSize: '0.75rem', color: COLORS.muted }}>
                 Saves a video file separately (7-day retention).
               </Typography>
             </ChoiceCard>
@@ -377,9 +378,9 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
           fullWidth
           sx={{
             height: 44,
-            borderRadius: '10px',
+            borderRadius: '8px',
             bgcolor: BLUE,
-            fontSize: '.92rem',
+            fontSize: '0.9375rem',
             fontWeight: 700,
             textTransform: 'none',
             '&:hover': { bgcolor: '#075A9D' },
@@ -410,7 +411,7 @@ function EventSummary({
     <Box sx={{ border: '1px solid', borderColor: COLORS.border, borderRadius: '12px', bgcolor: '#fff', overflow: 'hidden' }}>
       <Box sx={{ px: 2, py: 1.5, bgcolor: ACCENTS.blue.bg }}>
         <Typography
-          sx={{ fontSize: '.62rem', fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: ACCENTS.blue.color }}
+          sx={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: ACCENTS.blue.color }}
         >
           Live summary
         </Typography>
@@ -449,7 +450,7 @@ function EventSummary({
         </SummaryRow>
 
         <SummaryRow icon={<GroupsOutlinedIcon />} accent={ACCENTS.orange} label="Who">
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Stack direction="row" aria-hidden="true">
               {participants.slice(0, 4).map((p, i) => (
                 <Avatar
@@ -458,7 +459,7 @@ function EventSummary({
                     width: 22,
                     height: 22,
                     ml: i ? -0.6 : 0,
-                    fontSize: '.6rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     border: '2px solid #fff',
                     bgcolor: ACCENTS.orange.bg,

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { EmptyPanel } from '../PageShell'
 import { useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
@@ -8,7 +9,6 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded'
@@ -123,7 +123,7 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
           mb: 0.6,
           border: `1px solid ${colors.border}`,
           borderLeft: `3px solid ${colors.accent}`,
-          borderRadius: '9px',
+          borderRadius: '8px',
           overflow: 'hidden',
           bgcolor: '#FFFFFF',
           transition: 'box-shadow 140ms ease',
@@ -171,7 +171,7 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
               sx={{
                 color: colors.accent,
                 bgcolor: colors.surface,
-                borderRadius: '5px',
+                borderRadius: '8px',
                 px: 0.55,
                 py: 0.15,
                 fontSize: '.56rem',
@@ -303,7 +303,7 @@ function MeetingGroup({
       component="section"
       sx={{
         border: `1px solid ${COLORS.border}`,
-        borderRadius: '9px',
+        borderRadius: '8px',
         overflow: 'hidden',
         bgcolor: '#FFFFFF',
       }}
@@ -359,7 +359,7 @@ function MeetingGroup({
               px: 0.5,
               display: 'grid',
               placeItems: 'center',
-              borderRadius: '5px',
+              borderRadius: '8px',
               bgcolor: '#FFFFFF',
               border: `1px solid ${style.color}25`,
               color: style.color,
@@ -555,22 +555,10 @@ export default function MeetingTimeline({
       </Box>
 
       {sortedMeetings.length === 0 ? (
-        <Box sx={{ py: 3.5, px: 1.5, textAlign: 'center' }}>
-          <CalendarMonthOutlinedIcon
-            sx={{ fontSize: 29, color: '#A3B3BF', mb: 0.6 }}
-          />
-
-          <Typography
-            sx={{ color: COLORS.navy, fontSize: '.82rem', fontWeight: 700 }}
-          >
-            No meetings scheduled today
-          </Typography>
-
-          <Typography
-            sx={{ mt: 0.35, color: COLORS.muted, fontSize: '.70rem' }}
-          >
+        <Box sx={{ p: 1.5 }}>
+          <EmptyPanel title="No meetings scheduled today" minHeight={140}>
             Your meetings will appear here when they are available.
-          </Typography>
+          </EmptyPanel>
         </Box>
       ) : (
         <Box
@@ -598,7 +586,7 @@ export default function MeetingTimeline({
               now={now}
               meetingSettings={meetingSettings}
               onSettingsChange={onSettingsChange}
-              defaultExpanded
+              defaultExpanded={false}
             />
 
             <MeetingGroup

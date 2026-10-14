@@ -3,7 +3,7 @@ export const COLORS = {
   blue: '#0967B2',
   green: '#16815B',
   text: '#304858',
-  muted: '#71818D',
+  muted: '#5A7189',
   border: '#DFE7EC',
   paleBlue: '#EFF6FB',
   paleGreen: '#F0F7F1',
@@ -60,11 +60,28 @@ export const normalizeStatus = (value) => {
     .trim()
     .toLowerCase()
     .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
 
-  if (['done', 'completed', 'complete', 'closed'].includes(status)) return 'done'
-  if (['in progress', 'inprogress', 'ongoing', 'started'].includes(status)) return 'in progress'
-  if (['blocked', 'on hold', 'onhold'].includes(status)) return 'blocked'
-  if (['pending', 'todo', 'to do', 'not started', 'open'].includes(status)) return 'pending'
+  if (['done', 'completed', 'complete', 'closed'].includes(status)) {
+    return 'done'
+  }
+
+  if (
+    ['in progress', 'inprogress', 'ongoing', 'started','in process'].includes(
+      status.replace(/\s/g, ''),
+    ) ||
+    status === 'in progress'
+  ) {
+    return 'in progress'
+  }
+
+  if (['blocked', 'on hold', 'onhold'].includes(status)) {
+    return 'blocked'
+  }
+
+  if (['pending', 'todo', 'to do', 'not started', 'open'].includes(status)) {
+    return 'pending'
+  }
 
   return status
 }
@@ -146,5 +163,24 @@ export const isCurrentUserTask = (item, user) => {
 export const tasksDueTodayForUser = (items = [], user, now = new Date()) =>
   items.filter((item) => isCurrentUserTask(item, user) && isSameDay(item.due, now))
 
-export const isActionableTask = (item) =>
-  ['pending', 'in progress', 'blocked'].includes(normalizeStatus(item.status))
+
+export const isActionableTask = (item) => {
+  const status = String(item?.status ?? 'pending')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+
+  return [
+    'pending',
+    'in progress',
+    'inprogress',
+    'in process',
+    'inprocess',
+    'ongoing',
+    'started',
+    'blocked',
+    'on hold',
+    'onhold',
+  ].includes(status)
+}

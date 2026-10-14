@@ -40,7 +40,7 @@ export default function MeetingInfo({
           <AccessTimeIcon sx={{ fontSize: 15, color: '#7188A0' }} />
           <Typography
             sx={{
-              fontSize: '0.78rem',
+              fontSize: '0.75rem',
               lineHeight: 1.25,
               color: '#48658d',
               fontWeight: 500,
@@ -57,7 +57,7 @@ export default function MeetingInfo({
 
       <Typography
         sx={{
-          fontSize: compact ? '0.95rem' : { xs: '0.95rem', md: '1rem' },
+          fontSize: compact ? '0.9375rem' : { xs: '0.9375rem', md: '1rem' },
           lineHeight: 1.3,
           fontWeight: 700,
           color: '#0f172a',
@@ -76,7 +76,7 @@ export default function MeetingInfo({
       >
         {meeting.platform && (
           <Typography
-            sx={{ fontSize: '0.78rem', color: '#48658d', fontWeight: 500 }}
+            sx={{ fontSize: '0.75rem', color: '#48658d', fontWeight: 500 }}
           >
             {meeting.platform}
           </Typography>
@@ -99,7 +99,7 @@ export default function MeetingInfo({
             sx={{ alignItems: 'center', gap: 0.4 }}
           >
             <PeopleOutlineIcon sx={{ fontSize: 16, color: '#64748b' }} />
-            <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
+            <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
               {participantCount}{' '}
               {participantCount === 1 ? 'participant' : 'participants'}
             </Typography>

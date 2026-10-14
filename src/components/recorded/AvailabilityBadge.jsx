@@ -2,7 +2,7 @@
 import { Box } from '@mui/material'
 const COLORS = {
   green: '#16815B',
-  muted: '#71818D',
+  muted: '#5A7189',
   paleGreen: '#F0F7F1',
   unavailableBg: '#F3F5F7',
 }
@@ -31,10 +31,10 @@ export default function AvailabilityBadge({
         boxSizing: 'border-box',
         px: 1,
         py: 0.65,
-        borderRadius: '9px',
+        borderRadius: '8px',
         bgcolor: available ? COLORS.paleGreen : COLORS.unavailableBg,
         color: available ? COLORS.green : COLORS.muted,
-        fontSize: '0.68rem',
+        fontSize: '0.75rem',
         lineHeight: 1.3,
         fontWeight: 600,
         overflowWrap: 'anywhere',

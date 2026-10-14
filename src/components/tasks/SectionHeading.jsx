@@ -5,16 +5,11 @@ import { COLORS } from './taskConstants'
 export default function SectionHeading({ icon, title, subtitle, trailing }) {
   return (
     <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      gap={1}
-    >
+      direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
       <Stack
         direction="row"
-        alignItems="center"
         spacing={1}
-        sx={{ minWidth: 0 }}
+        sx={{ alignItems: 'center', minWidth: 0 }}
       >
         {icon && (
           <Box
@@ -22,7 +17,7 @@ export default function SectionHeading({ icon, title, subtitle, trailing }) {
               width: 33,
               height: 33,
               flexShrink: 0,
-              borderRadius: '10px',
+              borderRadius: '8px',
               backgroundColor: COLORS.paleBlue,
               color: COLORS.blue,
               display: 'grid',
@@ -39,7 +34,7 @@ export default function SectionHeading({ icon, title, subtitle, trailing }) {
             sx={{
               color: COLORS.navy,
               fontWeight: 800,
-              fontSize: '0.88rem',
+              fontSize: '0.875rem',
               lineHeight: 1.4,
             }}
           >
@@ -51,7 +46,7 @@ export default function SectionHeading({ icon, title, subtitle, trailing }) {
               sx={{
                 mt: 0.25,
                 color: COLORS.muted,
-                fontSize: '0.71rem',
+                fontSize: '0.75rem',
                 lineHeight: 1.45,
               }}
             >

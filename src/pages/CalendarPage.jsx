@@ -1,3 +1,4 @@
+
 import { useOutletContext } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
@@ -6,7 +7,6 @@ import Typography from '@mui/material/Typography'
 
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined'
 
-import PageShell from '../components/PageShell'
 import CalendarSidebar from '../components/calendar/CalendarSidebar'
 import CalendarToolbar from '../components/calendar/CalendarToolbar'
 import CalendarMeetingList from '../components/calendar/CalendarMeetingList'
@@ -17,7 +17,6 @@ import useCurrentUser from '../hooks/useCurrentUser'
 const format = (date, options) =>
   new Intl.DateTimeFormat('en-US', options).format(date)
 
-/* Heading shown at the top of the meetings panel. */
 function getPanelHeading(view, selectedDate) {
   if (view === 'day') {
     return format(selectedDate, {
@@ -46,7 +45,10 @@ function getPanelHeading(view, selectedDate) {
     })}`
   }
 
-  return format(selectedDate, { month: 'long', year: 'numeric' })
+  return format(selectedDate, {
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 const AGENDA_LABELS = {
@@ -82,203 +84,210 @@ export default function CalendarPage() {
 
   const agendaLabel = `${AGENDA_LABELS[view] ?? 'Agenda'}${
     activeFilterCount > 0
-      ? ` · ${activeFilterCount} ${activeFilterCount === 1 ? 'filter' : 'filters'} on`
+      ? ` · ${activeFilterCount} ${
+          activeFilterCount === 1 ? 'filter' : 'filters'
+        } on`
       : ''
   }`
 
   return (
-      <Stack spacing={1.5} sx={{ minWidth: 0, width: '100%' }}>
-        <Box data-tour="calendar-date-navigation" sx={{ width: '100%' }}>
-          <CalendarToolbar
-            view={view}
+    <Stack
+      spacing={1.5}
+      sx={{
+        minWidth: 0,
+        width: '100%',
+      }}
+    >
+      <Box
+        data-tour="calendar-date-navigation"
+        sx={{ width: '100%', minWidth: 0 }}
+      >
+        <CalendarToolbar
+          view={view}
+          selectedDate={selectedDate}
+          onViewChange={setView}
+          onPrevious={calendar.handlePrevious}
+          onNext={calendar.handleNext}
+          onToday={calendar.handleToday}
+          onYesterday={calendar.handleYesterday}
+          onTomorrow={calendar.handleTomorrow}
+          onCurrentPeriod={calendar.handleCurrentPeriod}
+          onNewMeeting={() => openCreate?.()}
+          filters={filters}
+          onFiltersChange={setFilters}
+          onClearFilters={clearFilters}
+          platforms={platforms}
+          activeFilterCount={activeFilterCount}
+        />
+      </Box>
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: 'minmax(0, 1fr)',
+            lg: 'minmax(0, 1.45fr) minmax(0, 1fr)',
+          },
+          gap: 1.5,
+          alignItems: 'stretch',
+          minWidth: 0,
+        }}
+      >
+        <Box
+          data-tour="calendar-month-grid"
+          sx={{
+            minWidth: 0,
+            display: 'flex',
+            '& > *': { flex: 1 },
+          }}
+        >
+          <CalendarSidebar
             selectedDate={selectedDate}
-            onViewChange={setView}
-            onPrevious={calendar.handlePrevious}
-            onNext={calendar.handleNext}
+            view={view}
+            meetings={filteredMeetings}
+            onSelectDate={calendar.selectDate}
+            onOpenDay={calendar.selectDay}
             onToday={calendar.handleToday}
-            onYesterday={calendar.handleYesterday}
-            onTomorrow={calendar.handleTomorrow}
-            onCurrentPeriod={calendar.handleCurrentPeriod}
-            onNewMeeting={() => openCreate?.()}
-            filters={filters}
-            onFiltersChange={setFilters}
-            onClearFilters={clearFilters}
-            platforms={platforms}
-            activeFilterCount={activeFilterCount}
           />
         </Box>
 
         <Box
+          data-tour="calendar-meeting-list"
           sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: 'minmax(0, 1fr)',
-              lg: 'minmax(0, 1.45fr) minmax(340px, 1fr)',
-            },
-            gap: { xs: 1.5, md: 2 },
-            alignItems: 'stretch',
+            position: 'relative',
             minWidth: 0,
+            minHeight: { lg: 460 },
           }}
         >
-          {/* Mini calendar: highlights the selected day / week / month */}
           <Box
-            data-tour="calendar-month-grid"
             sx={{
-              minWidth: 0,
+              position: { xs: 'static', lg: 'absolute' },
+              inset: { lg: 0 },
+              maxHeight: { xs: 620, lg: 'none' },
               display: 'flex',
-              '& > *': { flex: 1 },
-            }}
-          >
-            <CalendarSidebar
-              selectedDate={selectedDate}
-              view={view}
-              meetings={filteredMeetings}
-              onSelectDate={calendar.selectDate}
-              onOpenDay={calendar.selectDay}
-              onToday={calendar.handleCurrentPeriod}
-            />
-          </Box>
-
-          {/*
-           * Meetings panel. On large screens the panel is positioned inside
-           * this wrapper, so its height always equals the calendar's height
-           * and the list scrolls inside it instead of stretching the page.
-           */}
-          <Box
-            data-tour="calendar-meeting-list"
-            sx={{
-              position: 'relative',
-              minWidth: 0,
-              minHeight: { lg: 460 },
+              flexDirection: 'column',
+              boxSizing: 'border-box',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '12px',
+              bgcolor: 'background.paper',
+              overflow: 'hidden',
             }}
           >
             <Box
               sx={{
-                position: { xs: 'static', lg: 'absolute' },
-                top: { lg: 0 },
-                right: { lg: 0 },
-                bottom: { lg: 0 },
-                left: { lg: 0 },
-                maxHeight: { xs: 620, lg: 'none' },
-                display: 'flex',
-                flexDirection: 'column',
-                boxSizing: 'border-box',
-                border: '1px solid #DFEAF4',
-                borderRadius: '14px',
-                bgcolor: '#FFFFFF',
-                overflow: 'hidden',
+                flexShrink: 0,
+                px: { xs: 1.5, md: 2 },
+                py: 1.5,
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
               }}
             >
-              {/* Panel header: title and total count */}
-              <Box
+              <Stack
+                direction="row"
                 sx={{
-                  flexShrink: 0,
-                  px: { xs: 1.5, md: 1.9 },
-                  py: { xs: 1.5, md: 1.75 },
-                  borderBottom: '1px solid #E8F0F7',
-                  bgcolor: '#FFFFFF',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 1.25,
+                  minWidth: 0,
                 }}
               >
                 <Stack
                   direction="row"
                   sx={{
                     alignItems: 'center',
-                    justifyContent: 'space-between',
                     gap: 1.25,
+                    minWidth: 0,
                   }}
                 >
-                  <Stack
-                    direction="row"
-                    sx={{ alignItems: 'center', gap: 1.25, minWidth: 0 }}
-                  >
-                    <Box
-                      aria-hidden="true"
-                      sx={{
-                        flexShrink: 0,
-                        width: 38,
-                        height: 38,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '11px',
-                        bgcolor: '#EAF3FC',
-                        color: '#0967B2',
-                      }}
-                    >
-                      <EventNoteOutlinedIcon sx={{ fontSize: 21 }} />
-                    </Box>
-
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography
-                        component="h2"
-                        sx={{
-                          m: 0,
-                          color: '#123A59',
-                          fontSize: '1rem',
-                          lineHeight: 1.3,
-                          fontWeight: 700,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {pageHeading}
-                      </Typography>
-
-                      <Typography
-                        sx={{
-                          mt: 0.2,
-                          color: '#5A7189',
-                          fontSize: '0.78rem',
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {agendaLabel}
-                      </Typography>
-                    </Box>
-                  </Stack>
-
                   <Box
+                    aria-hidden="true"
                     sx={{
                       flexShrink: 0,
-                      px: 1.3,
-                      py: 0.5,
-                      borderRadius: '999px',
-                      bgcolor: '#EAF3FC',
-                      color: '#0967B2',
-                      fontSize: '0.78rem',
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
+                      width: 38,
+                      height: 38,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '8px',
+                      bgcolor: 'primary.light',
+                      color: 'primary.main',
                     }}
                   >
-                    {meetingCount} {meetingCount === 1 ? 'meeting' : 'meetings'}
+                    <EventNoteOutlinedIcon sx={{ fontSize: 21 }} />
+                  </Box>
+
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      component="h2"
+                      variant="subtitle1"
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 700,
+                        lineHeight: 1.3,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {pageHeading}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        mt: 0.25,
+                        color: 'text.secondary',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {agendaLabel}
+                    </Typography>
                   </Box>
                 </Stack>
-              </Box>
 
-              {/* Scrollable list: Live / Upcoming / Done sections */}
-              <Box
-                data-tour="calendar-filters"
-                sx={{
-                  flex: 1,
-                  minHeight: 0,
-                  overflowY: 'auto',
-                  px: { xs: 1.25, md: 1.5 },
-                  py: 1.5,
-                  bgcolor: '#F7FAFD',
-                }}
-              >
-                <CalendarMeetingList
-                  meetings={visibleMeetings}
-                  view={view}
-                  settings={settings}
-                  onSettingsChange={onSettingsChange}
-                  compact
-                />
-              </Box>
+                <Box
+                  sx={{
+                    flexShrink: 0,
+                    px: 1.25,
+                    py: 0.5,
+                    borderRadius: 999,
+                    bgcolor: 'primary.light',
+                    color: 'primary.main',
+                    fontSize: '0.8125rem',
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {meetingCount}{' '}
+                  {meetingCount === 1 ? 'meeting' : 'meetings'}
+                </Box>
+              </Stack>
+            </Box>
+
+            <Box
+              data-tour="calendar-filters"
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                px: { xs: 1.25, md: 1.5 },
+                py: 1.5,
+                bgcolor: 'background.default',
+              }}
+            >
+              <CalendarMeetingList
+                meetings={visibleMeetings}
+                view={view}
+                settings={settings}
+                onSettingsChange={onSettingsChange}
+                compact
+              />
             </Box>
           </Box>
         </Box>
-      </Stack>
+      </Box>
+    </Stack>
   )
 }

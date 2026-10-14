@@ -16,7 +16,7 @@ export function StatusBadge({ status }) {
         borderRadius: '8px',
         color: style.color,
         backgroundColor: style.background,
-        fontSize: '0.69rem',
+        fontSize: '0.75rem',
         fontWeight: 750,
       }}
     />
@@ -33,10 +33,10 @@ export function PriorityBadge({ priority }) {
       label={normalized}
       sx={{
         height: 23,
-        borderRadius: '7px',
+        borderRadius: '8px',
         color: style.color,
         backgroundColor: style.background,
-        fontSize: '0.67rem',
+        fontSize: '0.75rem',
         fontWeight: 750,
       }}
     />

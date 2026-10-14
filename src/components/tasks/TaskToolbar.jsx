@@ -4,7 +4,6 @@ import {
   InputAdornment,
   MenuItem,
   Select,
-  Stack,
   TextField,
   Typography,
 } from '@mui/material'
@@ -18,27 +17,21 @@ const SORT_OPTIONS = TASK_SORT_OPTIONS.map((option) => ({
   label: `Sort: ${option}`,
 }))
 
-const selectSx = {
+const controlSx = {
   height: 38,
-  borderRadius: '9px',
   backgroundColor: COLORS.white,
   fontSize: '0.75rem',
-  '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: COLORS.border,
-  },
+  '& .MuiOutlinedInput-notchedOutline': { borderColor: COLORS.border },
 }
 
-function ToolbarSelect({ value, onChange, options, label, minWidth }) {
+function ToolbarSelect({ value, onChange, options, label }) {
   return (
-    <FormControl
-      size="small"
-      sx={{ minWidth, flexShrink: 0 }}
-    >
+    <FormControl size="small" sx={{ flex: { xs: '1 1 140px', md: '0 0 auto' }, minWidth: { md: 135 } }}>
       <Select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        aria-label={label}
-        sx={selectSx}
+        inputProps={{ 'aria-label': label }}
+        sx={controlSx}
       >
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -62,63 +55,49 @@ export default function TaskToolbar({
     <Box
       sx={{
         display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'stretch', md: 'center' },
+        justifyContent: 'space-between',
+        gap: 1.5,
         width: '100%',
         minWidth: 0,
-        mb: 2,
+        mb: 1.5,
       }}
     >
-      {/* Left: Header and subtitle */}
-      <Box
-        sx={{
-          flex: '1 1 auto',
-          minWidth: 0,
-        }}
-      >
-        <Typography
-          component="h1"
-          sx={{
-            fontSize: { xs: '1.5rem', md: '1.8rem' },
-            fontWeight: 800,
-            lineHeight: 1.2,
-            letterSpacing: '-0.035em',
-            color: COLORS.navy,
-          }}
-        >
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="h1" component="h1">
           My Tasks
         </Typography>
-
-        <Typography
-          sx={{
-            mt: 0.5,
-            color: COLORS.muted,
-            fontSize: '0.83rem',
-          }}
-        >
+        <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
           Action items assigned to you from your meetings.
         </Typography>
       </Box>
 
-      {/* Right: Search, due date and sorting */}
-      <Stack
-        direction="row"
-        spacing={0.8}
-        alignItems="center"
-        justifyContent="flex-end"
-        sx={{
-          flex: '0 0 auto',
-          ml: 'auto',
-          minWidth: 0,
-          alignSelf: 'center',
-          flexWrap: 'nowrap',
-        }}
-      >
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', minWidth: 0 }}>
+        <TextField
+          size="small"
+          type="search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Search tasks"
+          slotProps={{
+            htmlInput: { 'aria-label': 'Search tasks' },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchOutlined fontSize="small" />
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{ flex: { xs: '1 1 100%', md: '0 0 220px' }, '& .MuiOutlinedInput-root': controlSx }}
+        />
 
         <ToolbarSelect
           value={dueDate}
           onChange={onDueDateChange}
           options={DUE_DATE_FILTERS}
           label="Filter by due date"
-          minWidth={115}
         />
 
         <ToolbarSelect
@@ -126,9 +105,8 @@ export default function TaskToolbar({
           onChange={onSortByChange}
           options={SORT_OPTIONS}
           label="Sort tasks"
-          minWidth={135}
         />
-      </Stack>
+      </Box>
     </Box>
   )
 }

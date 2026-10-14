@@ -31,7 +31,7 @@ const controlRowSx = {
   px: 1.5,
   py: 1.25,
   border: '1px solid #e1e6ec',
-  borderRadius: 2,
+  borderRadius: '12px',
   cursor: 'pointer',
   userSelect: 'none',
   '&:hover': { bgcolor: '#f8fafc' },
@@ -74,14 +74,14 @@ function SettingRow({
       }}
     >
       <Box sx={{ pr: 2 }}>
-        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>
+        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
           {title}
         </Typography>
 
         <Typography
           sx={{
             mt: 0.25,
-            fontSize: '0.72rem',
+            fontSize: '0.75rem',
             lineHeight: 1.45,
             color: 'text.secondary',
           }}
@@ -162,7 +162,7 @@ export default function MeetAISettingsDialog({
       maxWidth="xs"
       onClick={(event) => event.stopPropagation()}
     >
-      <DialogTitle sx={{ fontSize: '1.05rem', fontWeight: 700, pb: 1 }}>
+      <DialogTitle sx={{ fontSize: '0.9375rem', fontWeight: 700, pb: 1 }}>
         {draftAutoJoin
           ? 'MeetAI meeting settings'
           : 'Invite MeetAI to this meeting?'}
@@ -171,7 +171,7 @@ export default function MeetAISettingsDialog({
       <DialogContent>
         <Typography
           sx={{
-            fontSize: '0.82rem',
+            fontSize: '0.8125rem',
             lineHeight: 1.6,
             color: 'text.secondary',
             mb: 2.25,
@@ -207,7 +207,7 @@ export default function MeetAISettingsDialog({
             event.stopPropagation()
             if (!recordDisabled) setDraftRecordVideo(event.target.checked)
           }}
-          switchProps={{ inputProps: { 'aria-label': 'Record video' } }}
+          switchProps={{ slotProps: { input: { 'aria-label': 'Record video' } } }}
           sx={{ mt: 1.25, opacity: recordDisabled ? 0.5 : 1 }}
         />
 
@@ -215,7 +215,7 @@ export default function MeetAISettingsDialog({
           <Typography
             sx={{
               mt: 1.25,
-              fontSize: '0.7rem',
+              fontSize: '0.75rem',
               lineHeight: 1.45,
               color: 'text.secondary',
             }}
@@ -228,7 +228,7 @@ export default function MeetAISettingsDialog({
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
         <Button
           onClick={handleClose}
-          sx={{ textTransform: 'none', fontSize: '0.8rem' }}
+          sx={{ textTransform: 'none', fontSize: '0.8125rem' }}
         >
           Cancel
         </Button>
@@ -237,7 +237,7 @@ export default function MeetAISettingsDialog({
           variant="contained"
           onClick={handleSave}
           disabled={disabled}
-          sx={{ textTransform: 'none', fontSize: '0.8rem', fontWeight: 600 }}
+          sx={{ textTransform: 'none', fontSize: '0.8125rem', fontWeight: 600 }}
         >
           Save Changes
         </Button>

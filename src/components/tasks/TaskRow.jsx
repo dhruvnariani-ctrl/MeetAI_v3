@@ -50,13 +50,13 @@ export default function TaskRow({
           '&:hover': { backgroundColor: '#F8FBFD' },
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
           <Box
             sx={{
               width: 33,
               height: 33,
               flexShrink: 0,
-              borderRadius: '9px',
+              borderRadius: '8px',
               display: 'grid',
               placeItems: 'center',
               color: priorityStyle.color,
@@ -71,7 +71,7 @@ export default function TaskRow({
             <Typography
               sx={{
                 color: status === 'Done' ? COLORS.muted : COLORS.navy,
-                fontSize: '0.76rem',
+                fontSize: '0.75rem',
                 fontWeight: 750,
                 lineHeight: 1.4,
                 textDecoration: status === 'Done' ? 'line-through' : 'none',
@@ -85,7 +85,7 @@ export default function TaskRow({
               sx={{
                 mt: 0.25,
                 color: COLORS.muted,
-                fontSize: '0.67rem',
+                fontSize: '0.75rem',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -97,11 +97,10 @@ export default function TaskRow({
             <Stack
               direction="row"
               spacing={0.75}
-              alignItems="center"
-              sx={{ display: { xs: 'flex', md: 'none' }, mt: 0.65, flexWrap: 'wrap' }}
+              sx={{ alignItems: 'center', display: { xs: 'flex', md: 'none' }, mt: 0.65, flexWrap: 'wrap' }}
             >
               <PriorityBadge priority={priority} />
-              <Typography sx={{ color: COLORS.muted, fontSize: '0.66rem' }}>
+              <Typography sx={{ color: COLORS.muted, fontSize: '0.75rem' }}>
                 {getDueLabel(task.due)}
               </Typography>
               <StatusBadge status={status} />
@@ -119,7 +118,7 @@ export default function TaskRow({
             sx={{
               mt: 0.4,
               color: COLORS.muted,
-              fontSize: '0.65rem',
+              fontSize: '0.75rem',
               whiteSpace: 'nowrap',
             }}
           >
@@ -145,7 +144,7 @@ export default function TaskRow({
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Box sx={{ px: 1.5, pb: 1.5, pt: 0.25, backgroundColor: '#FBFDFF' }}>
           <Typography
-            sx={{ color: COLORS.muted, fontSize: '0.71rem', lineHeight: 1.7 }}
+            sx={{ color: COLORS.muted, fontSize: '0.75rem', lineHeight: 1.7 }}
           >
             <Box component="span" sx={{ fontWeight: 750, color: COLORS.text }}>
               Owner:
@@ -158,7 +157,7 @@ export default function TaskRow({
             {formatDate(task.due)}
           </Typography>
 
-          <Typography sx={{ color: COLORS.muted, fontSize: '0.71rem', mt: 0.2 }}>
+          <Typography sx={{ color: COLORS.muted, fontSize: '0.75rem', mt: 0.2 }}>
             From: {task.meetingTitle || 'Meeting action item'}
           </Typography>
 
@@ -171,7 +170,7 @@ export default function TaskRow({
                 onClick={() => onMarkDone(task.id)}
                 sx={{
                   textTransform: 'none',
-                  fontSize: '0.7rem',
+                  fontSize: '0.75rem',
                   fontWeight: 750,
                   color: COLORS.green,
                   borderColor: '#B9D7C8',
@@ -189,7 +188,7 @@ export default function TaskRow({
                 onClick={() => onOpen(task)}
                 sx={{
                   textTransform: 'none',
-                  fontSize: '0.7rem',
+                  fontSize: '0.75rem',
                   fontWeight: 750,
                   color: COLORS.blue,
                 }}

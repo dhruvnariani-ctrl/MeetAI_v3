@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import MeetAISettingsDialog, { switchSx } from './MeetAISettingDialog'
 
 const toggleLabelSx = {
-  fontSize: '0.7rem',
+  fontSize: '0.75rem',
   fontWeight: 500,
   color: 'text.primary',
   transition: 'color 120ms ease',
@@ -23,7 +23,7 @@ const toggleButtonSx = {
     outline: '2px solid',
     outlineColor: 'primary.main',
     outlineOffset: 2,
-    borderRadius: 1,
+    borderRadius: '8px',
   },
   '&:hover .meeting-toggle-label': { color: 'primary.main' },
 }
@@ -94,7 +94,7 @@ export default function MeetingToggles({
             disabled={disabled}
             readOnly
             tabIndex={-1}
-            inputProps={{ 'aria-hidden': true }}
+            slotProps={{ input: { 'aria-hidden': true } }}
             sx={{ ...switchSx, pointerEvents: 'none' }}
           />
         </Box>
@@ -122,7 +122,7 @@ export default function MeetingToggles({
             disabled={disabled}
             readOnly
             tabIndex={-1}
-            inputProps={{ 'aria-hidden': true }}
+            slotProps={{ input: { 'aria-hidden': true } }}
             sx={{ ...switchSx, pointerEvents: 'none' }}
           />
         </Box>
