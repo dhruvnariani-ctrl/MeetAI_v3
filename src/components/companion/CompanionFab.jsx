@@ -3,6 +3,7 @@ import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Fab from '@mui/material/Fab'
 import Paper from '@mui/material/Paper'
+import Tooltip from '@mui/material/Tooltip'
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined'
 
 export default function CompanionFab({
@@ -10,31 +11,35 @@ export default function CompanionFab({
   imageSrc,
   open = false,
   isAtBottom = false,
+  placement = 'floating',
 }) {
+  const inHeader = placement === 'header'
+
   return (
     <Box
       sx={{
-        position: 'fixed',
+        position: inHeader ? 'static' : 'fixed',
         right: { xs: 16, md: 27 },
-
         top: 'auto',
-
-        bottom: isAtBottom
-          ? { xs: 80, md: 90 }
-          : { xs: 16, md: 27 },
+        bottom: inHeader
+          ? 'auto'
+          : isAtBottom
+            ? { xs: 80, md: 90 }
+            : { xs: 16, md: 27 },
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        zIndex: (theme) => theme.zIndex.modal + 1,
-
-        transition: 'top 200ms ease, bottom 200ms ease',
+        zIndex: inHeader
+          ? 'auto'
+          : (theme) => theme.zIndex.modal + 1,
+        transition: inHeader ? 'none' : 'top 200ms ease, bottom 200ms ease',
       }}
     >
       <Paper
         aria-hidden="true"
         elevation={0}
         sx={{
-          display: { xs: 'none', sm: 'block' },
+          display: inHeader ? 'none' : { xs: 'none', sm: 'block' },
           px: 2,
           height: 32,
           lineHeight: '32px',
@@ -51,47 +56,49 @@ export default function CompanionFab({
       </Paper>
 
       <Box sx={{ position: 'relative', flexShrink: 0 }}>
-        <Fab
-          aria-label="Ask your Companion"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          onClick={onClick}
-          sx={{
-            width: 64,
-            height: 64,
-            color: 'primary.main',
-            border: '3px solid #fff',
-            background:
-              'radial-gradient(circle at 30% 25%, #fff, #cfe0f5)',
-            boxShadow: '0 6px 20px rgba(11,37,69,.25)',
-            transition: 'transform 200ms ease',
-            '&:hover': {
-              filter: 'brightness(.97)',
-            },
-          }}
-        >
-          {imageSrc ? (
-            <Avatar
-              src={imageSrc}
-              alt=""
-              sx={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          ) : (
-            <SmartToyOutlinedIcon sx={{ fontSize: 30 }} />
-          )}
-        </Fab>
+        <Tooltip title="Ask your Companion">
+          <Fab
+            aria-label="Ask your Companion"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={onClick}
+            sx={{
+              width: inHeader ? 40 : 64,
+              height: inHeader ? 40 : 64,
+              color: 'primary.main',
+              border: inHeader ? '1px solid #DCE8F3' : '3px solid #fff',
+              background:
+                'radial-gradient(circle at 30% 25%, #fff, #cfe0f5)',
+              boxShadow: inHeader ? 'none' : '0 6px 20px rgba(11,37,69,.25)',
+              transition: 'transform 200ms ease',
+              '&:hover': {
+                filter: 'brightness(.97)',
+              },
+            }}
+          >
+            {imageSrc ? (
+              <Avatar
+                src={imageSrc}
+                alt=""
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                }}
+              />
+            ) : (
+              <SmartToyOutlinedIcon sx={{ fontSize: 30 }} />
+            )}
+          </Fab>
+        </Tooltip>
 
         <Box
           aria-hidden="true"
           sx={{
             position: 'absolute',
-            top: 4,
-            right: 4,
-            width: 14,
-            height: 14,
+            top: inHeader ? 2 : 4,
+            right: inHeader ? 2 : 4,
+            width: inHeader ? 11 : 14,
+            height: inHeader ? 11 : 14,
             borderRadius: '50%',
             bgcolor: '#1b8a55',
             border: '2px solid #fff',

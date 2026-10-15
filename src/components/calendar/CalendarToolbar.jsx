@@ -165,11 +165,11 @@ export default function CalendarToolbar({
          * lines up with the panels below it.
          */
         gridTemplateColumns: {
-          xs: 'minmax(0, 1fr)',
+          xs: 'auto minmax(0, 1fr)',
           lg: 'minmax(0, 1fr) auto minmax(0, 1fr)',
         },
         alignItems: 'center',
-        columnGap: { xs: 1, lg: 1.5 },
+        columnGap: { xs: 0.5, lg: 1.5 },
         rowGap: 1,
         mb: 1.5,
       }}
@@ -182,7 +182,10 @@ export default function CalendarToolbar({
           gap: 0.6,
           minWidth: 0,
           maxWidth: '100%',
-          justifySelf: 'start',
+          width: '100%',
+          justifyContent: 'space-between',
+          gridColumn: { xs: '1 / -1', lg: 'auto' },
+          justifySelf: 'stretch',
         }}
       >
         <Tooltip title={`Previous ${view}`}>
@@ -206,9 +209,9 @@ export default function CalendarToolbar({
           sx={{
             height: 38,
             minWidth: { xs: 0, sm: 180 },
-            maxWidth: { xs: 240, sm: 300 },
+            maxWidth: { xs: 'none', sm: 300 },
             px: { xs: 1, sm: 1.5 },
-            flex: '0 1 auto',
+            flex: '1 1 auto',
             justifyContent: 'space-between',
             border: '1px solid #DCE8F3',
             borderRadius: '12px',
@@ -313,6 +316,10 @@ export default function CalendarToolbar({
           p: 0.35,
           borderRadius: '999px',
           bgcolor: '#EFF5FB',
+          '& [role="tab"]': {
+            px: { xs: 0.4, sm: 1.25 },
+            fontSize: { xs: '0.7rem', sm: '0.75rem' },
+          },
         }}
       >
         <SlidingSegmented
@@ -330,10 +337,10 @@ export default function CalendarToolbar({
         direction="row"
         sx={{
           alignItems: 'center',
-          justifyContent: { xs: 'flex-start', lg: 'flex-end' },
-          gap: 0.8,
+          justifyContent: 'flex-end',
+          gap: { xs: 0.3, sm: 0.8 },
           minWidth: 0,
-          width: '100%',
+          width: { xs: 'auto', lg: '100%' },
           justifySelf: 'stretch',
         }}
       >
@@ -346,14 +353,14 @@ export default function CalendarToolbar({
           sx={{
             flexShrink: 0,
             height: 38,
-            px: 1.35,
+            px: { xs: 0.8, sm: 1.35 },
             border: '1px solid',
             borderColor: activeFilterCount > 0 ? '#0967B2' : '#DCE8F3',
             borderRadius: '12px',
             bgcolor: activeFilterCount > 0 ? '#EAF3FC' : '#FFFFFF',
             color: '#0967B2',
             textTransform: 'none',
-            fontSize: '0.8125rem',
+            fontSize: { xs: '0.75rem', sm: '0.8125rem' },
             fontWeight: 600,
             whiteSpace: 'nowrap',
             '&:hover': {
@@ -389,28 +396,33 @@ export default function CalendarToolbar({
 
         <Button
           data-tour="new-meeting"
+          aria-label="Schedule Meeting"
           onClick={onNewMeeting}
           variant="contained"
           startIcon={<AddIcon sx={{ fontSize: 19 }} />}
           sx={{
             flexShrink: 0,
+            minWidth: { xs: 0, sm: 'auto' },
             height: 38,
-            px: { xs: 1.35, sm: 1.8 },
+            px: { xs: 0.55, sm: 1.8 },
             borderRadius: '12px',
             bgcolor: '#0967B2',
             color: '#FFFFFF',
             boxShadow: 'none',
             textTransform: 'none',
-            fontSize: '0.8125rem',
+            fontSize: { xs: '0.7rem', sm: '0.8125rem' },
             fontWeight: 700,
             whiteSpace: 'nowrap',
+            '& .MuiButton-startIcon': {
+              mr: { xs: 0, sm: 1 },
+            },
             '&:hover': {
               bgcolor: '#075797',
               boxShadow: 'none',
             },
           }}
         >
-          Create meeting
+          Schedule Meeting
         </Button>
       </Stack>
 

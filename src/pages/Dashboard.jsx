@@ -254,7 +254,7 @@ export default function Dashboard() {
             display: 'grid',
             gridTemplateColumns: {
               xs: 'minmax(0, 1fr)',
-              lg: 'minmax(0, 1.65fr) minmax(280px, 1fr)',
+              lg: 'minmax(0, 1.20fr) minmax(280px, 1fr)',
             },
             gap: 1.5,
             alignItems: 'stretch',

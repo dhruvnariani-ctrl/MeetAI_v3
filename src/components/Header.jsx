@@ -17,6 +17,7 @@ export default function Header({
   onToggleNav,
   query,
   onQueryChange,
+  companion,
 }) {
   const currentUser = useCurrentUser()
 
@@ -99,6 +100,8 @@ export default function Header({
               <NotificationsNoneOutlinedIcon />
             </IconButton>
           </Tooltip>
+
+          {companion}
 
           <AccountMenu
             user={currentUser}

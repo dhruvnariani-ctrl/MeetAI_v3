@@ -15,6 +15,7 @@ export default function CompanionBot({
   onInstantMeeting,
   onAsk,
   imageSrc = `${import.meta.env.BASE_URL}/images/companion-robot.svg`,
+  placement = 'floating',
 }) {
   const navigate = useNavigate()
   const routes = { ...DEFAULT_ROUTES, ...routeOverrides }
@@ -156,6 +157,7 @@ export default function CompanionBot({
       <CompanionFab
         open={open}
         isAtBottom={isAtBottom}
+        placement={placement}
         imageSrc={imageSrc}
         onClick={() => setOpen(true)}
       />

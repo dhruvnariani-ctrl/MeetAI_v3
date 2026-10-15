@@ -75,7 +75,7 @@ export default function DashboardSidePanels({
       onClick: onCreate,
     },
     {
-      title: 'Add MeetAI',
+      title: 'Add MeetAI to a Meeting',
       icon: <VideocamOutlinedIcon sx={{ fontSize: 18 }} />,
       onClick: onInstant,
     },

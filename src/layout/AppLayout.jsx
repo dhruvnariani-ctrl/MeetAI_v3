@@ -114,6 +114,16 @@ export default function AppLayout() {
           onToggleNav={() => setNavOpen((open) => !open)}
           query={query}
           onQueryChange={setQuery}
+          companion={
+            <CompanionBot
+              meetings={getAllMeetings()}
+              imageSrc={`${import.meta.env.BASE_URL}images/companion-robot.svg`}
+              onCreateMeeting={openCreate}
+              onInstantMeeting={openInstant}
+              routes={{ tasks: '/tasks', recorded: '/recorded' }}
+              placement="header"
+            />
+          }
         />
 
         <Box
@@ -158,14 +168,6 @@ export default function AppLayout() {
         onSubmit={handleRecord}
         currentUser={currentUser}
         searchDirectory={searchDirectory}
-      />
-
-      <CompanionBot
-        meetings={getAllMeetings()}
-        imageSrc={`${import.meta.env.BASE_URL}images/companion-robot.svg`}
-        onCreateMeeting={openCreate}
-        onInstantMeeting={openInstant}
-        routes={{ tasks: '/tasks', recorded: '/recorded' }}
       />
 
       <Snackbar
