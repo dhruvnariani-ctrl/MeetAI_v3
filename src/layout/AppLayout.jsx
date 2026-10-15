@@ -116,8 +116,6 @@ export default function AppLayout() {
           onQueryChange={setQuery}
         />
 
-        {/* Single page gutter for every page: 12px on phones, 16px elsewhere.
-            Extra bottom room on phones keeps the Companion button off the last row. */}
         <Box
           component="main"
           id="main"

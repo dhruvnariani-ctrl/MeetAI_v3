@@ -1,3 +1,4 @@
+
 import { useMemo, useRef, useState } from 'react'
 import { EmptyPanel } from '../PageShell'
 import { useNavigate } from 'react-router-dom'
@@ -11,6 +12,7 @@ import Typography from '@mui/material/Typography'
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded'
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded'
 
@@ -63,6 +65,10 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
     recordVideo: meeting?.meetAI?.recordVideo === true,
   }
 
+  const openMeetingDetails = () => {
+    navigate(`/meetings/${meeting.id}`)
+  }
+
   return (
     <Box
       sx={{
@@ -75,6 +81,7 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
         alignItems: 'stretch',
       }}
     >
+      {/* Timeline time */}
       <Box
         sx={{
           position: 'relative',
@@ -116,6 +123,7 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
         </Typography>
       </Box>
 
+      {/* Meeting card */}
       <Paper
         elevation={0}
         sx={{
@@ -132,21 +140,28 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
           },
         }}
       >
+        {/* Clickable meeting information */}
         <ButtonBase
-          onClick={() => navigate(`/meetings/${meeting.id}`)}
-          aria-label={`Open meeting: ${meeting.title || 'Untitled meeting'}`}
+          onClick={openMeetingDetails}
+          aria-label={`View meeting details for ${meeting.title || 'Untitled meeting'}`}
           sx={{
             display: 'block',
             width: '100%',
             minWidth: 0,
             p: { xs: 0.8, sm: 0.9 },
             textAlign: 'left',
+            cursor: 'pointer',
+            transition: 'background-color 140ms ease',
+            '&:hover': {
+              bgcolor: '#F8FBFD',
+            },
             '&:focus-visible': {
               outline: `2px solid ${COLORS.blue}`,
               outlineOffset: '-3px',
             },
           }}
         >
+          {/* Meeting time and status */}
           <Box
             sx={{
               display: 'flex',
@@ -185,6 +200,7 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
             </Typography>
           </Box>
 
+          {/* Meeting title */}
           <Typography
             sx={{
               mt: 0.3,
@@ -198,46 +214,101 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
             {meeting.title || 'Untitled meeting'}
           </Typography>
 
+          {/* Platform, participants, and View details on one line */}
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: 1,
+              columnGap: 1,
+              rowGap: 0.5,
               mt: 0.35,
               color: COLORS.muted,
             }}
           >
-            {platform && (
-              <Box
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.35,
-                  fontSize: '.66rem',
-                }}
-              >
-                <VideocamOutlinedIcon sx={{ fontSize: 14 }} />
-                {platform}
-              </Box>
-            )}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 1,
+                minWidth: 0,
+                flex: '1 1 auto',
+              }}
+            >
+              {platform && (
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 0.35,
+                    fontSize: '.66rem',
+                  }}
+                >
+                  <VideocamOutlinedIcon sx={{ fontSize: 14 }} />
+                  {platform}
+                </Box>
+              )}
 
-            {people > 0 && (
-              <Box
+              {people > 0 && (
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 0.35,
+                    fontSize: '.66rem',
+                  }}
+                >
+                  <GroupsOutlinedIcon sx={{ fontSize: 14 }} />
+                  {people}
+                </Box>
+              )}
+            </Box>
+
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: 0.3,
+                flexShrink: 0,
+                color: COLORS.blue,
+                whiteSpace: 'nowrap',
+                '& .meeting-details-label': {
+                  textDecoration: 'none',
+                },
+                '&:hover .meeting-details-label': {
+                  textDecoration: 'underline',
+                },
+                '&:hover .meeting-details-arrow': {
+                  transform: 'translateX(2px)',
+                },
+              }}
+            >
+              <Typography
+                className="meeting-details-label"
                 sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.35,
-                  fontSize: '.66rem',
+                  fontSize: '.65rem',
+                  fontWeight: 700,
+                  lineHeight: 1.4,
                 }}
               >
-                <GroupsOutlinedIcon sx={{ fontSize: 14 }} />
-                {people}
-              </Box>
-            )}
+                View Meeting details
+              </Typography>
+
+              <ArrowForwardRoundedIcon
+                className="meeting-details-arrow"
+                sx={{
+                  fontSize: 14,
+                  transition: 'transform 140ms ease',
+                }}
+              />
+            </Box>
           </Box>
         </ButtonBase>
 
+        {/* MeetAI and video controls are separate from navigation */}
         <Box
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => event.stopPropagation()}
@@ -251,8 +322,12 @@ function MeetingRow({ meeting, now, settings, onSettingsChange }) {
             minHeight: 31,
             bgcolor: colors.surface,
             borderTop: `1px solid ${colors.border}`,
-            '& > *': { maxWidth: '100%' },
-            '& .MuiTypography-root': { fontSize: '.65rem' },
+            '& > *': {
+              maxWidth: '100%',
+            },
+            '& .MuiTypography-root': {
+              fontSize: '.65rem',
+            },
           }}
         >
           <MeetingToggles
@@ -321,7 +396,13 @@ function MeetingGroup({
           gap: 0.75,
           textAlign: 'left',
           bgcolor: expanded ? style.background : '#FFFFFF',
-          '&:hover': { bgcolor: style.background },
+          '&:hover': {
+            bgcolor: style.background,
+          },
+          '&:focus-visible': {
+            outline: `2px solid ${COLORS.blue}`,
+            outlineOffset: '-2px',
+          },
         }}
       >
         <Box
@@ -371,17 +452,31 @@ function MeetingGroup({
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.3,
+          }}
+        >
           <Typography
-            sx={{ color: style.color, fontSize: '.62rem', fontWeight: 700 }}
+            sx={{
+              color: style.color,
+              fontSize: '.62rem',
+              fontWeight: 700,
+            }}
           >
             {expanded ? 'Hide' : 'Show'}
           </Typography>
 
           {expanded ? (
-            <ExpandLessRoundedIcon sx={{ fontSize: 17, color: style.color }} />
+            <ExpandLessRoundedIcon
+              sx={{ fontSize: 17, color: style.color }}
+            />
           ) : (
-            <ExpandMoreRoundedIcon sx={{ fontSize: 17, color: style.color }} />
+            <ExpandMoreRoundedIcon
+              sx={{ fontSize: 17, color: style.color }}
+            />
           )}
         </Box>
       </ButtonBase>
@@ -469,7 +564,10 @@ export default function MeetingTimeline({
     )
 
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      })
     } else {
       timelineRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -492,6 +590,7 @@ export default function MeetingTimeline({
         overflow: 'hidden',
       }}
     >
+      {/* Timeline header */}
       <Box
         sx={{
           px: { xs: 1.25, sm: 1.5 },
@@ -554,6 +653,7 @@ export default function MeetingTimeline({
         </Box>
       </Box>
 
+      {/* Timeline content */}
       {sortedMeetings.length === 0 ? (
         <Box sx={{ p: 1.5 }}>
           <EmptyPanel title="No meetings scheduled today" minHeight={140}>

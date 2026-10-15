@@ -10,6 +10,7 @@ import useCurrentUser from '../hooks/useCurrentUser'
 import {
   filterAndSortTasks,
   getTasksFromDashboard,
+  normalizeTaskStatus,
 } from '../data/tasks'
 
 import { updateMeetingActionItemStatus } from '../data/meetings'
@@ -22,6 +23,7 @@ import TaskListCard from '../components/tasks/TaskListCard'
 import TodayFocusCard from '../components/tasks/TodayFocusCard'
 import TaskProgressCard from '../components/tasks/TaskProgressCard'
 import WorkloadCard from '../components/tasks/WorkloadCard'
+import ConfirmMarkDoneDialog from '../components/tasks/ConfirmMarkDoneDialog'
 
 export default function MyTasks() {
   usePageTitle('My Tasks')
@@ -39,6 +41,9 @@ export default function MyTasks() {
   const [search, setSearch] = useState('')
   const [dueDate, setDueDate] = useState('default')
   const [expandedTaskId, setExpandedTaskId] = useState(null)
+
+  // The selected task remains unchanged until confirmation.
+  const [taskToConfirm, setTaskToConfirm] = useState(null)
 
   const filteredTasks = useMemo(
     () =>
@@ -64,24 +69,46 @@ export default function MyTasks() {
     )
   }
 
+  // Step 1: request confirmation. Do not save the status here.
   const handleMarkDone = (taskId) => {
     const task = tasks.find((item) => item.id === taskId)
 
-    if (!task) return
+    if (!task || !task.meetingId) return
+
+    const status = normalizeTaskStatus(task.status)
+
+    if (status === 'Done') return
+
+    setTaskToConfirm(task)
+  }
+
+  // Step 2: save and update the page only after confirmation.
+  const handleConfirmMarkDone = () => {
+    if (!taskToConfirm?.meetingId) return
 
     updateMeetingActionItemStatus(
-      task.meetingId,
-      task.id,
+      taskToConfirm.meetingId,
+      taskToConfirm.id,
       'Done',
     )
 
     setTasks((current) =>
       current.map((item) =>
-        item.id === taskId
-          ? { ...item, status: 'Done', completed: true }
+        item.id === taskToConfirm.id
+          ? {
+              ...item,
+              status: 'Done',
+              completed: true,
+            }
           : item,
       ),
     )
+
+    setTaskToConfirm(null)
+  }
+
+  const handleCancelMarkDone = () => {
+    setTaskToConfirm(null)
   }
 
   const handleOpenMeeting = (task) => {
@@ -115,134 +142,143 @@ export default function MyTasks() {
   }
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        minWidth: 0,
-        color: COLORS.text,
-        pb: 1,
-        boxSizing: 'border-box',
-      }}
-    >
-      <TaskToolbar
-        search={search}
-        onSearchChange={setSearch}
-        dueDate={dueDate}
-        onDueDateChange={setDueDate}
-        sortBy={sortBy}
-        onSortByChange={setSortBy}
-      />
-
-      {/* Responsive task dashboard */}
+    <>
       <Box
         sx={{
-          display: 'grid',
           width: '100%',
           minWidth: 0,
+          color: COLORS.text,
+          pb: 1,
           boxSizing: 'border-box',
-          gridTemplateColumns: {
-            xs: 'minmax(0, 1fr)',
-            lg: 'minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr)',
-          },
-          gap: { xs: 1.5, sm: 2 },
-          alignItems: 'start',
         }}
       >
-        {/* CENTRE: Banner and My Action Items */}
-        <Stack
-          spacing={1.5}
+        <TaskToolbar
+          search={search}
+          onSearchChange={setSearch}
+          dueDate={dueDate}
+          onDueDateChange={setDueDate}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+        />
+
+        {/* Responsive task dashboard */}
+        <Box
           sx={{
+            display: 'grid',
             width: '100%',
             minWidth: 0,
-            gridColumn: { xs: '1', lg: '2' },
-            gridRow: { xs: '1', lg: '1' },
-            alignSelf: 'start',
-            '& > *': {
-              minWidth: 0,
-              maxWidth: '100%',
+            boxSizing: 'border-box',
+            gridTemplateColumns: {
+              xs: 'minmax(0, 1fr)',
+              lg: 'minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr)',
             },
+            gap: { xs: 1.5, sm: 2 },
+            alignItems: 'start',
           }}
         >
-          <TaskBanner />
-
-          <TaskListCard
-            containerRef={actionItemsRef}
-            tasks={filteredTasks}
-            filter={filter}
-            onFilterChange={setFilter}
-            filterCounts={filterCounts}
-            expandedTaskId={expandedTaskId}
-            onToggle={handleToggle}
-            onMarkDone={handleMarkDone}
-            onOpen={handleOpenMeeting}
-            onClearFilters={handleClearFilters}
-            pageResetKey={[filter, search, dueDate, sortBy].join('|')}
-          />
-        </Stack>
-
-        {/* LEFT: Today's Focus */}
-        <Stack
-          spacing={1.5}
-          sx={{
-            width: '100%',
-            minWidth: 0,
-            gridColumn: { xs: '1', lg: '1' },
-            gridRow: { xs: '2', lg: '1' },
-            alignSelf: 'start',
-            '& > *': {
+          {/* CENTRE: Banner and My Action Items */}
+          <Stack
+            spacing={1.5}
+            sx={{
+              width: '100%',
               minWidth: 0,
-              maxWidth: '100%',
-            },
-          }}
-        >
-          <TodayFocusCard
-            tasks={todayFocus}
-            expandedTaskId={expandedTaskId}
-            onToggle={handleToggle}
-            onMarkDone={handleMarkDone}
-            onOpen={handleOpenMeeting}
-            onViewToday={() =>
-              showOpenTasks({
-                dueDate: 'today',
-                sortBy: 'Priority',
-              })
-            }
-          />
-        </Stack>
+              gridColumn: { xs: '1', lg: '2' },
+              gridRow: { xs: '1', lg: '1' },
+              alignSelf: 'start',
+              '& > *': {
+                minWidth: 0,
+                maxWidth: '100%',
+              },
+            }}
+          >
+            <TaskBanner />
 
-        {/* RIGHT: Progress and Workload */}
-        <Stack
-          spacing={1.5}
-          sx={{
-            width: '100%',
-            minWidth: 0,
-            gridColumn: { xs: '1', lg: '3' },
-            gridRow: { xs: '3', lg: '1' },
-            alignSelf: 'start',
-            '& > *': {
+            <TaskListCard
+              containerRef={actionItemsRef}
+              tasks={filteredTasks}
+              filter={filter}
+              onFilterChange={setFilter}
+              filterCounts={filterCounts}
+              expandedTaskId={expandedTaskId}
+              onToggle={handleToggle}
+              onMarkDone={handleMarkDone}
+              onOpen={handleOpenMeeting}
+              onClearFilters={handleClearFilters}
+              pageResetKey={[filter, search, dueDate, sortBy].join('|')}
+            />
+          </Stack>
+
+          {/* LEFT: Today's Focus */}
+          <Stack
+            spacing={1.5}
+            sx={{
+              width: '100%',
               minWidth: 0,
-              maxWidth: '100%',
-            },
-          }}
-        >
-          <TaskProgressCard
-            filterCounts={filterCounts}
-            progress={progress}
-          />
+              gridColumn: { xs: '1', lg: '1' },
+              gridRow: { xs: '2', lg: '1' },
+              alignSelf: 'start',
+              '& > *': {
+                minWidth: 0,
+                maxWidth: '100%',
+              },
+            }}
+          >
+            <TodayFocusCard
+              tasks={todayFocus}
+              expandedTaskId={expandedTaskId}
+              onToggle={handleToggle}
+              onMarkDone={handleMarkDone}
+              onOpen={handleOpenMeeting}
+              onViewToday={() =>
+                showOpenTasks({
+                  dueDate: 'today',
+                  sortBy: 'Priority',
+                })
+              }
+            />
+          </Stack>
 
-          <WorkloadCard
-            openCount={filterCounts.Open}
-            highPriority={highPriority}
-            dueSoon={dueSoon}
-            onViewAll={() =>
-              showOpenTasks({
-                dueDate: 'default',
-                sortBy: 'Due date',
-              })
-            }
-          />
-        </Stack>
+          {/* RIGHT: Progress and Workload */}
+          <Stack
+            spacing={1.5}
+            sx={{
+              width: '100%',
+              minWidth: 0,
+              gridColumn: { xs: '1', lg: '3' },
+              gridRow: { xs: '3', lg: '1' },
+              alignSelf: 'start',
+              '& > *': {
+                minWidth: 0,
+                maxWidth: '100%',
+              },
+            }}
+          >
+            <TaskProgressCard
+              filterCounts={filterCounts}
+              progress={progress}
+            />
+
+            <WorkloadCard
+              openCount={filterCounts.Open}
+              highPriority={highPriority}
+              dueSoon={dueSoon}
+              onViewAll={() =>
+                showOpenTasks({
+                  dueDate: 'default',
+                  sortBy: 'Due date',
+                })
+              }
+            />
+          </Stack>
+        </Box>
       </Box>
-    </Box>
+
+      <ConfirmMarkDoneDialog
+        open={Boolean(taskToConfirm)}
+        taskTitle={taskToConfirm?.title ?? ''}
+        onCancel={handleCancelMarkDone}
+        onConfirm={handleConfirmMarkDone}
+      />
+    </>
   )
 }

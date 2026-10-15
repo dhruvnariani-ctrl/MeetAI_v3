@@ -19,6 +19,7 @@ import {
 
 export default function DashboardActionItemsCard({
   items = [],
+  allItems = items,
   doneIds = new Set(),
   onToggleDone,
   priorityFilter = 'all',
@@ -49,13 +50,20 @@ export default function DashboardActionItemsCard({
 
   const visible = showAll ? filtered : filtered.slice(0, 6)
 
-  const doneCount = items.filter(
-    (item) =>
-      doneIds.has(item.id) ||
-      ['done', 'completed'].includes(
-        String(item.status ?? '').toLowerCase(),
-      ),
-  ).length
+  const countableItems = allItems.filter(
+  (item) =>
+    String(item.status ?? '').toLowerCase() !== 'blocked',
+)
+
+const doneCount = countableItems.filter(
+  (item) =>
+    doneIds.has(item.id) ||
+    ['done', 'completed'].includes(
+      String(item.status ?? '').toLowerCase(),
+    ),
+).length
+
+const totalCount = countableItems.length
 
   const priorities = ['all', 'high', 'medium', 'low']
 
@@ -113,7 +121,7 @@ export default function DashboardActionItemsCard({
             flexShrink: 0,
           }}
         >
-          {doneCount} of {items.length} done
+          {doneCount} of {totalCount} done
         </Typography>
       </Box>
 

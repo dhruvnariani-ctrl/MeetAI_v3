@@ -1,12 +1,13 @@
+
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
+import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import SearchIcon from '@mui/icons-material/Search'
-
-import { formatDate } from '../utils/time'
 
 export const MAX_RESULTS = 6
 
@@ -16,8 +17,20 @@ const ellipsis = {
   whiteSpace: 'nowrap',
 }
 
-/* Dropdown under the header search box. */
-export default function SearchResults({ meetings, onSelect }) {
+function getResultIcon(type) {
+  if (type === 'task') return <TaskAltOutlinedIcon sx={{ fontSize: 18 }} />
+  if (type === 'participant') return <GroupsOutlinedIcon sx={{ fontSize: 18 }} />
+
+  return <CalendarMonthOutlinedIcon sx={{ fontSize: 18 }} />
+}
+
+export default function SearchResults({
+  results = [],
+  heading = 'Search results',
+  emptyTitle = 'No results found',
+  emptyDescription = 'Try another search.',
+  onSelect,
+}) {
   return (
     <Paper
       elevation={0}
@@ -28,7 +41,7 @@ export default function SearchResults({ meetings, onSelect }) {
         right: 0,
         zIndex: 1300,
         border: '1px solid #dce3eb',
-        borderRadius: '12px',
+        borderRadius: 2.5,
         bgcolor: '#fff',
         boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12)',
         overflow: 'hidden',
@@ -39,30 +52,30 @@ export default function SearchResults({ meetings, onSelect }) {
         },
       }}
     >
-      {meetings.length > 0 ? (
+      {results.length > 0 ? (
         <Box>
           <Box sx={{ px: 2, py: 1.25 }}>
             <Typography
               sx={{
-                fontSize: '0.75rem',
+                fontSize: '0.68rem',
                 fontWeight: 700,
                 color: '#7b8ba1',
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
               }}
             >
-              Meetings
+              {heading}
             </Typography>
           </Box>
 
           <Divider />
 
-          {meetings.map((meeting) => (
+          {results.map((result) => (
             <Box
-              key={meeting.id}
+              key={result.id}
               component="button"
               type="button"
-              onClick={() => onSelect(meeting)}
+              onClick={() => onSelect?.(result)}
               sx={{
                 width: '100%',
                 display: 'flex',
@@ -76,47 +89,69 @@ export default function SearchResults({ meetings, onSelect }) {
                 cursor: 'pointer',
                 transition: 'background-color 140ms ease',
                 '&:hover': { bgcolor: '#f5f8fc' },
-                '&:focus-visible': { outline: '2px solid #0967B2', outlineOffset: -2 },
+                '&:focus-visible': {
+                  outline: '2px solid #0967B2',
+                  outlineOffset: -2,
+                },
               }}
             >
               <Box
                 sx={{
                   width: 34,
                   height: 34,
-                  borderRadius: '12px',
+                  borderRadius: 1.5,
                   display: 'grid',
                   placeItems: 'center',
-                  bgcolor: '#eaf2fd',
-                  color: '#0967B2',
+                  bgcolor:
+                    result.type === 'task'
+                      ? '#E4F5EE'
+                      : result.type === 'participant'
+                        ? '#F0EBFF'
+                        : '#eaf2fd',
+                  color:
+                    result.type === 'task'
+                      ? '#16815B'
+                      : result.type === 'participant'
+                        ? '#7552D8'
+                        : '#0967B2',
                   flexShrink: 0,
                 }}
               >
-                <CalendarMonthOutlinedIcon sx={{ fontSize: 18 }} />
+                {getResultIcon(result.type)}
               </Box>
 
               <Box sx={{ minWidth: 0, flex: 1 }}>
                 <Typography
-                  sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#172b46', ...ellipsis }}
+                  sx={{
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    color: '#172b46',
+                    ...ellipsis,
+                  }}
                 >
-                  {meeting.title || 'Untitled meeting'}
+                  {result.title || 'Untitled result'}
                 </Typography>
 
                 <Typography
-                  sx={{ mt: 0.25, fontSize: '0.75rem', color: '#718198', ...ellipsis }}
+                  sx={{
+                    mt: 0.25,
+                    fontSize: '0.7rem',
+                    color: '#718198',
+                    ...ellipsis,
+                  }}
                 >
-                  {meeting.platform || 'Meeting'}
-                  {meeting.start ? ` · ${formatDate(meeting.start)}` : ''}
+                  {result.subtitle || result.platform || 'MeetAI'}
                 </Typography>
               </Box>
             </Box>
           ))}
 
-          {meetings.length >= MAX_RESULTS && (
+          {results.length >= MAX_RESULTS && (
             <>
               <Divider />
               <Box sx={{ px: 2, py: 1 }}>
-                <Typography sx={{ fontSize: '0.75rem', color: '#5A7189' }}>
-                  Showing the first {MAX_RESULTS} matching meetings
+                <Typography sx={{ fontSize: '0.68rem', color: '#8793a3' }}>
+                  Showing the first {MAX_RESULTS} results
                 </Typography>
               </Box>
             </>
@@ -126,12 +161,14 @@ export default function SearchResults({ meetings, onSelect }) {
         <Box sx={{ px: 2.5, py: 2.5, textAlign: 'center' }}>
           <SearchIcon sx={{ fontSize: 26, color: '#a5b0be', mb: 0.75 }} />
 
-          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#42546b' }}>
-            No meetings found
+          <Typography
+            sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#42546b' }}
+          >
+            {emptyTitle}
           </Typography>
 
-          <Typography sx={{ mt: 0.35, fontSize: '0.75rem', color: '#5A7189' }}>
-            Try searching for a meeting title or person.
+          <Typography sx={{ mt: 0.35, fontSize: '0.7rem', color: '#8793a3' }}>
+            {emptyDescription}
           </Typography>
         </Box>
       )}

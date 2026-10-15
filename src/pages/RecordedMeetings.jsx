@@ -1,10 +1,13 @@
-import { useMemo, useState } from 'react'
+
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import PageShell, { EmptyPanel } from '../components/PageShell'
 import PaginationBar from '../components/PaginationBar'
 import usePagination from '../hooks/usePagination'
 import RecordedFilters from '../components/recorded/RecordedFilters'
 import AvailabilityBadge from '../components/recorded/AvailabilityBadge'
+
 import { getAllMeetings } from '../data/meetings'
 import {
   getRecordedMeetings,
@@ -12,6 +15,7 @@ import {
 } from '../data/recorded'
 import { DATE_FILTERS } from '../utils/dateFilters'
 import usePageTitle from '../hooks/usePageTitle'
+
 import {
   Box,
   Button,
@@ -23,6 +27,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material'
+
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
@@ -31,6 +36,7 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
 import NotesOutlinedIcon from '@mui/icons-material/NotesOutlined'
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined'
+
 const COLORS = {
   navy: '#123A59',
   blue: '#0967B2',
@@ -42,60 +48,93 @@ const COLORS = {
   paleGreen: '#F0F7F1',
   background: '#F7F9FB',
 }
+
 const formatMeetingDate = (value) => {
   const date = new Date(value)
+
   if (Number.isNaN(date.getTime())) return ''
+
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   }).format(date)
 }
+
 const formatMeetingTime = (value) => {
   const date = new Date(value)
+
   if (Number.isNaN(date.getTime())) return ''
+
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',
   }).format(date)
 }
+
 const getMeetingDuration = (meeting) => {
   if (meeting.recording?.duration) {
     return meeting.recording.duration
   }
+
   const start = new Date(meeting.start).getTime()
   const end = new Date(meeting.end).getTime()
+
   if (!Number.isFinite(start) || !Number.isFinite(end)) {
     return ''
   }
+
   const minutes = Math.max(0, Math.round((end - start) / 60000))
+
   return `${minutes} min`
 }
+
 export default function RecordedMeetings() {
   usePageTitle('Recorded Meetings')
+
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
+
   const [dateFilter, setDateFilter] = useState('All')
   const [sortBy, setSortBy] = useState('Newest')
   const [selectedMeetingId, setSelectedMeetingId] = useState(null)
   const [activeTab, setActiveTab] = useState('overview')
+
   const meetings = useMemo(() => getAllMeetings(), [])
+
+  // The global header handles search. This page retains its date filter
+  // and sorting controls.
   const recordedMeetings = useMemo(
-    () => getRecordedMeetings(meetings, search, dateFilter, sortBy),
-    [meetings, search, dateFilter, sortBy],
+    () => getRecordedMeetings(meetings, '', dateFilter, sortBy),
+    [meetings, dateFilter, sortBy],
   )
+
+  // Keep pagination and reset it when the filters change.
   const pager = usePagination(
     recordedMeetings,
     6,
-    [search, dateFilter, sortBy].join('|'),
+    [dateFilter, sortBy].join('|'),
   )
 
+  // Keep the selected meeting if it remains in the filtered results.
+  // Otherwise, select the first available result.
   const selectedMeeting =
     recordedMeetings.find(
       (meeting) => meeting.id === selectedMeetingId,
     ) || recordedMeetings[0]
+
+  // Reset the preview tab when the selected meeting changes.
+  useEffect(() => {
+    setActiveTab('overview')
+  }, [selectedMeeting?.id])
+
+  const clearFilters = () => {
+    setDateFilter('All')
+    setSortBy('Newest')
+  }
+
   const openMeetingTab = (tab) => {
     if (!selectedMeeting) return
+
     navigate(
       tab
         ? `/meetings/${selectedMeeting.id}?tab=${tab}`
@@ -103,22 +142,57 @@ export default function RecordedMeetings() {
       { state: { meeting: selectedMeeting } },
     )
   }
+
   return (
-    <PageShell
-      title="Recorded Meetings"
-      subtitle="Find recordings, transcripts and meeting notes from your meetings."
-    >
+    <PageShell>
       <Stack spacing={1.5} sx={{ minWidth: 0 }}>
-        <RecordedFilters
-          search={search}
-          onSearchChange={setSearch}
-          dateFilters={DATE_FILTERS}
-          dateFilter={dateFilter}
-          onDateFilterChange={setDateFilter}
-          sortOptions={RECORDED_SORT_OPTIONS}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-        />
+        {/* Page heading and filters */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: { xs: 'stretch', md: 'center' },
+            justifyContent: 'space-between',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 1.5,
+            minWidth: 0,
+          }}
+        >
+          <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
+            <Typography
+              component="h1"
+              sx={{
+                fontSize: { xs: '1.15rem', sm: '1.3rem' },
+                lineHeight: 1.35,
+                fontWeight: 750,
+                color: COLORS.navy,
+              }}
+            >
+              Recorded Meetings
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 0.4,
+                fontSize: '0.8125rem',
+                lineHeight: 1.5,
+                color: COLORS.muted,
+              }}
+            >
+              Find recordings, transcripts and meeting notes from your meetings.
+            </Typography>
+          </Box>
+
+          <RecordedFilters
+            dateFilters={DATE_FILTERS}
+            dateFilter={dateFilter}
+            onDateFilterChange={setDateFilter}
+            sortOptions={RECORDED_SORT_OPTIONS}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
+        </Box>
+
+        {/* Archive and selected meeting preview */}
         <Box
           sx={{
             display: 'grid',
@@ -135,13 +209,15 @@ export default function RecordedMeetings() {
           <Paper
             elevation={0}
             sx={{
+              minWidth: 0,
               height: '100%',
               boxSizing: 'border-box',
-              minWidth: 0,
               overflow: 'hidden',
               border: `1px solid ${COLORS.border}`,
               borderRadius: '12px',
               bgcolor: '#fff',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <Box
@@ -164,6 +240,7 @@ export default function RecordedMeetings() {
                 >
                   Meeting archive
                 </Typography>
+
                 <Typography
                   sx={{
                     mt: 0.25,
@@ -174,6 +251,7 @@ export default function RecordedMeetings() {
                   Select a meeting to view its content.
                 </Typography>
               </Box>
+
               <Chip
                 size="small"
                 label={`${recordedMeetings.length} ${
@@ -190,27 +268,24 @@ export default function RecordedMeetings() {
                 }}
               />
             </Box>
+
             <Divider sx={{ borderColor: COLORS.border }} />
+
             {recordedMeetings.length === 0 ? (
-              <Box sx={{ p: 2 }}>
+              <Box sx={{ p: 2, flex: 1 }}>
                 <EmptyPanel
                   title="No recorded meetings"
                   minHeight={140}
                   action={
-                    search || dateFilter !== 'All' ? (
-                      <Button
-                        onClick={() => {
-                          setSearch('')
-                          setDateFilter('All')
-                        }}
-                      >
+                    dateFilter !== 'All' ? (
+                      <Button onClick={clearFilters}>
                         Clear filters
                       </Button>
                     ) : undefined
                   }
                 >
-                  {search || dateFilter !== 'All'
-                    ? 'No recorded meetings match your search or filters.'
+                  {dateFilter !== 'All'
+                    ? 'No recorded meetings match the selected date filter.'
                     : 'Meetings that MeetAI records will appear here.'}
                 </EmptyPanel>
               </Box>
@@ -219,11 +294,13 @@ export default function RecordedMeetings() {
                 data-tour="recorded-meeting-list"
                 spacing={0}
                 divider={<Divider sx={{ borderColor: '#EDF1F5' }} />}
+                sx={{ flex: 1 }}
               >
                 {pager.pageItems.map((meeting) => {
                   const selected = meeting.id === selectedMeeting?.id
                   const participantCount = meeting.participants?.length || 0
                   const available = Boolean(meeting.recording?.available)
+
                   return (
                     <Box
                       key={meeting.id}
@@ -250,7 +327,9 @@ export default function RecordedMeetings() {
                         cursor: 'pointer',
                         font: 'inherit',
                         transition: 'background-color 140ms ease',
-                        '&:hover': { bgcolor: '#F5F9FC' },
+                        '&:hover': {
+                          bgcolor: '#F5F9FC',
+                        },
                         '&:focus-visible': {
                           outline: `2px solid ${COLORS.blue}`,
                           outlineOffset: '-2px',
@@ -260,7 +339,10 @@ export default function RecordedMeetings() {
                       <Stack
                         direction="row"
                         spacing={1.1}
-                        sx={{ alignItems: 'center', minWidth: 0 }}
+                        sx={{
+                          alignItems: 'center',
+                          minWidth: 0,
+                        }}
                       >
                         <Box
                           sx={{
@@ -277,6 +359,7 @@ export default function RecordedMeetings() {
                         >
                           <VideoLibraryOutlinedIcon sx={{ fontSize: 19 }} />
                         </Box>
+
                         <Box sx={{ flex: 1, minWidth: 0 }}>
                           <Typography
                             noWrap
@@ -289,6 +372,7 @@ export default function RecordedMeetings() {
                           >
                             {meeting.title}
                           </Typography>
+
                           <Typography
                             noWrap
                             sx={{
@@ -305,6 +389,7 @@ export default function RecordedMeetings() {
                             {' – '}
                             {formatMeetingTime(meeting.end)}
                           </Typography>
+
                           <Stack
                             direction="row"
                             spacing={1.25}
@@ -315,7 +400,10 @@ export default function RecordedMeetings() {
                             }}
                           >
                             <Typography
-                              sx={{ fontSize: '0.75rem', color: COLORS.text }}
+                              sx={{
+                                fontSize: '0.75rem',
+                                color: COLORS.text,
+                              }}
                             >
                               <GroupsOutlinedIcon
                                 sx={{
@@ -326,8 +414,12 @@ export default function RecordedMeetings() {
                               />
                               {participantCount} participants
                             </Typography>
+
                             <Typography
-                              sx={{ fontSize: '0.75rem', color: COLORS.muted }}
+                              sx={{
+                                fontSize: '0.75rem',
+                                color: COLORS.muted,
+                              }}
                             >
                               <AccessTimeOutlinedIcon
                                 sx={{
@@ -340,11 +432,16 @@ export default function RecordedMeetings() {
                             </Typography>
                           </Stack>
                         </Box>
+
                         <Stack
                           spacing={0.75}
-                          sx={{ alignItems: 'flex-end', justifyContent: 'space-between', alignSelf: 'stretch',
+                          sx={{
+                            alignItems: 'flex-end',
+                            justifyContent: 'space-between',
+                            alignSelf: 'stretch',
                             flexShrink: 0,
-                            minWidth: 0, }}
+                            minWidth: 0,
+                          }}
                         >
                           <Box
                             sx={{
@@ -354,9 +451,13 @@ export default function RecordedMeetings() {
                               px: 0.9,
                               py: 0.45,
                               borderRadius: '12px',
-                              bgcolor: available ? COLORS.paleGreen : '#F2F4F6',
-                              color: available ? COLORS.green : COLORS.muted,
-                              fontSize: '0.75rem',
+                              bgcolor: available
+                                ? COLORS.paleGreen
+                                : '#F2F4F6',
+                              color: available
+                                ? COLORS.green
+                                : COLORS.muted,
+                              fontSize: '0.7rem',
                               lineHeight: 1.2,
                               fontWeight: 700,
                               whiteSpace: 'nowrap',
@@ -364,6 +465,7 @@ export default function RecordedMeetings() {
                           >
                             {available ? 'Recording ready' : 'No recording'}
                           </Box>
+
                           <ChevronRightRoundedIcon
                             sx={{
                               fontSize: 17,
@@ -378,29 +480,36 @@ export default function RecordedMeetings() {
               </Stack>
             )}
 
+            {/* Keep the existing pagination */}
             <PaginationBar pager={pager} label="meetings" />
           </Paper>
+
           {/* Selected meeting preview */}
           {selectedMeeting && (
             <Paper
               elevation={0}
               sx={{
+                minWidth: 0,
                 height: '100%',
                 boxSizing: 'border-box',
-                minWidth: 0,
                 overflow: 'hidden',
                 border: `1px solid ${COLORS.border}`,
                 borderRadius: '12px',
                 bgcolor: '#fff',
                 position: { lg: 'sticky' },
                 top: { lg: 12 },
+                alignSelf: 'stretch',
               }}
             >
               <Box sx={{ p: 1.6 }}>
                 <Stack
                   direction="row"
                   spacing={1}
-                  sx={{ alignItems: 'flex-start', justifyContent: 'space-between', minWidth: 0 }}
+                  sx={{
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    minWidth: 0,
+                  }}
                 >
                   <Box sx={{ flex: '1 1 150px', minWidth: 0 }}>
                     <Typography
@@ -414,6 +523,7 @@ export default function RecordedMeetings() {
                     >
                       {selectedMeeting.title}
                     </Typography>
+
                     <Typography
                       sx={{
                         mt: 0.35,
@@ -424,6 +534,7 @@ export default function RecordedMeetings() {
                       {selectedMeeting.platform}
                     </Typography>
                   </Box>
+
                   <Box
                     sx={{
                       display: 'inline-flex',
@@ -441,7 +552,7 @@ export default function RecordedMeetings() {
                       color: selectedMeeting.recording?.available
                         ? COLORS.green
                         : COLORS.muted,
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       lineHeight: 1.2,
                       fontWeight: 700,
                       whiteSpace: 'nowrap',
@@ -452,12 +563,19 @@ export default function RecordedMeetings() {
                       : 'Recording unavailable'}
                   </Box>
                 </Stack>
+
                 <Stack spacing={0.9} sx={{ mt: 1.5 }}>
-                  <Stack direction="row" spacing={0.9} sx={{ alignItems: 'center' }}>
+                  <Stack
+                    direction="row"
+                    spacing={0.9}
+                    sx={{ alignItems: 'center' }}
+                  >
                     <CalendarTodayOutlinedIcon
                       sx={{ fontSize: 16, color: COLORS.blue }}
                     />
-                    <Typography sx={{ fontSize: '0.75rem', color: COLORS.text }}>
+                    <Typography
+                      sx={{ fontSize: '0.75rem', color: COLORS.text }}
+                    >
                       {formatMeetingDate(selectedMeeting.start)}
                       {' · '}
                       {formatMeetingTime(selectedMeeting.start)}
@@ -465,25 +583,41 @@ export default function RecordedMeetings() {
                       {formatMeetingTime(selectedMeeting.end)}
                     </Typography>
                   </Stack>
-                  <Stack direction="row" spacing={0.9} sx={{ alignItems: 'center' }}>
+
+                  <Stack
+                    direction="row"
+                    spacing={0.9}
+                    sx={{ alignItems: 'center' }}
+                  >
                     <GroupsOutlinedIcon
                       sx={{ fontSize: 16, color: COLORS.blue }}
                     />
-                    <Typography sx={{ fontSize: '0.75rem', color: COLORS.text }}>
+                    <Typography
+                      sx={{ fontSize: '0.75rem', color: COLORS.text }}
+                    >
                       {selectedMeeting.participants?.length || 0} participants
                     </Typography>
                   </Stack>
-                  <Stack direction="row" spacing={0.9} sx={{ alignItems: 'center' }}>
+
+                  <Stack
+                    direction="row"
+                    spacing={0.9}
+                    sx={{ alignItems: 'center' }}
+                  >
                     <AccessTimeOutlinedIcon
                       sx={{ fontSize: 16, color: COLORS.blue }}
                     />
-                    <Typography sx={{ fontSize: '0.75rem', color: COLORS.text }}>
+                    <Typography
+                      sx={{ fontSize: '0.75rem', color: COLORS.text }}
+                    >
                       {getMeetingDuration(selectedMeeting)}
                     </Typography>
                   </Stack>
                 </Stack>
               </Box>
+
               <Divider sx={{ borderColor: COLORS.border }} />
+
               <Tabs
                 value={activeTab}
                 onChange={(_, value) => setActiveTab(value)}
@@ -498,7 +632,7 @@ export default function RecordedMeetings() {
                     px: 0.35,
                     py: 0.75,
                     textTransform: 'none',
-                    fontSize: '0.75rem',
+                    fontSize: '0.7rem',
                     fontWeight: 650,
                     color: COLORS.muted,
                     whiteSpace: 'nowrap',
@@ -513,22 +647,26 @@ export default function RecordedMeetings() {
                 }}
               >
                 <Tab value="overview" label="Overview" />
+
                 <Tab
                   value="recording"
                   label="Recording"
                   disabled={!selectedMeeting.recording?.available}
                 />
+
                 <Tab
                   value="transcript"
                   label="Transcript"
                   disabled={!selectedMeeting.transcript?.available}
                 />
+
                 <Tab
                   value="notes"
                   label="Notes"
                   disabled={!selectedMeeting.meetingNotes?.available}
                 />
               </Tabs>
+
               <Box sx={{ p: 1.6, minHeight: 145 }}>
                 {activeTab === 'overview' && (
                   <Stack spacing={1.2}>
@@ -541,23 +679,27 @@ export default function RecordedMeetings() {
                     >
                       Meeting content
                     </Typography>
+
                     <Stack spacing={0.7} sx={{ width: '100%' }}>
                       <AvailabilityBadge
                         icon={<PlayArrowRoundedIcon />}
                         label="Recording"
                         available={selectedMeeting.recording?.available}
                       />
+
                       <AvailabilityBadge
                         icon={<DescriptionOutlinedIcon />}
                         label="Transcript"
                         available={selectedMeeting.transcript?.available}
                       />
+
                       <AvailabilityBadge
                         icon={<NotesOutlinedIcon />}
                         label="Meeting notes"
                         available={selectedMeeting.meetingNotes?.available}
                       />
                     </Stack>
+
                     <Typography
                       sx={{
                         fontSize: '0.75rem',
@@ -569,14 +711,29 @@ export default function RecordedMeetings() {
                     </Typography>
                   </Stack>
                 )}
+
                 {activeTab === 'recording' && (
                   <Stack spacing={1}>
-                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: COLORS.navy }}>
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: COLORS.navy,
+                      }}
+                    >
                       Recording ready to view
                     </Typography>
-                    <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.55, color: COLORS.muted }}>
+
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        lineHeight: 1.55,
+                        color: COLORS.muted,
+                      }}
+                    >
                       Open the meeting workspace to watch this recording.
                     </Typography>
+
                     <Button
                       size="small"
                       variant="contained"
@@ -594,46 +751,86 @@ export default function RecordedMeetings() {
                     </Button>
                   </Stack>
                 )}
+
                 {activeTab === 'transcript' && (
                   <Stack spacing={1}>
-                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: COLORS.navy }}>
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: COLORS.navy,
+                      }}
+                    >
                       Transcript available
                     </Typography>
-                    <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.55, color: COLORS.muted }}>
+
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        lineHeight: 1.55,
+                        color: COLORS.muted,
+                      }}
+                    >
                       Open the meeting workspace to read the transcript.
                     </Typography>
+
                     <Button
                       size="small"
                       variant="outlined"
                       startIcon={<DescriptionOutlinedIcon />}
                       onClick={() => openMeetingTab('transcript')}
-                      sx={{ alignSelf: 'flex-start', textTransform: 'none', fontSize: '0.75rem' }}
+                      sx={{
+                        alignSelf: 'flex-start',
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                      }}
                     >
                       View transcript
                     </Button>
                   </Stack>
                 )}
+
                 {activeTab === 'notes' && (
                   <Stack spacing={1}>
-                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: COLORS.navy }}>
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: COLORS.navy,
+                      }}
+                    >
                       Meeting notes available
                     </Typography>
-                    <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.55, color: COLORS.muted }}>
+
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        lineHeight: 1.55,
+                        color: COLORS.muted,
+                      }}
+                    >
                       Open the meeting workspace to review its notes.
                     </Typography>
+
                     <Button
                       size="small"
                       variant="outlined"
                       startIcon={<NotesOutlinedIcon />}
                       onClick={() => openMeetingTab('notes')}
-                      sx={{ alignSelf: 'flex-start', textTransform: 'none', fontSize: '0.75rem' }}
+                      sx={{
+                        alignSelf: 'flex-start',
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                      }}
                     >
                       View meeting notes
                     </Button>
                   </Stack>
                 )}
               </Box>
+
               <Divider sx={{ borderColor: COLORS.border }} />
+
               <Box sx={{ p: 1.4 }}>
                 <Button
                   fullWidth

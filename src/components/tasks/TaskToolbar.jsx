@@ -74,24 +74,6 @@ export default function TaskToolbar({
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', minWidth: 0 }}>
-        <TextField
-          size="small"
-          type="search"
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search tasks"
-          slotProps={{
-            htmlInput: { 'aria-label': 'Search tasks' },
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchOutlined fontSize="small" />
-                </InputAdornment>
-              ),
-            },
-          }}
-          sx={{ flex: { xs: '1 1 100%', md: '0 0 220px' }, '& .MuiOutlinedInput-root': controlSx }}
-        />
 
         <ToolbarSelect
           value={dueDate}

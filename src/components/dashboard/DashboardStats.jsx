@@ -31,7 +31,7 @@ const METRICS = [
   },
   {
     key: 'actionCount',
-    label: 'Action items',
+    label: 'Pending Action Items',
     icon: TaskAltOutlinedIcon,
     iconColor: '#7552D8',
     iconBg: '#F0EBFF',
